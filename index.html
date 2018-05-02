@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>	
+	<meta charset="utf-8">
+	<title></title>
+	<style type="text/css">
+		#three{
+			width:600px;
+			height: 600px;
+		}
+	</style>
+	<script type="text/javascript" src="jquery.min.js"></script>
+	<script type="text/javascript" src="three.js"></script>
+</head>
+<body>
+	<div id="three"></div>
+</body>
+<script type="text/javascript">
+	var scene;
+	function initScene(){
+		scene=new THREE.Scene();
+	}
+
+	var camera;
+	function initCamera(){
+		camera=new THREE.PerspectiveCamera( 75, $("#three").width()/$("#three").height(), 0.1, 1000 );
+		camera.position.z=15;
+	}
+	// var cube;
+	// function initObj(){
+	// 	var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+	// 	var material = new THREE.MeshLambertMaterial( { color: 0x00ff00 } );
+	// 	cube = new THREE.Mesh( geometry, material );
+	// 	scene.add( cube );
+	// }
+
+	var ball;
+	function addBall(){
+		ball=new THREE.SphereGeometry( 5, 16, 16 );
+		var material = new THREE.MeshLambertMaterial( {color: 0xffff00} );
+		var sphere = new THREE.Mesh( ball, material );
+		scene.add(sphere);
+	}
+
+	var renderer;
+	function initRenderer(){
+		renderer=new THREE.WebGLRenderer();
+		renderer.setSize( $("#three").width(), $("#three").height() );
+		$("#three").append( renderer.domElement );
+	}
+
+	var light;
+	function initLight(){
+		light = new THREE.DirectionalLight( 0xffffff, 1 );
+		light.position.set( 0, 0, 3 );
+		scene.add( light );
+	}
+
+	function initAll(){
+		initScene();
+		initCamera();
+		addBall();
+		initLight();
+		initRenderer();
+		renderer.render(scene,camera)
+	}
+	initAll();
+
+	function animate(){
+		requestAnimationFrame(animate);
+		ball.phiStart += 0.1;
+		// ball.rotation.y += 0.1;
+		// ball.rotation.z += 0.1;
+		renderer.render(scene, camera);
+	}
+	animate();
+</script>
+</html>
