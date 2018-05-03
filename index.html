@@ -1,78 +1,194 @@
 <!DOCTYPE html>
 <html>
-<head>	
-	<meta charset="utf-8">
-	<title></title>
-	<style type="text/css">
-		#three{
-			width:600px;
-			height: 600px;
-		}
-	</style>
-	<script type="text/javascript" src="jquery.min.js"></script>
-	<script type="text/javascript" src="three.js"></script>
+
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <style type="text/css">
+    #three {
+        width: 600px;
+        height: 600px;
+    }
+    </style>
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="three.js"></script>
+    <script type="text/javascript" src="three.js"></script>
 </head>
+
 <body>
-	<div id="three"></div>
+    <div id="three"></div>
 </body>
 <script type="text/javascript">
-	var scene;
-	function initScene(){
-		scene=new THREE.Scene();
-	}
+var scene;
 
-	var camera;
-	function initCamera(){
-		camera=new THREE.PerspectiveCamera( 75, $("#three").width()/$("#three").height(), 0.1, 1000 );
-		camera.position.z=15;
-	}
-	// var cube;
-	// function initObj(){
-	// 	var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-	// 	var material = new THREE.MeshLambertMaterial( { color: 0x00ff00 } );
-	// 	cube = new THREE.Mesh( geometry, material );
-	// 	scene.add( cube );
-	// }
+function initScene() {
+    scene = new THREE.Scene();
+    // scene.set()
+}
 
-	var ball;
-	function addBall(){
-		ball=new THREE.SphereGeometry( 5, 16, 16 );
-		var material = new THREE.MeshLambertMaterial( {color: 0xffff00} );
-		var sphere = new THREE.Mesh( ball, material );
-		scene.add(sphere);
-	}
+var camera;
 
-	var renderer;
-	function initRenderer(){
-		renderer=new THREE.WebGLRenderer();
-		renderer.setSize( $("#three").width(), $("#three").height() );
-		$("#three").append( renderer.domElement );
-	}
+function initCamera() {
+    camera = new THREE.PerspectiveCamera(75, $("#three").width() / $("#three").height(), 0.1, 1000);
+    camera.position.z = 15;
+}
+// var cube;
+// function initObj(){
+// 	var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+// 	var material = new THREE.MeshLambertMaterial( { color: 0x00ff00 } );
+// 	cube = new THREE.Mesh( geometry, material );
+// 	scene.add( cube );
+// }
 
-	var light;
-	function initLight(){
-		light = new THREE.DirectionalLight( 0xffffff, 1 );
-		light.position.set( 0, 0, 3 );
-		scene.add( light );
-	}
+var sphere;
 
-	function initAll(){
-		initScene();
-		initCamera();
-		addBall();
-		initLight();
-		initRenderer();
-		renderer.render(scene,camera)
-	}
-	initAll();
+function addBall() {
+    var ball = new THREE.IcosahedronGeometry(1, 0);
+    var material = new THREE.MeshLambertMaterial({ color: 0xffffff });
+    sphere = new THREE.Mesh(ball, material);
+    scene.add(sphere);
+}
 
-	function animate(){
-		requestAnimationFrame(animate);
-		ball.phiStart += 0.1;
-		// ball.rotation.y += 0.1;
-		// ball.rotation.z += 0.1;
-		renderer.render(scene, camera);
-	}
-	animate();
+var textures = [];
+
+function addTexture() {
+    var texture = new THREE.TextureLoader().load('wb.png');
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(1, 1);
+    textures.push(texture);
+}
+
+var circles = [];
+
+function addCircle() {
+    var geometry = new THREE.CircleGeometry(1, 64);
+    var material = new THREE.LineDashedMaterial({ color: 0xffffff, map: textures[0] });
+    var circle = new THREE.Mesh(geometry, material);
+    circle.position.x = 4;
+    circle.position.y = 4;
+    scene.add(circle);
+    circles.push(circle)
+}
+
+var diygeometry;
+
+function addGeometry() {
+    diygeometry = new THREE.Geometry();
+    var point1 = new THREE.Vecotr3(0, 0, 0);
+    var point2 = new THREE.Vecotr3(1, 1, 0);
+    var color1 = new THREE.Color(0x444444);
+    var color1 = new THREE.Color(0xff0000);
+    diygeometry.vertices.push(p1);
+    diygeometry.vertices.push(p2);
+    diygeometry.colors.push(color1, color2)
+}
+
+var renderer;
+
+function initRenderer() {
+    renderer = new THREE.WebGLRenderer();
+    renderer.setSize($("#three").width(), $("#three").height());
+    renderer.setClearColor(0xffffff);
+    $("#three").append(renderer.domElement);
+}
+
+var light;
+
+function initLight() {
+    light = new THREE.DirectionalLight(0xffffff);
+    light.position.set(0, 0, 4);
+    scene.add(light);
+}
+
+var line;
+
+var group, group1;
+
+function addLine() {
+    var point1 = new THREE.Vector3(-5, 5, 0);
+    var point2 = new THREE.Vector3(5, 5, 0);
+    var geo = new THREE.Geometry();
+    geo.vertices.push(point1, point2);
+    var material = new THREE.LineBasicMaterial({ color: 0xffaa00 });
+    line = new THREE.Line(geo, material);
+    line.computeLineDistances();
+    group = new THREE.Group();
+    for (var i = 0; i < 11; i++) {
+        line.position.y -= 1;
+        group.add(line.clone());
+    }
+    group.translateX(2);
+    scene.add(group);;
+    group1 = group.clone().translateX(-2).rotateZ(Math.PI / 2).translateY(-1).translateX(-1);
+    scene.add(group1)
+    // group.rotation.y+=Math.PI/2;
+    // group1.rotation.y+=Math.PI/2;
+    console.log(group.rotation.y)
+}
+
+var box;
+
+function addBox() {
+    var geometry = new THREE.BoxGeometry(3, 3, 3);
+    for (var i = 0; i < geometry.faces.length; i += 2) {
+        var hex = Math.random() * 0xffffff;
+        geometry.faces[i].color.set(hex);
+        geometry.faces[i + 1].color.setHex(hex);
+    }
+    var material = new THREE.MeshPhongMaterial({ vertexColors: THREE.FaceColors });
+    box = new THREE.Mesh(geometry, material);
+    scene.add(box);
+}
+var trangles = [];
+
+function addTrangles() {
+    var geo = new THREE.Geometry();
+    var point1 = new THREE.Vector3(0, 0, 0);
+    var point2 = new THREE.Vector3(-1, 1, 0);
+    var point3 = new THREE.Vector3(1, 0, 0);
+    geo.vertices.push(point1, point2, point3);
+    var normal = new THREE.Vector3( 0, 1, 0 ); //三角面法向量
+    var face = new THREE.Face3(0, 1, 2,normal);
+    geo.faces.push(face);
+    // geo.faces[0].color.setHex(0xff0000)
+    geo.computeFaceNormals();
+    geo.computeVertexNormals();
+    var material = new THREE.MeshPhongMaterial({ color: 0xff0000 ,side:THREE.DoubleSide});
+    var trangle = new THREE.Mesh(geo, material);
+    
+
+
+
+    scene.add(trangle);
+}
+
+function initAll() {
+    initScene();
+    initCamera();
+    addTexture();
+    // addBox();
+    // addCircle();
+    // addBall();
+    addTrangles();
+    addLine();
+    initLight();
+    initRenderer();
+    renderer.render(scene, camera)
+}
+initAll();
+
+function animate() {
+    requestAnimationFrame(animate);
+    // camera.rotation.y += 0.01;
+    // camera.rotation.z += 0.01;
+    // group.rotation.y+=Math.PI/100;
+    // group1.rotation.y+=Math.PI/100;
+    box.rotation.y += 0.01;
+    box.rotation.x += 0.01;
+    renderer.render(scene, camera);
+}
+// animate();
 </script>
+
 </html>
