@@ -140,7 +140,7 @@ function addBox() {
     box = new THREE.Mesh(geometry, material);
     scene.add(box);
 }
-var trangles = [];
+var trangles = new THREE.Group();
 
 function addTrangles() {
     var geo = new THREE.Geometry();
@@ -157,10 +157,11 @@ function addTrangles() {
     var material = new THREE.MeshPhongMaterial({ color: 0xff0000 ,side:THREE.DoubleSide});
     var trangle = new THREE.Mesh(geo, material);
     
+    trangles.add(trangle);
 
 
 
-    scene.add(trangle);
+    scene.add(trangles);
 }
 
 function initAll() {
