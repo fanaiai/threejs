@@ -12,14 +12,28 @@
     </style>
     <script type="text/javascript" src="jquery.min.js"></script>
     <script type="text/javascript" src="three.js"></script>
-    <script type="text/javascript" src="three.js"></script>
+    <script type="text/javascript" src="stats.min.js"></script>
 </head>
 
 <body>
     <div id="three"></div>
+    <div id="Stats-output"></div>
 </body>
 <script type="text/javascript">
 var scene;
+var stats=initStats();
+function initStats() {
+            var stats = new Stats();
+            //设置统计模式
+            stats.setMode(0); // 0: fps, 1: ms
+            //统计信息显示在左上角
+            stats.domElement.style.position = 'absolute';
+            stats.domElement.style.left = '0px';
+            stats.domElement.style.top = '0px';
+            //将统计对象添加到对应的<div>元素中
+            document.getElementById("Stats-output").appendChild(stats.domElement);
+            return stats;
+        }
 
 function initScene() {
     scene = new THREE.Scene();
@@ -141,27 +155,68 @@ function addBox() {
     scene.add(box);
 }
 var trangles = new THREE.Group();
-
+var trangle;
 function addTrangles() {
-    var geo = new THREE.Geometry();
-    var point1 = new THREE.Vector3(0, 0, 0);
-    var point2 = new THREE.Vector3(-1, 1, 0);
-    var point3 = new THREE.Vector3(1, 0, 0);
-    geo.vertices.push(point1, point2, point3);
-    var normal = new THREE.Vector3( 0, 1, 0 ); //三角面法向量
-    var face = new THREE.Face3(0, 1, 2,normal);
-    geo.faces.push(face);
-    // geo.faces[0].color.setHex(0xff0000)
-    geo.computeFaceNormals();
-    geo.computeVertexNormals();
-    var material = new THREE.MeshPhongMaterial({ color: 0xff0000 ,side:THREE.DoubleSide});
-    var trangle = new THREE.Mesh(geo, material);
-    
-    trangles.add(trangle);
+	var n=10,n2=n/2;
+	var geometry=new THREE.BufferGeometry();
+	var size=300000;
+	var position={itemSize:size,array:new Float32Array(size*3*3),numItems:size*3*3},color=new Float32Array(size * 3 * 3);
+	for(var i=0;i<size*3*3;i+=9){
+		var x=Math.random()*n -n2;
+		var y=Math.random()*n -n2;
+		var z=Math.random()*n -n2;
 
+		var d=0.4,d2=d/2;
 
+		var ax=x+Math.random()*d -d2;
+		var ay=y+Math.random()*d -d2;
+		var az=z+Math.random()*d -d2;
+		var bx=x+Math.random()*d -d2;
+		var by=y+Math.random()*d -d2;
+		var bz=z+Math.random()*d -d2;
+		var cx=x+Math.random()*d -d2;
+		var cy=y+Math.random()*d -d2;
+		var cz=z+Math.random()*d -d2;
 
-    scene.add(trangles);
+		position.array[i]=ax;
+		position.array[i+1]=ay;
+		position.array[i+2]=az;
+		position.array[i+3]=bx;
+		position.array[i+4]=by;
+		position.array[i+5]=bz;
+		position.array[i+6]=cx;
+		position.array[i+7]=cy;
+		position.array[i+8]=cz;
+
+	}
+	for(var i=0;i<size*3*3;i+=3){
+		var c=new THREE.Color();
+		c.setRGB(Math.random(),Math.random(),Math.random());
+		color[i]=c.r;
+		color[i+1]=c.g;
+		color[i+2]=c.b;
+	}
+
+	geometry.addAttribute('position',new THREE.BufferAttribute(position.array,3))
+	geometry.addAttribute('color',new THREE.BufferAttribute(color,3))
+	// console.log(geometry)
+
+    // var geo = new THREE.Geometry();
+    // var point1 = new THREE.Vector3(0, 0, 0);
+    // var point2 = new THREE.Vector3(-1, 1, 0);
+    // var point3 = new THREE.Vector3(1, 0, 0);
+    // geo.vertices.push(point1, point2, point3);
+    // // var normal = new THREE.Vector3( 0, 1, 0 ); //三角面法向量
+    // var face = new THREE.Face3(0, 1, 2);
+    // geo.faces.push(face);
+    // geo.faces[0].color.setRGB(Math.random(),Math.random(),Math.random());
+    // console.log(geo.faces[0].color)
+    // // geo.faces[0].color.setHex(0xff0000)
+    // geo.computeFaceNormals();
+    // geo.computeVertexNormals();
+    var material = new THREE.MeshBasicMaterial({vertexColors:THREE.VertexColors,side:THREE.DoubleSide});
+    trangle = new THREE.Mesh(geometry, material);
+    scene.add(trangle);
 }
 
 function initAll() {
@@ -171,8 +226,9 @@ function initAll() {
     // addBox();
     // addCircle();
     // addBall();
+    // addCircle();
     addTrangles();
-    addLine();
+    // addLine();
     initLight();
     initRenderer();
     renderer.render(scene, camera)
@@ -181,12 +237,13 @@ initAll();
 
 function animate() {
     requestAnimationFrame(animate);
+    stats.update();
     // camera.rotation.y += 0.01;
     // camera.rotation.z += 0.01;
     // group.rotation.y+=Math.PI/100;
     // group1.rotation.y+=Math.PI/100;
-    box.rotation.y += 0.01;
-    box.rotation.x += 0.01;
+    trangle.rotation.y += 0.01;
+    trangle.rotation.x += 0.01;
     renderer.render(scene, camera);
 }
 // animate();
