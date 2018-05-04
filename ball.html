@@ -68,7 +68,7 @@ function addBall() {
         renderer.render(scene, camera);
     });
     geometry = new THREE.SphereGeometry(5, 32, 32);
-    var material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
+    var material = new THREE.MeshLambertMaterial({ map: texture, transparent: true });
     sphere = new THREE.Mesh(geometry, material);
     sphere.rotation.z = Math.PI / 4;
     scene.add(sphere);
@@ -126,7 +126,7 @@ function initAll() {
     addItems();
     addearchcircle();
     
-    // initLight();
+    initLight();
     renderer.render(scene, camera)
 }
 initAll();
@@ -173,15 +173,13 @@ function animate() {
         else{
             items[i].position.z+=0.1;
         }
-        scene.remove(earchcircle)
+        // scene.remove(earchcircle)
         if(Math.abs(items[i].position.x)<=5/3 || Math.abs(items[i].position.y)<=5/3){
+            
             scene.remove(items[i])
             items.splice(i,1);
-            // sphere.scale.x=1.01;
-            // sphere.scale.y=1.01;
-            // sphere.scale.z=1.01;
             addItem(imgpaths[Math.round(Math.random()*4)]);
-            scene.add(earchcircle)
+            // scene.add(earchcircle)
             
         }
     }
