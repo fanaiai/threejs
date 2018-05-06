@@ -51,8 +51,9 @@ function initCamera() {
 
 var box;
 function addBox() {
+    var map=new THREE.TextureLoader().load('pic1.png');
     var geometry = new THREE.BoxBufferGeometry(100,100,100,4,4,4);
-    var material = new THREE.MeshBasicMaterial({ color:0xffffff, transparent: true ,wireframe:true,opacity:0.1,side:THREE.DoubleSide});
+    var material = new THREE.MeshBasicMaterial({ map:map,color:0xffffff, transparent: true ,wireframe:false,opacity:1,side:THREE.DoubleSide});
     box = new THREE.Mesh(geometry, material);
     scene.add(box);
 }
@@ -63,6 +64,23 @@ function addSphere() {
     var material = new THREE.MeshBasicMaterial({ color:0x00ff00, transparent: true ,wireframe:false,opacity:0.5,side:THREE.DoubleSide});
     sphere = new THREE.Mesh(geometry, material);
     scene.add(sphere);
+}
+
+var circle;
+function addCircle(){
+    var geometry = new THREE.CircleBufferGeometry( 120, 1 );
+    var material = new THREE.MeshBasicMaterial({ color:0x00ffff, transparent: true ,wireframe:true,opacity:0.2,side:THREE.DoubleSide});
+    circle = new THREE.Mesh(geometry, material);
+    scene.add(circle);
+}
+
+var earth;
+function addEarth(){
+    var map=new THREE.TextureLoader().load('img/earth_12.png');
+    var geometry = new THREE.SphereBufferGeometry( 100,64,64);
+    var material = new THREE.MeshBasicMaterial({ map:map,color:0x00ccff, transparent: true ,wireframe:false,opacity:0.5,side:THREE.DoubleSide});
+    earth = new THREE.Mesh(geometry, material);
+    scene.add(earth);
 }
 
 var renderer;
@@ -84,9 +102,11 @@ function initAll() {
     initScene();
     initCamera();
     initRenderer();
-    addBox();
-    addSphere();
-    initLight();
+    // addBox();
+    // addSphere();
+    // addCircle();
+    addEarth();
+    // initLight();
     renderer.render(scene, camera)
 }
 initAll();
@@ -95,10 +115,16 @@ var up = true;
 function animate() {
     requestAnimationFrame(animate);
     stats.update();
-    box.rotation.y+=0.01
-    box.rotation.x+=0.01
-    sphere.rotation.y-=0.01
-    sphere.rotation.x-=0.01
+    earth.rotation.y+=0.01
+    earth.rotation.x+=0.01    
+    earth.rotation.z+=0.01    
+    // box.rotation.y+=0.01
+    // box.rotation.x+=0.01
+    // sphere.rotation.y-=0.01
+    // sphere.rotation.x-=0.01
+    // circle.rotation.y-=0.02
+    // circle.rotation.x-=0.02
+    // circle.rotation.z-=0.02
     renderer.render(scene, camera);
 }
 animate();
