@@ -48,101 +48,81 @@ function initCamera() {
     camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
     // camera = new THREE.OrthographicCamera(width/-2,width/2,height/-2,height/2,1, 1000);
     // camera = new THREE.PerspectiveCamera(75, $("#three").width() / $("#three").height(), 0.1, 1000);
-    camera.position.z = 200;
+    camera.position.z = 300;
     camera.lookAt(0, 0, 200)
 }
 
-var box;
+var leftbox;
 
-function addBox() {
-    var map = new THREE.TextureLoader().load('pic1.png');
-    var geometry = new THREE.BoxBufferGeometry(100, 100, 100, 4, 4, 4);
-    var material = new THREE.MeshBasicMaterial({ map: map, color: 0xffffff, transparent: true, wireframe: false, opacity: 1, side: THREE.DoubleSide });
-    box = new THREE.Mesh(geometry, material);
-    scene.add(box);
-}
-
-var sphere;
-
-function addSphere() {
-    var geometry = new THREE.SphereBufferGeometry(30, 8, 8);
-    var material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, wireframe: false, opacity: 0.5, side: THREE.DoubleSide });
-    sphere = new THREE.Mesh(geometry, material);
-    scene.add(sphere);
-}
-
-var circle;
-
-function addCircle() {
-    var geometry = new THREE.CircleBufferGeometry(120, 1);
-    var material = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, wireframe: true, opacity: 0.2, side: THREE.DoubleSide });
-    circle = new THREE.Mesh(geometry, material);
-    scene.add(circle);
-}
-
-var earths = new THREE.Group();
-
-function addEarth() {
-    var map = new THREE.TextureLoader().load('img/earth_1.png');
-    // var map=new THREE.TextureLoader().load('pic1.png');
-    var geometry = new THREE.SphereBufferGeometry(70, 128, 128);
-    var material = new THREE.MeshBasicMaterial({ map: map, color: new THREE.Color('rgb(71, 85, 169)'), opacity: 0.5, transparent: true, wireframe: true, side: THREE.FrontSide, depthWrite: false });
-    var earth = new THREE.Mesh(geometry, material);
-    earths.add(earth)
-    scene.add(earths);
-}
-
-var earthcircle = [];
-
-function addEarthCircle() {
-    for (var i = 0; i < 3; i++) {
-        var r = Math.random() * 10 + 80;
-        var geometry = new THREE.RingGeometry(r, r - 0.1, 64);
-        var material = new THREE.MeshBasicMaterial({ color: new THREE.Color('rgb(71, 85, 169)'), opacity: 1, transparent: true, wireframe: true, depthWrite: false });
-        var circle = new THREE.Mesh(geometry, material);
-        var rotation = Math.random() * 200 - 100;
-        circle.rotation.x = rotation;
-        circle.rotation.y = rotation;
-        circle.rotation.z = rotation;
-        circle.rotationspeed = Math.random() * 0.02 - 0.01;
-        earthcircle.push(circle)
-        scene.add(circle);
-    }
-}
-
-var cubes = [];
-
-function addCube() {
-    var r = Math.random() * 1 + 1;
-    var geometry = new THREE.BoxBufferGeometry(r, r, r, 4, 4, 4);
+function addLeftBox() {
+    var geometry = new THREE.BoxBufferGeometry(70, 90, 5, 4, 4, 4);
     var material = new THREE.MeshPhongMaterial({ color: 0xffffff, transparent: true, wireframe: false, opacity: 1, side: THREE.DoubleSide });
-    var box = new THREE.Mesh(geometry, material);
-    box.position.x = Math.round(Math.random() * 2 - 1) * (Math.random() * 10 + 110);
-    box.position.y = Math.round(Math.random() * 2 - 1) * (Math.random() * 10 + 110);
-    box.position.z = Math.round(Math.random() * 2 - 1) * (Math.random() * 10 + 110);
-    scene.add(box);
-    cubes.push(box);
+    leftbox = new THREE.Mesh(geometry, material);
+    leftbox.rotation.y = -Math.PI / 4;
+    leftbox.position.x = -100;
+    leftbox.position.z = -30;
+    scene.add(leftbox);
+}
+
+var rightbox;
+
+function addRightBox() {
+    var geometry = new THREE.BoxBufferGeometry(70, 90, 5, 4, 4, 4);
+    var material = new THREE.MeshPhongMaterial({ color: 0xffffff, transparent: true, wireframe: false, opacity: 1, side: THREE.DoubleSide });
+    rightbox = new THREE.Mesh(geometry, material);
+    rightbox.rotation.y = -Math.PI / 4;
+    rightbox.position.x = 100;
+    scene.add(rightbox);
+}
+
+var alpha = 'abcdefghijklmnopqrstuvwxyz'.split('');
+
+function getwords() {
+    var l = parseInt(Math.random() * 5 + 5);
+    var word = '';
+    for (var i = 0; i < l; i++) {
+        var w = alpha[parseInt(Math.random() * 26)];
+        word = word + w;
+    }
+    return word + ' ';
 }
 
 function addText() {
     var loader = new THREE.FontLoader();
     loader.load('font.json', function(font) {
-        var geometry = new THREE.TextGeometry('Hello three.js!', {
+        var geometry = new THREE.TextGeometry(getwords(), {
             font: font,
-            size: 10,
+            size: 5,
             height: 1,
             // curveSegments: 12,
             // bevelEnabled: true,
-            bevelThickness: 1,
+            // bevelThickness: 1,
             // bevelSize: 10,
             // bevelSegments: 5
         });
-        var material = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, wireframe: false, opacity: 0.2, side: THREE.DoubleSide });
+        var material = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: false });
         var text = new THREE.Mesh(geometry, material);
         scene.add(text);
     });
+}
 
-    
+function addCurve() {
+    var startpx=Math.random()*70;
+    var startpy=Math.random()*90;
+    var startpz=-30;
+    var middlex=Math.random()*200-100;
+    var middley=Math.random()*200-100;
+    var curve = new THREE.SplineCurve([
+        new THREE.Vector3(-10, 0),
+        new THREE.Vector3(-5, 5),
+        new THREE.Vector3(0, 0),
+        new THREE.Vector3(5, -5),
+        new THREE.Vector3(10, 0)
+    ]);
+    var points = curve.getPoints(50);
+    var geometry = new THREE.BufferGeometry().setFromPoints(points);
+    var material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+    var splineObject = new THREE.Line(geometry, material);
 }
 
 var renderer;
@@ -157,8 +137,8 @@ function initRenderer() {
 var light;
 
 function initLight() {
-    light = new THREE.DirectionalLight(0x00ffff);
-    light.position.set(0, 0, 404);
+    light = new THREE.DirectionalLight(0xffffff);
+    light.position.set(-100, 0, 404);
     scene.add(light);
 }
 
@@ -166,12 +146,8 @@ function initAll() {
     initScene();
     initCamera();
     initRenderer();
-    // addBox();
-    // addSphere();
-    // addCircle();
-    addEarth();
-    addEarthCircle();
-    addCube();
+    addLeftBox();
+    addRightBox();
     addText();
     initLight();
     renderer.render(scene, camera)
@@ -182,27 +158,27 @@ var up = true;
 function animate() {
     requestAnimationFrame(animate);
     stats.update();
-    earths.rotation.y += 0.005
-    earths.rotation.x += 0.005;
+    // earths.rotation.y += 0.005
+    // earths.rotation.x += 0.005;
 
-    earthcircle.forEach(function(ele) {
-        ele.rotation.y += ele.rotationspeed
-        ele.rotation.x += ele.rotationspeed
-        ele.rotation.z += ele.rotationspeed
-    })
+    // earthcircle.forEach(function(ele) {
+    //     ele.rotation.y += ele.rotationspeed
+    //     ele.rotation.x += ele.rotationspeed
+    //     ele.rotation.z += ele.rotationspeed
+    // })
 
-    cubes.forEach(function(ele, i) {
-        ele.position.y -= 0.2 * (ele.position.y > 0 ? 1 : -1)
-        ele.position.x -= 0.2 * (ele.position.x > 0 ? 1 : -1)
-        ele.position.z -= 0.2 * (ele.position.z > 0 ? 1 : -1)
-        if (Math.sqrt(ele.position.y * ele.position.y + ele.position.x * ele.position.x + ele.position.z * ele.position.z) <= 70) {
-            earths.add(ele);
-            cubes.splice(i, 1);
-        }
-    })
-    if (Math.random() > 0.99) {
-        addCube();
-    }
+    // cubes.forEach(function(ele, i) {
+    //     ele.position.y -= 0.2 * (ele.position.y > 0 ? 1 : -1)
+    //     ele.position.x -= 0.2 * (ele.position.x > 0 ? 1 : -1)
+    //     ele.position.z -= 0.2 * (ele.position.z > 0 ? 1 : -1)
+    //     if (Math.sqrt(ele.position.y * ele.position.y + ele.position.x * ele.position.x + ele.position.z * ele.position.z) <= 70) {
+    //         earths.add(ele);
+    //         cubes.splice(i, 1);
+    //     }
+    // })
+    // if (Math.random() > 0.99) {
+    //     addCube();
+    // }
     // earth.rotation.z+=0.01    
     // box.rotation.y+=0.01
     // box.rotation.x+=0.01
