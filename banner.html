@@ -51,11 +51,27 @@ function initCamera() {
     camera.position.z = 300;
     camera.lookAt(0, 0, 200)
 }
+function getpoints(){
+    var startx=Math.cos(Math.PI*3/4)*(Math.random()*70-135);
+    var starty=Math.random()*90-45;
+    var startz=Math.sin(Math.PI*3/4)*(Math.random()*2 -1)-30;
+    
+    var stopx=Math.cos(Math.PI*3/4)*(Math.random()*70+65);
+    var stopy=Math.random()*90-45;
+    var stopz=Math.cos(Math.PI*3/4)*(Math.random()*2 -1);
+
+    var middlex=Math.random()*(stopx-startx)+startx;
+    var middley=Math.random()*(stopy-starty)+starty;
+    var middlez=Math.random()*(stopz-startz)+startz;
+
+    console.log([[startx,starty,startz],[middlex,middley,middlez],[stopx,stopy,stopz]])
+    return [[startx,starty,startz],[middlex,middley,middlez],[stopx,stopy,stopz]];
+}
 
 var leftbox;
 
 function addLeftBox() {
-    var geometry = new THREE.BoxBufferGeometry(70, 90, 5, 4, 4, 4);
+    var geometry = new THREE.BoxBufferGeometry(70, 90, 1, 4, 4, 4);
     var material = new THREE.MeshPhongMaterial({ color: 0xffffff, transparent: true, wireframe: false, opacity: 1, side: THREE.DoubleSide });
     leftbox = new THREE.Mesh(geometry, material);
     leftbox.rotation.y = -Math.PI / 4;
@@ -87,6 +103,8 @@ function getwords() {
     return word + ' ';
 }
 
+
+
 function addText() {
     var loader = new THREE.FontLoader();
     loader.load('font.json', function(font) {
@@ -107,22 +125,17 @@ function addText() {
 }
 
 function addCurve() {
-    var startpx=Math.random()*70;
-    var startpy=Math.random()*90;
-    var startpz=-30;
-    var middlex=Math.random()*200-100;
-    var middley=Math.random()*200-100;
+    var points=getpoints();
     var curve = new THREE.SplineCurve([
-        new THREE.Vector3(-10, 0),
-        new THREE.Vector3(-5, 5),
-        new THREE.Vector3(0, 0),
-        new THREE.Vector3(5, -5),
-        new THREE.Vector3(10, 0)
+        new THREE.Vector3(points[0][0],points[0][1],points[0][2]),
+        new THREE.Vector3(points[1][0],points[1][1],points[1][2]),
+        new THREE.Vector3(points[2][0],points[2][1],points[2][2])
     ]);
     var points = curve.getPoints(50);
     var geometry = new THREE.BufferGeometry().setFromPoints(points);
     var material = new THREE.LineBasicMaterial({ color: 0xff0000 });
     var splineObject = new THREE.Line(geometry, material);
+    scene.add(splineObject);
 }
 
 var renderer;
@@ -146,6 +159,11 @@ function initAll() {
     initScene();
     initCamera();
     initRenderer();
+    var axes = new THREE.AxisHelper(300);  
+    // axes.rotation.y=Math.PI/4;
+
+    scene.add(axes);  
+    addCurve();
     addLeftBox();
     addRightBox();
     addText();
@@ -158,6 +176,7 @@ var up = true;
 function animate() {
     requestAnimationFrame(animate);
     stats.update();
+    scene.rotation.y+=0.01
     // earths.rotation.y += 0.005
     // earths.rotation.x += 0.005;
 
