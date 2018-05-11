@@ -18,10 +18,32 @@
 <body>
     <div id="three"></div>
     <div id="Stats-output"></div>
-    <div class="aa.1"></div>
+    <div id='clickdom' onclick="clicka(event)">1111</div>
+    <a href="http://baidu.com" id='baidu' target='_blank'>34</a>
 </body>
 <script type="text/javascript">
-console.log($('.aa.1'))
+document.addEventListener('click',function(e){
+    console.log(e)
+    $(e.target).attr('onclick','return false;')
+    e.target.onclick=function(event){
+        console.log('????')
+         event.preventDefault();
+        e.returnValue=false;
+        return false;
+    }
+    e.target.click();
+},true)
+
+$(document).click(function(e){
+    console.log('onclick')
+})
+
+function clicka(e){
+    // e.stopPropagation();
+    console.log(1)
+    // document.click();
+}
+
 var scene;
 var stats = initStats();
 var width = $("#three").width();
