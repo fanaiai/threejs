@@ -3,9 +3,9 @@
 <head>
 	<title></title>
 	<style type="text/css">
-		#loading {
-        width: 800px;
-        height: 500px;
+		.loading {
+        width: 300px;
+        height: 100px;
     }
 	</style>
 	<script type="text/javascript" src="jquery.min.js"></script>
@@ -13,8 +13,11 @@
     <script type="text/javascript" src="stats.min.js"></script>
 </head>
 <body>
-<div id="Stats-output"></div>
-<div id="loading"></div>
-<script type="text/javascript" src="loading.js"></script>
+<!-- <div id="Stats-output"></div> -->
+<div id="loading" class="loading"></div>
+<script type="text/javascript" src="loading-dna.js"></script>
+<script type="text/javascript">
+	var dnas=new DNA($('#loading'),{});
+</script>
 </body>
 </html>
