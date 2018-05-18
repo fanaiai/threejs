@@ -2,45 +2,52 @@
     var options = {
         A: 20,
         vec: 30,
-        width:300,
-        height:100,
-        dnasegments:10,
-        dnanum:8,
-        dnaradius:4.5
+        width: 300,
+        height: 100,
+        dnasegments: 10,
+        dnanum: 8,
+        dnaradius: 4.5,
+        curlingnum:10,
+        curlingradius:30,
+        curlingr:7
     }
+
     function DNA(ele, option) {
         this.options = $.extend(true, options, option);
         this.scene = new THREE.Scene();
         // this.camera = new THREE.OrthographicCamera(75, this.options.width / this.options.height, 0.1, 1000);
-        this.camera=new THREE.OrthographicCamera( this.options.width / - 2, this.options.width / 2, this.options.height / 2, this.options.height / - 2, 1, 1000 );
+        this.camera = new THREE.OrthographicCamera(this.options.width / -2, this.options.width / 2, this.options.height / 2, this.options.height / -2, 1, 1000);
         this.camera.position.z = 50;
         this.dnas = new THREE.Group();
         this.text;
-        this.renderer = new THREE.WebGLRenderer({ antialias: true ,alpha:true});
+        this.curlings=new THREE.Group();
+        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         this.renderer.setSize(this.options.width, this.options.height);
         // this.renderer.setClearColor(new THREE.Color('rgb(255, 255, 255)'));
         $(ele).append(this.renderer.domElement);
-        this.light = new THREE.DirectionalLight(0xffffff);
-        this.light.position.set(0, 0, 4);
+        // this.light = new THREE.DirectionalLight(0xffffff);
+        this.light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
+        this.light.position.set(5, 0, 0);
         this.scene.add(this.light);
-        this.animattime=0;
+        this.animattime = 0;
         this.init();
     }
     DNA.prototype = {
         init: function() {
-            this.addDnas();
-            this.addText();
+            // this.addDnas();
+            // this.addText();
+            this.addCurling();
         },
         addDnas: function() {
             var colors0 = [0x00a50b, 0x45aee7];
             var colors1 = [0xaa46ca, 0xee1a27];
-            for (var i = 0; i <= 80; i = i + Math.ceil(80/this.options.dnanum)) {
+            for (var i = 0; i <= 80; i = i + Math.ceil(80 / this.options.dnanum)) {
                 var x = i - 40;
                 var y0 = this.options.A * Math.sin((i * Math.PI) / 40);
                 var y1 = this.options.A * Math.sin((i * Math.PI) / 40) * Math.cos(Math.PI) + this.options.A * Math.cos((i * Math.PI) / 40) * Math.sin(Math.PI);
                 var geometry = new THREE.SphereBufferGeometry(this.options.dnaradius, this.options.dnasegments, this.options.dnasegments);
-                var material0 = new THREE.MeshBasicMaterial({ color: colors0[(i/ Math.ceil(80/this.options.dnanum)) % 2], wireframe: true });
-                var material1 = new THREE.MeshBasicMaterial({ color: colors1[(i/ Math.ceil(80/this.options.dnanum)) % 2], wireframe: true });
+                var material0 = new THREE.MeshBasicMaterial({ color: colors0[(i / Math.ceil(80 / this.options.dnanum)) % 2], wireframe: true });
+                var material1 = new THREE.MeshBasicMaterial({ color: colors1[(i / Math.ceil(80 / this.options.dnanum)) % 2], wireframe: true });
                 var dna0 = new THREE.Mesh(geometry, material0);
                 var dna1 = new THREE.Mesh(geometry, material1);
                 dna0.position.x = x;
@@ -57,18 +64,34 @@
             this.scene.add(this.dnas);
             requestAnimationFrame(this.startMoveDna.bind(this));
         },
-        addText:function(){
-            that=this;
-                var texture=new THREE.TextureLoader().load('loading.png',function(map){
-                var geometry = new THREE.CylinderBufferGeometry( 25, 25, 30, 32 );
-                var material0 = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: false,map: map,transparent: true, side: THREE.DoubleSide});
+        addText: function() {
+            that = this;
+            var texture = new THREE.TextureLoader().load('loading.png', function(map) {
+                var geometry = new THREE.CylinderBufferGeometry(25, 25, 30, 32);
+                var material0 = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: false, map: map, transparent: true, side: THREE.DoubleSide });
                 that.text = new THREE.Mesh(geometry, material0);
                 that.scene.add(that.text);
                 requestAnimationFrame(that.startMoveText.bind(that));
-                })
+            })
+        },
+        addCurling: function() {
+            var that=this;
+            var deg=Math.PI*2/this.options.curlingnum;
+            for(var i=0;i<this.options.curlingnum;i++){
+                var x=Math.cos(deg*i)*this.options.curlingradius;
+                var y=Math.sin(deg*i)*this.options.curlingradius;
+                var geometry = new THREE.SphereBufferGeometry(this.options.curlingr, this.options.dnasegments, this.options.dnasegments);
+                var material = new THREE.MeshLambertMaterial({ color: 0xff00, wireframe: false,emissive: 0xff00ff});
+                var circle=new THREE.Mesh(geometry,material);
+                circle.position.x=x;
+                circle.position.y=y;
+                this.curlings.add(circle)
+            }
+            that.scene.add(this.curlings)
+            requestAnimationFrame(that.startMoveCurling.bind(this));
         },
         startMoveDna: function() {
-            var that=this;
+            var that = this;
             that.animattime++;
             requestAnimationFrame(this.startMoveDna.bind(this));
             that.dnas.children.forEach(function(dna) {
@@ -83,12 +106,18 @@
             })
             this.renderer.render(this.scene, this.camera);
         },
-        startMoveText:function(){
-            var that=this;
+        startMoveText: function() {
+            var that = this;
             requestAnimationFrame(this.startMoveText.bind(this));
-            that.text.rotation.y-=0.05;
+            that.text.rotation.y -= 0.05;
+            this.renderer.render(this.scene, this.camera);
+        },
+        startMoveCurling: function() {
+            var that = this;
+            requestAnimationFrame(this.startMoveCurling.bind(this));
+            that.curlings.rotation.z -= 0.03;
             this.renderer.render(this.scene, this.camera);
         }
     }
-    root.DNA=DNA;
+    root.DNA = DNA;
 })(window)
