@@ -81,7 +81,7 @@
                 var x=Math.cos(deg*i)*this.options.curlingradius;
                 var y=Math.sin(deg*i)*this.options.curlingradius;
                 var geometry = new THREE.SphereBufferGeometry(this.options.curlingr, this.options.dnasegments, this.options.dnasegments);
-                var material = new THREE.MeshLambertMaterial({ color: 0xff00, wireframe: false,emissive: 0xff00ff});
+                var material = new THREE.MeshBasicMaterial({ color: new THREE.Color('rgb('+(255-i*5)+',33,00)'), wireframe: false});
                 var circle=new THREE.Mesh(geometry,material);
                 circle.position.x=x;
                 circle.position.y=y;
