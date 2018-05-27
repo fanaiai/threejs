@@ -5,8 +5,8 @@
     <title></title>
     <style type="text/css">
     #three {
-        width: 600px;
-        height: 400px;
+        width: 100%;
+        height: 600px;
     }
     </style>
     <script type="text/javascript" src="jquery.min.js"></script>
@@ -20,12 +20,28 @@
     <div id="Stats-output"></div>
 </body>
 <script type="text/javascript">
+var FizzyText = function() {
+    this.message = 'dat.gui';
+    this.speed = 0.8;
+    this.displayOutline = false;
+    this.explode = function() {
+        console.log('??')
+    };
+    // Define render logic ...
+};
 
-(function(root) {
+window.onload = function() {
+    var text = new FizzyText();
+    var gui = new dat.GUI();
+    gui.add(text, 'message');
+    gui.add(text, 'speed', -5, 5);
+    gui.add(text, 'displayOutline');
+    gui.add(text, 'explode');
+};
+(function(root, fizzy) {
     function FThree(el) {
         this.$el = $(el);
         this.size = { width: $(el).width(), height: $(el).height() };
-        this.cubelength=0;
         this.scene = null;
         this.renderer = null;
         this.light = null;
@@ -38,17 +54,17 @@
         init: function() {
             this._initrenderer();
             this._initscene();
-                        var axes=new THREE.AxisHelper(20);
+            var axes=new THREE.AxisHelper(20);
             this.scene.add(axes);
             this._initcamera();
             // this._addobj();
-            this.addplane();
+            // this.addplane();
             // this.addsphere();
-            this.addcube();
+            this.addearth();
+            this.addearth2();
             this._initlight();
             this._render();
             this._addevent();
-            console.log(this.scene)
             // this.animate();
         },
         _initstat: function() {
@@ -65,6 +81,7 @@
         },
         _initrenderer: function() {
             this.renderer = new THREE.WebGLRenderer({ alpha: true });
+            this.renderer.setClearColor(0x040a08)
             this.renderer.setSize(this.size.width, this.size.height);
             this.renderer.shadowMap.enabled = true
             this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -73,8 +90,6 @@
         },
         _initscene: function() {
             this.scene = new THREE.Scene();
-            // this.scene.fog=new THREE.FogExp2( 0xff00ff,0.15 );//雾化效果
-            // this.scene.overrideMaterial=new THREE.MeshLambertMaterial( {color:0xffffff,   wireframe:false });//所有物体一个颜色
         },
         _initcamera: function() {
             this.camera = new THREE.PerspectiveCamera(75, this.size.width / this.size.height, 0.1, 1000);
@@ -82,39 +97,24 @@
             this.camera.lookAt(0, 0, 0);
         },
         _initlight: function() {
-            this.light = new THREE.DirectionalLight({ color: 0xff00ff });
+            this.light = new THREE.DirectionalLight({ color: 0xffffff });
             // this.light.target = this.obj;
             this.light.castShadow = true;
             // this.light.shadowCameraVisible = true;
             this.light.shadowDarkness = 0.1;
-            this.light.position.y = 1;
-            this.light.position.x = 2;
-            this.light.position.z = 2;
+            // this.light.position.y = 1;
+            // this.light.position.x = 2;
+            this.light.position.z = 5;
             this.light.shadow.mapSize.width = 128
             this.light.shadow.mapSize.height = 128
             this.scene.add(this.light);
         },
-        addcube: function() {
-        	var boxwidth=Math.random();
-        	var color= new THREE.Color( 'rgb('+Math.ceil(Math.random()*255)+','+Math.ceil(Math.random()*255)+','+Math.ceil(Math.random()*255)+')' );
-            var geometry = new THREE.BoxGeometry(boxwidth, boxwidth, boxwidth);
-            var material = new THREE.MeshPhongMaterial({ color:color, wireframe: false });
-            var cube = new THREE.Mesh(geometry, material);
-            cube.castShadow = true;
-            cube.name='cube'+this.cubelength;
-            cube.position.x=Math.random()*15-7.5;
-            cube.position.y=Math.random();
-            cube.position.z=Math.random()*15-7.5;
-            this.scene.add(cube);
-            this._render();
-            this.cubelength++;
-        },
-        removecube:function(){
-        	if(this.scene.children[this.cubelength-1] instanceof THREE.Mesh){
-        	this.scene.remove(this.scene.children[this.cubelength-1])
-        	this._render();
-        	this.cubelength--;
-        }
+        _addobj: function() {
+            var geometry = new THREE.BoxGeometry(1, 1, 1);
+            var material = new THREE.MeshPhongMaterial({ color: 0xffaa34, wireframe: true });
+            this.obj = new THREE.Mesh(geometry, material);
+            this.obj.castShadow = true;
+            this.scene.add(this.obj);
         },
         addsphere: function() {
             var geometry = new THREE.SphereGeometry(1, 32, 32);
@@ -126,12 +126,38 @@
         },
         addplane: function() {
             var geometry = new THREE.BoxGeometry(15, 15, 0.1);
-            var material = new THREE.MeshLambertMaterial({ color: 0xefefef, wireframe: false, side: THREE.DoubleSide });
+            var material = new THREE.MeshLambertMaterial({ color: 0xcccccc, wireframe: false, side: THREE.DoubleSide });
             var cube = new THREE.Mesh(geometry, material);
             cube.receiveShadow = true;
             cube.rotation.x = Math.PI / 2;
             cube.position.y = -1;
             this.scene.add(cube);
+        },
+        addearth: function() {
+            var that = this;
+            var maploader = new THREE.TextureLoader().load('img/earth_1.png', function(map) {
+                console.log(map)
+                var geometry = new THREE.SphereGeometry(10, 32, 32);
+                var material = new THREE.MeshBasicMaterial({color:0xff0000, opacity: 1, transparent: true, map: map, wireframe: false, side: THREE.DoubleSide, wireframe: false });
+                var obj = new THREE.Mesh(geometry, material);
+                // obj.position.x = 3;
+                // obj.castShadow = true;
+                that.scene.add(obj);
+                that._render();
+            });
+        },
+        addearth2: function() {
+            var that = this;
+            var maploader = new THREE.TextureLoader().load('img/contour2_1.png', function(map) {
+                console.log(map)
+                var geometry = new THREE.SphereGeometry(5, 32, 32);
+                var material = new THREE.MeshBasicMaterial({color:0x00ff00, opacity: 0, transparent: true, map: map, wireframe: false, side: THREE.DoubleSide, wireframe: false });
+                var obj = new THREE.Points(geometry, material);
+                // obj.position.x = 3;
+                // obj.castShadow = true;
+                that.scene.add(obj);
+                that._render();
+            });
         },
         _addevent: function() {
             var that = this;
@@ -167,8 +193,7 @@
         },
         _render: function() {
             // this.scene.rotation.x=Math.PI/4
-            this.renderer.render(this.scene, this.camera);
-            console.log(this.scene.children)
+            this.renderer.render(this.scene, this.camera)
         },
         animate: function() {
             requestAnimationFrame(this.animate.bind(this));
@@ -179,30 +204,8 @@
 
     }
     root.FThree = FThree;
-})(window)
+})(window, new FizzyText())
 var fthree = new FThree($("#three"))
-var FizzyText = function() {
-    this.message = 'dat.gui';
-    this.speed = 0.8;
-    this.displayOutline = false;
-    this.addcube = function() {
-    	fthree.addcube();
-    };
-    this.removecube = function() {
-    	fthree.removecube();
-    };
-    // Define render logic ...
-};
-
-window.onload = function() {
-    var text = new FizzyText();
-    var gui = new dat.GUI();
-    gui.add(text, 'message');
-    gui.add(text, 'speed', -5, 5);
-    gui.add(text, 'displayOutline');
-    gui.add(text, 'addcube');
-    gui.add(text, 'removecube');
-};
 </script>
 
 </html>
