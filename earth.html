@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+    <style type="text/css">
+    #three {
+        width: 100%;
+        height: 600px;
+    }
+    </style>
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="three.js"></script>
+    <script type="text/javascript" src="stats.min.js"></script>
+    <script type="text/javascript" src="dat.gui.js"></script>
+</head>
+
+<body>
+    <div id="three"></div>
+    <div id="Stats-output"></div>
+</body>
+<script type="text/javascript">
+var FizzyText = function() {
+    this.message = 'dat.gui';
+    this.speed = 0.8;
+    this.displayOutline = false;
+    this.explode = function() {
+        console.log('??')
+    };
+    // Define render logic ...
+};
+
+window.onload = function() {
+    var text = new FizzyText();
+    var gui = new dat.GUI();
+    gui.add(text, 'message');
+    gui.add(text, 'speed', -5, 5);
+    gui.add(text, 'displayOutline');
+    gui.add(text, 'explode');
+};
+(function(root, fizzy) {
+    function FThree(el) {
+        this.$el = $(el);
+        this.size = { width: $(el).width(), height: $(el).height() };
+        this.scene = null;
+        this.renderer = null;
+        this.light = null;
+        this.camera = null;
+        this.obj = null;
+        this.stat = this._initstat();
+        this.init();
+    }
+    FThree.prototype = {
+        init: function() {
+            this._initrenderer();
+            this._initscene();
+            var axes=new THREE.AxisHelper(20);
+            this.scene.add(axes);
+            this._initcamera();
+            // this._addobj();
+            // this.addplane();
+            // this.addsphere();
+            this.addearth();
+            this.addearth2();
+            this._initlight();
+            this._render();
+            this._addevent();
+            // this.animate();
+        },
+        _initstat: function() {
+            var stats = new Stats();
+            //设置统计模式
+            stats.setMode(0); // 0: fps, 1: ms
+            //统计信息显示在左上角
+            stats.domElement.style.position = 'absolute';
+            stats.domElement.style.left = '0px';
+            stats.domElement.style.top = '0px';
+            //将统计对象添加到对应的<div>元素中
+            document.getElementById("Stats-output").appendChild(stats.domElement);
+            return stats;
+        },
+        _initrenderer: function() {
+            this.renderer = new THREE.WebGLRenderer({ alpha: true });
+            this.renderer.setClearColor(0x040a08)
+            this.renderer.setSize(this.size.width, this.size.height);
+            this.renderer.shadowMap.enabled = true
+            this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            this.renderer.shadowMapSoft = true;
+            this.$el.append(this.renderer.domElement)
+        },
+        _initscene: function() {
+            this.scene = new THREE.Scene();
+        },
+        _initcamera: function() {
+            this.camera = new THREE.PerspectiveCamera(75, this.size.width / this.size.height, 0.1, 1000);
+            this.camera.position.z = 15;
+            this.camera.lookAt(0, 0, 0);
+        },
+        _initlight: function() {
+            this.light = new THREE.DirectionalLight({ color: 0xffffff });
+            // this.light.target = this.obj;
+            this.light.castShadow = true;
+            // this.light.shadowCameraVisible = true;
+            this.light.shadowDarkness = 0.1;
+            // this.light.position.y = 1;
+            // this.light.position.x = 2;
+            this.light.position.z = 5;
+            this.light.shadow.mapSize.width = 128
+            this.light.shadow.mapSize.height = 128
+            this.scene.add(this.light);
+        },
+        _addobj: function() {
+            var geometry = new THREE.BoxGeometry(1, 1, 1);
+            var material = new THREE.MeshPhongMaterial({ color: 0xffaa34, wireframe: true });
+            this.obj = new THREE.Mesh(geometry, material);
+            this.obj.castShadow = true;
+            this.scene.add(this.obj);
+        },
+        addsphere: function() {
+            var geometry = new THREE.SphereGeometry(1, 32, 32);
+            var material = new THREE.MeshPhongMaterial({ color: 0x00aa34, wireframe: false });
+            var obj = new THREE.Mesh(geometry, material);
+            obj.position.x = 3;
+            obj.castShadow = true;
+            this.scene.add(obj);
+        },
+        addplane: function() {
+            var geometry = new THREE.BoxGeometry(15, 15, 0.1);
+            var material = new THREE.MeshLambertMaterial({ color: 0xcccccc, wireframe: false, side: THREE.DoubleSide });
+            var cube = new THREE.Mesh(geometry, material);
+            cube.receiveShadow = true;
+            cube.rotation.x = Math.PI / 2;
+            cube.position.y = -1;
+            this.scene.add(cube);
+        },
+        addearth: function() {
+            var that = this;
+            var maploader = new THREE.TextureLoader().load('img/earth_1.png', function(map) {
+                console.log(map)
+                var geometry = new THREE.SphereGeometry(10, 32, 32);
+                var material = new THREE.MeshBasicMaterial({color:0xff0000, opacity: 1, transparent: true, map: map, wireframe: false, side: THREE.DoubleSide, wireframe: false });
+                var obj = new THREE.Mesh(geometry, material);
+                // obj.position.x = 3;
+                // obj.castShadow = true;
+                that.scene.add(obj);
+                that._render();
+            });
+        },
+        addearth2: function() {
+            var that = this;
+            var maploader = new THREE.TextureLoader().load('img/contour2_1.png', function(map) {
+                console.log(map)
+                var geometry = new THREE.SphereGeometry(5, 32, 32);
+                var material = new THREE.MeshBasicMaterial({color:0x00ff00, opacity: 0, transparent: true, map: map, wireframe: false, side: THREE.DoubleSide, wireframe: false });
+                var obj = new THREE.Points(geometry, material);
+                // obj.position.x = 3;
+                // obj.castShadow = true;
+                that.scene.add(obj);
+                that._render();
+            });
+        },
+        _addevent: function() {
+            var that = this;
+            var down = false;
+            var position = {};
+            $(document).mousedown(function(e) {
+                down = true;
+                position.x = e.clientX;
+                position.y = e.clientY;
+            })
+            $(document).mousemove(function(e) {
+                if (down) {
+                    var x = e.clientX;
+                    var y = e.clientY;
+                    that.scene.rotation.y += (x - position.x) / 100;
+                    that.scene.rotation.x += (y - position.y) / 100;
+                    position.x = x;
+                    position.y = y;
+                    that._render();
+                }
+            })
+            $(document).mouseup(function(e) {
+                down = false;
+            })
+            document.onmousewheel = function(e) {
+                if (e.deltaY > 0) {
+                    that.camera.position.z += 0.3;
+                } else {
+                    that.camera.position.z -= 0.3;
+                }
+                that._render();
+            }
+        },
+        _render: function() {
+            // this.scene.rotation.x=Math.PI/4
+            this.renderer.render(this.scene, this.camera)
+        },
+        animate: function() {
+            requestAnimationFrame(this.animate.bind(this));
+            this.stat.update();
+            this.scene.rotation.y += 0.01;
+            this._render();
+        }
+
+    }
+    root.FThree = FThree;
+})(window, new FizzyText())
+var fthree = new FThree($("#three"))
+</script>
+
+</html>
