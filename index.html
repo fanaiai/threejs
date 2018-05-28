@@ -9,17 +9,16 @@
         width: 600px;
         height: 600px;
     }
-    .cover{
-    width: 100px;
-    height: 80px;
-    border: 512px solid rgba(0, 0, 0, .35);
-    border-left-width: calc(50% - 50px);
-    border-width: 20px calc(50% - 50px) 200px calc(50% - 50px);
-    border-radius: 20%;
-    /* 定位 */
-    position: absolute;
-    left: 0;
-    top: 0;
+    .flex{
+        display: flex;
+        width:400px;
+    }
+    .flex>div{
+        flex:1;
+        border:1px solid #ccc;
+    }
+    .flex>div:nth-child(1){
+        padding:0 20px;
     }
     </style>
     <script type="text/javascript" src="jquery.min.js"></script>
@@ -28,8 +27,12 @@
 </head>
 
 <body>
+    <div class="flex">
+        <div>123</div>
+        <div>456</div>
+    </div>
     <div id="three"></div>
-    <div id="Stats-output"></div>
+    <!-- <div id="Stats-output"></div> -->
     <div class="cover"></div>
 </body>
 <script type="text/javascript">
