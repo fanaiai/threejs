@@ -52,6 +52,8 @@
             this.addpointlight();
             this.addspotlight();
             this.addlensflare();
+            this.addplanegeo();
+            // this.addnormalsphere();
             // this.addhemilight();
             this._render();
             this._addevent();
@@ -258,6 +260,45 @@
             this._render();
             this.cubelength++;
         },
+        addlphongcube:function(){//类似金属的材质
+            var boxwidth = Math.random() * 1.5;
+            var color = new THREE.Color('rgb(' + Math.ceil(Math.random() * 255) + ',' + Math.ceil(Math.random() * 255) + ',' + Math.ceil(Math.random() * 255) + ')');
+            var geometry = new THREE.BoxGeometry(boxwidth, boxwidth, boxwidth);
+            var material = new THREE.MeshPhongMaterial({ color: color,specular:color,shininess:100 });
+            var cube = new THREE.Mesh(geometry, material);
+            cube.castShadow = true;
+            cube.name = 'cube' + this.cubelength;
+            cube.position.x = Math.random() * 50 - 25;
+            cube.position.y = Math.random();
+            cube.position.z = Math.random() * 50 - 25;
+            this.scene.add(cube);
+            this._render();
+            this.cubelength++;
+        },
+        addnormalsphere:function(){//法向量材质，不太懂，反正颜色怎么转都一样,也不能设置颜色
+        	var geometry = new THREE.SphereGeometry(5, 32, 32);
+            var material = new THREE.MeshNormalMaterial( {wireframe:false,shading:THREE.SmoothShading} );
+            var obj = new THREE.Mesh(geometry, material);
+            obj.position.x = 3;
+            obj.castShadow = true;
+            this.scene.add(obj);
+        },
+        addshadercube:function(){//着色器材质，最复杂的材质，也是最有用的，后面详细看
+
+        },
+        addplanegeo:function(){
+        	var geometry=new THREE.PlaneGeometry( 5,5,20 );
+        	this.createMesh(geometry,1,1,1); 
+        },
+        createMesh:function(geometry,x,y,z){
+        	var meshMaterial=new THREE.MeshNormalMaterial();
+        	meshMaterial.side=THREE.DoubleSide;
+        	var wireFrameMaterial=new THREE.MeshBasicMaterial( {wireframe:true,color:0xff0000});
+        	var mesh=THREE.SceneUtils.createMultiMaterialObject(geometry,[meshMaterial,wireFrameMaterial]);
+        	// var mesh=new THREE.Mesh(geometry,wireFrameMaterial)
+        	mesh.position.set(x,y,z)
+        	this.scene.add(mesh);
+        },
         removecube: function() {
             if (this.scene.children[this.cubelength - 1] instanceof THREE.Mesh) {
                 this.scene.remove(this.scene.children[this.cubelength - 1])
@@ -266,7 +307,7 @@
             }
         },
         addsphere: function() {
-            var geometry = new THREE.SphereGeometry(1, 32, 32);
+            var geometry = new THREE.SphereGeometry(5, 32, 32);
             var material = new THREE.MeshPhongMaterial({ color: 0x00aa34, wireframe: false });
             var obj = new THREE.Mesh(geometry, material);
             obj.position.x = 3;
@@ -342,6 +383,12 @@ var FizzyText = function() {
     };
     this.addblendcube = function() {
         fthree.addblendcube();
+    };
+    this.addlambercube = function() {
+        fthree.addlambercube();
+    };
+    this.addlphongcube = function() {
+        fthree.addlphongcube();
     }
     this.removecube = function() {
         fthree.removecube();
@@ -362,6 +409,8 @@ window.onload = function() {
     gui.add(text, 'addcube');
     gui.add(text, 'adddepthcube');
     gui.add(text, 'addblendcube');
+    gui.add(text, 'addlambercube');
+    gui.add(text, 'addlphongcube');
     gui.add(text, 'removecube');
     gui.add(text, 'switchcamera');
     gui.add(text, 'intensity', 0, 3).onChange(function(e) {
