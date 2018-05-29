@@ -11,6 +11,8 @@
     </style>
     <script type="text/javascript" src="jquery.min.js"></script>
     <script type="text/javascript" src="three.js"></script>
+    <script type="text/javascript" src="Lensflare.js"></script>
+    <script type="text/javascript" src="SceneUtils.js"></script>
     <script type="text/javascript" src="stats.min.js"></script>
     <script type="text/javascript" src="dat.gui.js"></script>
 </head>
@@ -20,12 +22,11 @@
     <div id="Stats-output"></div>
 </body>
 <script type="text/javascript">
-
 (function(root) {
     function FThree(el) {
         this.$el = $(el);
         this.size = { width: $(el).width(), height: $(el).height() };
-        this.cubelength=0;
+        this.cubelength = 0;
         this.scene = null;
         this.renderer = null;
         this.light = null;
@@ -38,14 +39,20 @@
         init: function() {
             this._initrenderer();
             this._initscene();
-                        var axes=new THREE.AxisHelper(20);
+            var axes = new THREE.AxisHelper(20);
             this.scene.add(axes);
             this._initcamera();
+            // this._initaxis();
             // this._addobj();
             this.addplane();
             // this.addsphere();
             this.addcube();
-            this._initlight();
+            // this._initlight();
+            // this.ambientlight();
+            this.addpointlight();
+            this.addspotlight();
+            this.addlensflare();
+            // this.addhemilight();
             this._render();
             this._addevent();
             console.log(this.scene)
@@ -66,6 +73,7 @@
         _initrenderer: function() {
             this.renderer = new THREE.WebGLRenderer({ alpha: true });
             this.renderer.setSize(this.size.width, this.size.height);
+            this.renderer.setClearColor(0xffffff)
             this.renderer.shadowMap.enabled = true
             this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             this.renderer.shadowMapSoft = true;
@@ -76,45 +84,186 @@
             // this.scene.fog=new THREE.FogExp2( 0xff00ff,0.15 );//雾化效果
             // this.scene.overrideMaterial=new THREE.MeshLambertMaterial( {color:0xffffff,   wireframe:false });//所有物体一个颜色
         },
+        _initaxis: function() {
+            var option = {
+                size: 5,
+                height: 10,
+                weight: 'normal',
+                font: 'helvetiker'
+            }
+            var size = 1 * 2;
+            var vectors = [];
+            var texts = new THREE.Group();
+            var loader = new THREE.FontLoader();
+            var material=new THREE.MeshBasicMaterial({color:0xff0000})
+            loader.load('font1.json', function(font) {
+                for (var x = 0; x <= size; x++) {
+                for (var y = x; y <= size; y++) {
+                    for (var z = y; z <= size; z++)
+                    var geometry = new THREE.TextGeometry('1', {
+                        font: font,
+                        size: 0.1,
+                        height: 0.1,
+                        // curveSegments: 1,
+                        // bevelEnabled: true,
+                        bevelThickness: 0.01,
+                        // bevelSize: 8,
+                        // bevelSegments: 5
+                    });
+                    var text=new THREE.Mesh(geometry,material);
+                    text.position.set(x-size, y-size , z-size )
+                    texts.add(text)
+                }
+            }
+            });
+            console.log(texts)
+            this.scene.add(texts);
+        },
         _initcamera: function() {
             this.camera = new THREE.PerspectiveCamera(75, this.size.width / this.size.height, 0.1, 1000);
-            this.camera.position.z = 15;
+            this.camera.position.z = 10;
             this.camera.lookAt(0, 0, 0);
         },
-        _initlight: function() {
+        switchcamera: function() {
+            if (this.camera instanceof THREE.PerspectiveCamera) {
+                this.camera = new THREE.OrthographicCamera(this.size.width / -16, this.size.width / 16, this.size.height / -16, this.size.height / 16);
+                this.camera.position.z = 15;
+                this.camera.lookAt(0, 0, 0);
+            } else {
+                this.camera = new THREE.PerspectiveCamera(75, this.size.width / this.size.height, 0.1, 1000);
+                this.camera.position.z = 15;
+                this.camera.lookAt(0, 0, 0);
+            }
+            this._render();
+        },
+        _initlight: function() { //平行光
             this.light = new THREE.DirectionalLight({ color: 0xff00ff });
             // this.light.target = this.obj;
             this.light.castShadow = true;
             // this.light.shadowCameraVisible = true;
             this.light.shadowDarkness = 0.1;
-            this.light.position.y = 1;
+            this.light.position.y = 2;
             this.light.position.x = 2;
             this.light.position.z = 2;
             this.light.shadow.mapSize.width = 128
             this.light.shadow.mapSize.height = 128
             this.scene.add(this.light);
         },
+        addambientlight: function() {
+            this.amlight = new THREE.AmbientLight(0x333333);
+            this.amlight.position.set(2, 2, 3);
+            this.amlight.intensity = 0.2;
+            this.scene.add(this.amlight)
+        },
+        addpointlight: function() { //点光源
+            this.pointlight = new THREE.PointLight({ color: 0xff0000, intensity: 2, distance: 2 });
+            this.pointlight.position.set(2, 2, 2);
+            this.pointlight.castShadow = false;
+            this.pointlight.shadowDarkness = 0.1;
+            this.pointlight.shadow.mapSize.width = 128
+            this.pointlight.shadow.mapSize.height = 128
+            this.scene.add(this.pointlight);
+        },
+        chageintensity: function(intensity) {
+            this.pointlight.intensity = intensity;
+        },
+        addspotlight: function() { //聚光灯
+            this.spotlight = new THREE.SpotLight(0xffffff);
+            this.spotlight.position.set(20, 50, 20);
+            this.spotlight.castShadow = false;
+            this.spotlight.shadowDarkness = 1.1;
+            this.spotlight.shadow.mapSize.width = 128
+            this.spotlight.shadow.mapSize.height = 128
+            var target = new THREE.Object3D();
+            target.position = new THREE.Vector3(0, 0, 0);
+            this.spotlight.target = target;
+            this.scene.add(this.spotlight);
+        },
+        addhemilight: function() { //半球光
+            this.hemilight = new THREE.HemisphereLight(0xff0000, 0x00ff00, 0.6);
+            this.hemilight.position.set(0, 500, 0);
+            this.scene.add(this.hemilight);
+        },
+        addarealight: function() { //平面光光源 从平面发射的光，太复杂了，要多加好多东西，先不看
+            this.arealight = new THREE.AreaLight();
+
+        },
+        addlensflare: function() { //添加光晕
+            var texture = new THREE.TextureLoader().load('lensflare0.png');
+
+            this.lensflare = new THREE.Lensflare();
+            this.lensflare.addElement(new THREE.LensflareElement(texture, 100, 0))
+            this.lensflare.position = this.spotlight.position
+            this.spotlight.add(this.lensflare);
+        },
         addcube: function() {
-        	var boxwidth=Math.random();
-        	var color= new THREE.Color( 'rgb('+Math.ceil(Math.random()*255)+','+Math.ceil(Math.random()*255)+','+Math.ceil(Math.random()*255)+')' );
+            var boxwidth = Math.random() * 1.5;
+            var color = new THREE.Color('rgb(' + Math.ceil(Math.random() * 255) + ',' + Math.ceil(Math.random() * 255) + ',' + Math.ceil(Math.random() * 255) + ')');
             var geometry = new THREE.BoxGeometry(boxwidth, boxwidth, boxwidth);
-            var material = new THREE.MeshPhongMaterial({ color:color, wireframe: false });
+            var material = new THREE.MeshPhongMaterial({ color: color, wireframe: false });
             var cube = new THREE.Mesh(geometry, material);
             cube.castShadow = true;
-            cube.name='cube'+this.cubelength;
-            cube.position.x=Math.random()*15-7.5;
-            cube.position.y=Math.random();
-            cube.position.z=Math.random()*15-7.5;
+            cube.name = 'cube' + this.cubelength;
+            cube.position.x = Math.random() * 50 - 25;
+            cube.position.y = Math.random();
+            cube.position.z = Math.random() * 50 - 25;
             this.scene.add(cube);
             this._render();
             this.cubelength++;
         },
-        removecube:function(){
-        	if(this.scene.children[this.cubelength-1] instanceof THREE.Mesh){
-        	this.scene.remove(this.scene.children[this.cubelength-1])
-        	this._render();
-        	this.cubelength--;
-        }
+        addblendcube: function() {
+            var boxwidth = Math.random() * 1.5;
+            var color = new THREE.Color('rgb(' + Math.ceil(Math.random() * 255) + ',' + Math.ceil(Math.random() * 255) + ',' + Math.ceil(Math.random() * 255) + ')');
+            var geometry = new THREE.BoxGeometry(boxwidth, boxwidth, boxwidth);
+            var depthmaterial = new THREE.MeshDepthMaterial();
+            var colormaterial = new THREE.MeshBasicMaterial({ color: color, wireframe: false, transparent: true, blending: THREE.MultiplyBlending });
+            var cube = new THREE.SceneUtils.createMultiMaterialObject(geometry, [depthmaterial, colormaterial]);
+            cube.children[0].scale.set(.99, .99, .99)
+            cube.castShadow = true;
+            cube.name = 'cube' + this.cubelength;
+            cube.position.x = Math.random() * 50 - 25;
+            cube.position.y = Math.random();
+            cube.position.z = Math.random() * 50 - 25;
+            this.scene.add(cube);
+            this._render();
+            this.cubelength++;
+        },
+        adddepthcube: function() { //深度着色，其外观由物体到相机距离决定，可以做成逐渐消失的样子,error
+            var boxwidth = Math.random() * 1.5;
+            var color = new THREE.Color('rgb(' + Math.ceil(Math.random() * 255) + ',' + Math.ceil(Math.random() * 255) + ',' + Math.ceil(Math.random() * 255) + ')');
+            var geometry = new THREE.BoxGeometry(boxwidth, boxwidth, boxwidth);
+            var material = new THREE.MeshDepthMaterial({ fog: true });
+            var cube = new THREE.Mesh(geometry, material);
+            cube.castShadow = true;
+            cube.name = 'cube' + this.cubelength;
+            cube.position.x = Math.random() * 50 - 25;
+            cube.position.y = Math.random();
+            cube.position.z = Math.random() * 50 - 25;
+            this.scene.add(cube);
+            this._render();
+            this.cubelength++;
+        },
+        addlambercube:function(){
+            var boxwidth = Math.random() * 1.5;
+            var color = new THREE.Color('rgb(' + Math.ceil(Math.random() * 255) + ',' + Math.ceil(Math.random() * 255) + ',' + Math.ceil(Math.random() * 255) + ')');
+            var geometry = new THREE.BoxGeometry(boxwidth, boxwidth, boxwidth);
+            var material = new THREE.MeshLambertMaterial({ color: color });
+            var cube = new THREE.Mesh(geometry, material);
+            cube.castShadow = true;
+            cube.name = 'cube' + this.cubelength;
+            cube.position.x = Math.random() * 50 - 25;
+            cube.position.y = Math.random();
+            cube.position.z = Math.random() * 50 - 25;
+            this.scene.add(cube);
+            this._render();
+            this.cubelength++;
+        },
+        removecube: function() {
+            if (this.scene.children[this.cubelength - 1] instanceof THREE.Mesh) {
+                this.scene.remove(this.scene.children[this.cubelength - 1])
+                this._render();
+                this.cubelength--;
+            }
         },
         addsphere: function() {
             var geometry = new THREE.SphereGeometry(1, 32, 32);
@@ -125,7 +274,7 @@
             this.scene.add(obj);
         },
         addplane: function() {
-            var geometry = new THREE.BoxGeometry(15, 15, 0.1);
+            var geometry = new THREE.BoxGeometry(50, 50, 0.1);
             var material = new THREE.MeshLambertMaterial({ color: 0xefefef, wireframe: false, side: THREE.DoubleSide });
             var cube = new THREE.Mesh(geometry, material);
             cube.receiveShadow = true;
@@ -168,7 +317,6 @@
         _render: function() {
             // this.scene.rotation.x=Math.PI/4
             this.renderer.render(this.scene, this.camera);
-            console.log(this.scene.children)
         },
         animate: function() {
             requestAnimationFrame(this.animate.bind(this));
@@ -185,12 +333,23 @@ var FizzyText = function() {
     this.message = 'dat.gui';
     this.speed = 0.8;
     this.displayOutline = false;
+    this.intensity = 1;
     this.addcube = function() {
-    	fthree.addcube();
+        fthree.addcube();
     };
+    this.adddepthcube = function() {
+        fthree.adddepthcube();
+    };
+    this.addblendcube = function() {
+        fthree.addblendcube();
+    }
     this.removecube = function() {
-    	fthree.removecube();
+        fthree.removecube();
     };
+    this.switchcamera = function() {
+        fthree.switchcamera();
+    }
+
     // Define render logic ...
 };
 
@@ -201,7 +360,13 @@ window.onload = function() {
     gui.add(text, 'speed', -5, 5);
     gui.add(text, 'displayOutline');
     gui.add(text, 'addcube');
+    gui.add(text, 'adddepthcube');
+    gui.add(text, 'addblendcube');
     gui.add(text, 'removecube');
+    gui.add(text, 'switchcamera');
+    gui.add(text, 'intensity', 0, 3).onChange(function(e) {
+        fthree.chageintensity(e);
+    })
 };
 </script>
 
