@@ -15,6 +15,7 @@
     <script type="text/javascript" src="QuickHull.js"></script>
     <script type="text/javascript" src="SceneUtils.js"></script>
     <script type="text/javascript" src="ConvexGeometry.js"></script>
+    <script type="text/javascript" src="BufferGeometryUtils.js"></script>
     <script type="text/javascript" src="stats.min.js"></script>
     <script type="text/javascript" src="dat.gui.js"></script>
 </head>
@@ -60,6 +61,7 @@
             // this.addparticle();
             // this.addplanegeo();
             this.addparticleobj();
+            this.addmergeobj();
             // this.addTorusKnotGeometry();
             // this.addnormalsphere();
             // this.addhemilight();
@@ -225,7 +227,7 @@
         addcube: function() {
             var boxwidth = Math.random() * 1.5;
             var color = new THREE.Color('rgb(' + Math.ceil(Math.random() * 255) + ',' + Math.ceil(Math.random() * 255) + ',' + Math.ceil(Math.random() * 255) + ')');
-            var geometry = new THREE.BoxGeometry(boxwidth, boxwidth, boxwidth);
+            var geometry = new THREE.BoxBufferGeometry(boxwidth, boxwidth, boxwidth);
             var material = new THREE.MeshPhongMaterial({ color: color, wireframe: false });
             var cube = new THREE.Mesh(geometry, material);
             cube.castShadow = true;
@@ -233,8 +235,9 @@
             cube.position.x = Math.random() * 50 - 25;
             cube.position.y = Math.random();
             cube.position.z = Math.random() * 50 - 25;
-            this.scene.add(cube);
-            this._render();
+            // this.scene.add(cube);
+            // this._render();
+            return geometry;
             this.cubelength++;
         },
         addblendcube: function() {
@@ -459,6 +462,18 @@
             // var torusKnot = new THREE.Mesh( geometry, material );
             this.scene.add( torusKnot );
         },
+        addmergeobj:function(){//一次添加多个几何体，不知道怎么弄
+            var geometries=new THREE.BoxBufferGeometry(2,2,2);
+            console.log(THREE.BufferGeometryUtils)
+            for(var i=0;i<40;i++){
+                THREE.BufferGeometryUtils.mergeBufferGeometries([this.addcube()])
+            }
+            console.log(geometries)
+            var material=new THREE.MeshPhongMaterial( {color:0xffff00} );
+            var mesh=new THREE.Mesh(geometries,material);
+            this.scene.add(mesh);
+        },
+        
         _addevent: function() {
             var that = this;
             var down = false;
