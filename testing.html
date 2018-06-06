@@ -60,17 +60,25 @@
             // this.addlathegeo();
             // this.addparticle();
             // this.addplanegeo();
-            this.addparticleobj();
+            // this.addparticleobj();
             // this.addmergeobj();
             // this.addTorusKnotGeometry();
             // this.addnormalsphere();
-            this.addmeshfase();
+            // this.addmeshfase();
             // this.addhemilight();
+            this.addPointSphere();
             this._render();
             this._addevent();
             // this.trigger('init')
             console.log(this.scene)
             // this.animate();
+        },
+        addPointSphere:function(){
+            var material=new THREE.PointsMaterial({color:0xff55ca,size:0.1,morphTargets:true});
+            var geomatry=new THREE.SphereGeometry( 3,32,32);
+            var mesh=new THREE.Points(geomatry,material)
+            mesh.position.y=4;
+            this.scene.add(mesh);
         },
         on:function(type,fn){
             type=type||'any';
