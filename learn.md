@@ -1,0 +1,4 @@
+####MeshDepthMaterial
+没有颜色，只有黑白，距离相机越近越白，最白的是near的位置，最黑的是far的位置
+####MeshNormalMaterial 
+法向量材质，不太懂，反正颜色怎么转都一样,也不能设置颜色

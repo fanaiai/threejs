@@ -64,7 +64,6 @@
             // this.addmergeobj();
             // this.addTorusKnotGeometry();
             // this.addnormalsphere();
-            this.addmeshfase();
             // this.addhemilight();
             this._render();
             this._addevent();
@@ -102,7 +101,7 @@
         _initrenderer: function() {
             this.renderer = new THREE.WebGLRenderer({ alpha: true });
             this.renderer.setSize(this.size.width, this.size.height);
-            this.renderer.setClearColor(0x000000)
+            this.renderer.setClearColor(0xffffff)
             this.renderer.shadowMap.enabled = true
             this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             this.renderer.shadowMapSoft = true;
@@ -150,7 +149,7 @@
         },
         _initcamera: function() {
             this.camera = new THREE.PerspectiveCamera(75, this.size.width / this.size.height, 0.1, 1000);
-            this.camera.position.z = 30;
+            this.camera.position.z = 10;
             this.camera.lookAt(0, 0, 0);
         },
         switchcamera: function() {
@@ -318,34 +317,6 @@
         	var geometry=new THREE.PlaneGeometry( 5,5,20 );
         	this.createMesh(geometry,1,1,1); 
         },
-        addmeshfase:function(){
-           var map=new THREE.TextureLoader().load('1.png');
-           var map1=new THREE.TextureLoader().load('b.png');
-           map1.wrapS = THREE.RepeatWrapping;
-            map1.wrapT = THREE.RepeatWrapping;
-            map1.repeat.set( 4, 4 );
-           var  metarry=[];
-           for(var i=0;i<6;i++){
-            metarry.push(new THREE.MeshBasicMaterial({color:Math.random()*0xffffff,blending:THREE.MultiplyBlending,transparent:true}));
-           }
-
-
-           // var material=new THREE.MeshFaceMaterial( metarry );
-           // var material=new THREE.MeshBasicMaterial({color:0xff0000,transparent:true});
-           var material=new THREE.MeshBasicMaterial({map:map1,transparent:true});
-            material.blending = THREE.NormalBlending;
-            material.blendEquation = THREE.SubtractEquation ; //default
-            material.blendSrc = THREE.SrcAlphaFactor; //default
-            material.blendDst = THREE.OneMinusSrcAlphaFactor; //default
-           var mapmaterial=new THREE.MeshBasicMaterial({map:map})
-           var depthmaterial=new THREE.MeshDepthMaterial();
-           var geometry=new THREE.CubeGeometry(3,3,3);
-           // var cube=new THREE.Mesh(geometry,material);
-           var cube=new THREE.SceneUtils.createMultiMaterialObject(geometry,[material,mapmaterial])
-           cube.children[1].scale.set(0.99,0.99,0.99);
-           cube.position.set(0,0,9);
-           this.scene.add(cube);
-        },
         createMesh:function(geometry,x,y,z){
         	var meshMaterial=new THREE.MeshNormalMaterial();
         	meshMaterial.side=THREE.DoubleSide;
@@ -481,14 +452,13 @@
             // var geometry=new THREE.TorusKnotGeometry( 30, 2, 8, 8, 2, 3 );
             // var knot=this.createpaticlesystem(geometry);
             // this.scene.add(knot);
-            var map=new THREE.TextureLoader().load('img/earth_1.png');
-            var colormaterial = new THREE.MeshBasicMaterial({ wireframe: false, transparent: true, blending: THREE.MultiplyBlending,map:map });
+            var colormaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff, wireframe: false, transparent: true, blending: THREE.MultiplyBlending });
 
             var geometry = new THREE.TorusKnotGeometry( 5, 1, 100, 16 );
             // var material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
-            var material=new THREE.PointsMaterial({color:0xffcc22,size:0.2,transparent:true,opacity:0.5,map:map});
-            // var torusKnot = new THREE.SceneUtils.createMultiMaterialObject(geometry, [material]);
-            var torusKnot = new THREE.Points( geometry, material );
+            var material=new THREE.PointsMaterial({color:0xffcc22,size:0.2,transparent:true,map:this.addspirit(),opacity:0.5});
+            var torusKnot = new THREE.SceneUtils.createMultiMaterialObject(geometry, [material, colormaterial]);
+            // var torusKnot = new THREE.Points( geometry, material );
             // var torusKnot = new THREE.Mesh( geometry, material );
             this.scene.add( torusKnot );
         },
