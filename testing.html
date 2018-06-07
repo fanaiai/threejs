@@ -16,6 +16,9 @@
     <script type="text/javascript" src="SceneUtils.js"></script>
     <script type="text/javascript" src="ConvexGeometry.js"></script>
     <script type="text/javascript" src="BufferGeometryUtils.js"></script>
+    <!-- <script type="text/javascript" src="inflate.js"></script> -->
+    <script type="text/javascript" src="FBXLoader.js"></script>
+    <script type="text/javascript" src="OBJLoader.js"></script>
     <script type="text/javascript" src="stats.min.js"></script>
     <script type="text/javascript" src="dat.gui.js"></script>
 </head>
@@ -24,6 +27,18 @@
     <div id="three"></div>
     <div id="Stats-output"></div>
 </body>
+<script type="x-shader/x-vertex" id="vertexshader">
+    void main(){
+        gl_PointSize=4;
+        gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0)
+    }
+</script>
+<script type="x-shader/x-fragment" id="fragmentshader">
+    uniform vec3 color;
+    void main(){
+    gl_FragColor=vec4(color,1.0);
+}
+</script>
 <script type="text/javascript">
 (function(root) {
     function FThree(el) {
@@ -67,17 +82,30 @@
             // this.addmeshfase();
             // this.addhemilight();
             this.addPointSphere();
+            this.addRobot();
             this._render();
             this._addevent();
             // this.trigger('init')
             console.log(this.scene)
             // this.animate();
         },
+        addRobot:function(){
+            var that=this;
+            new THREE.OBJLoader().load('models/Santa Claus Pose1/Santa_Claus_Pose1_obj.obj',function(obj){
+                    // obg.preload();
+                    obj.scale.x=0.1;
+                    obj.scale.y=0.1;
+                    obj.scale.z=0.1;
+                    obj.rotation.x=-Math.PI/2;
+                    that.scene.add(obj)
+            });
+        },
         addPointSphere:function(){
             var material=new THREE.PointsMaterial({color:0xff55ca,size:0.1,morphTargets:true});
             var geomatry=new THREE.SphereGeometry( 3,32,32);
             var mesh=new THREE.Points(geomatry,material)
             mesh.position.y=4;
+            console.log(mesh)
             this.scene.add(mesh);
         },
         on:function(type,fn){
@@ -159,6 +187,7 @@
         _initcamera: function() {
             this.camera = new THREE.PerspectiveCamera(75, this.size.width / this.size.height, 0.1, 1000);
             this.camera.position.z = 30;
+            this.camera.position.y = 10;
             this.camera.lookAt(0, 0, 0);
         },
         switchcamera: function() {

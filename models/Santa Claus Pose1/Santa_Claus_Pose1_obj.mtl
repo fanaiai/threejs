@@ -1,0 +1,104 @@
+# 
+# Wavefront material file
+# Converted by the DEEP Exploration  Deep Exploration 4.0.10.871 Release
+# Right Hemisphere, LTD
+# http://www.righthemisphere.com/
+# 
+
+newmtl Santa_Pipes1
+Ka 0 0 0
+Kd 0 0 0
+Ks 0.9 0.9 0.9
+illum 2
+Ns 111.431
+
+newmtl Santa_Pipes2
+Ka 0.6 0.6 0.6
+Kd 1 1 1
+Ks 0.9 0.9 0.9
+illum 2
+Ns 59.7141
+map_Kd Santa_Oak.jpg
+
+newmtl Santa_Gold
+Ka 0.9 0.6 0.2
+Kd 0.9 0.6 0.2
+Ks 0.9 0.9 0.6
+illum 2
+Ns 119.428
+
+newmtl Santa_Black
+Ka 0 0 0
+Kd 0 0 0
+Ks 0.9 0.9 0.9
+illum 2
+Ns 2.14355
+
+newmtl Santa_White
+Ka 0.9 0.9 0.9
+Kd 0.9 0.9 0.9
+Ks 0.9 0.9 0.9
+illum 2
+Ns 3.24901
+
+newmtl Santa_Rad
+Ka 0.9 0.1 0.1
+Kd 0.9 0.1 0.1
+Ks 0.9 0.9 0.9
+illum 2
+Ns 4.28709
+map_bump Santa_Rad_Bump.jpg
+bump Santa_Rad_Bump.jpg
+
+newmtl Santa_Belt
+Ka 0.2 0.1 0.1
+Kd 0.2 0.1 0.1
+Ks 0.9 0.9 0.9
+illum 2
+Ns 84.4485
+map_bump Santa_BootsBump.jpg
+bump Santa_BootsBump.jpg
+
+newmtl Santa_Boots
+Ka 0.1 0.1 0.1
+Kd 0.1 0.1 0.1
+Ks 0.9 0.9 0.9
+illum 2
+Ns 128
+map_bump Santa_BootsBump.jpg
+bump Santa_BootsBump.jpg
+
+newmtl Santa_White2
+Ka 0.9 0.9 0.9
+Kd 0.9 0.9 0.9
+Ks 0.9 0.9 0.9
+illum 2
+Ns 2.14355
+
+newmtl Santa_Linze
+Ka 0.5 0.5 0.5
+Kd 0.5 0.5 0.5
+Ks 0.9 0.9 0.9
+illum 2
+Ns 2048
+d 0.1
+
+newmtl Santa_EyeBoll
+Ka 0.6 0.6 0.6
+Kd 1 1 1
+Ks 1 1 1
+illum 2
+Ns 388.023
+map_Kd Santa_EyeBoll.jpg
+map_bump Santa_EyeBoll.jpg
+bump Santa_EyeBoll.jpg
+map_kS Santa_EyeBoll.jpg
+
+newmtl Santa_Head
+Ka 0.6 0.6 0.6
+Kd 1 1 1
+Ks 1 1 1
+illum 2
+Ns 9.84916
+map_Kd Santa_Head_Collor.jpg
+map_kS Santa_Head_Collor.jpg
