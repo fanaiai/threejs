@@ -65,7 +65,7 @@
             this._initcamera();
             // this._initaxis();
             // this._addobj();
-            this.addplane();
+            // this.addplane();
             // this.addsphere();
             this.addcube();
             // this._initlight();
@@ -88,7 +88,7 @@
             // this.updatetween();
             // this.testBlending();
             this.getearthtexture();
-
+            this.TestPropaties();
             // this.updaterobot();
             // this.robotpositionchange();
             this._render();
@@ -96,6 +96,17 @@
             // this.trigger('init')
             console.log(this.scene)
             // this.animate();
+        },
+        TestPropaties:function(){
+            var geo1=new THREE.BoxGeometry(5,5,5);
+            var geo2=new THREE.CircleGeometry(9,6,6);
+            var mat1=new THREE.MeshBasicMaterial( {color:0xff0000} );
+            var mat2=new THREE.MeshBasicMaterial( {color:0x00ff00,transparent:true,opacity:.5,depthTest:!1,AlphaTest:0,side:THREE.DoubleSide} );
+            var mesh1=new THREE.Mesh(geo1,mat1);
+            mesh1.position.z=-6;
+            var mesh2=new THREE.Mesh(geo2,mat2);
+            this.scene.add(mesh1)
+            this.scene.add(mesh2)
         },
         getearthtexture: function() {
             var that=this;
@@ -137,8 +148,18 @@
         },
         addctxSphere:function(){
             var that=this;
-            var geometry=new THREE.SphereGeometry(10,32,32);
-            var material=new THREE.MeshBasicMaterial({map:that.earthctx,transparent:true,side:THREE.DoubleSide});
+            var geometry=new THREE.SphereGeometry(10,64,64);
+            var material=new THREE.MeshBasicMaterial({
+                map:that.earthctx,
+            transparent: !0,
+            opacity: 1,
+            color: new THREE.Color(16777215),
+            blending: THREE.AdditiveBlending,
+            side: THREE.DoubleSide,
+            depthWrite: !1
+    }
+
+        );
             var mesh=new THREE.Mesh(geometry,material);
             mesh.position.y=10;
             this.scene.add(mesh)
@@ -341,7 +362,7 @@
             return stats;
         },
         _initrenderer: function() {
-            this.renderer = new THREE.WebGLRenderer({ alpha: true });
+            this.renderer = new THREE.WebGLRenderer({ alpha: true ,antialias: true});
             this.renderer.setSize(this.size.width, this.size.height);
             this.renderer.setClearColor(0x000000)
             this.renderer.shadowMap.enabled = true
