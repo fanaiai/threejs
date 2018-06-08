@@ -4,9 +4,12 @@
 <head>
     <title></title>
     <style type="text/css">
-    #three {
+    #three,
+    #canvas {
         width: 600px;
         height: 400px;
+        float: left;
+        background: blue;
     }
     </style>
     <script type="text/javascript" src="jquery.min.js"></script>
@@ -18,7 +21,8 @@
     <script type="text/javascript" src="SceneUtils.js"></script>
     <script type="text/javascript" src="ConvexGeometry.js"></script>
     <script type="text/javascript" src="BufferGeometryUtils.js"></script>
-    <script type="text/javascript" src="tweenjs.min.js"></script>
+    <!-- <script type="text/javascript" src="tweenjs.min.js"></script> -->
+    <script type="text/javascript" src="Tween.js"></script>
     <!-- <script type="text/javascript" src="inflate.js"></script> -->
     <script type="text/javascript" src="FBXLoader.js"></script>
     <script type="text/javascript" src="OBJLoader.js"></script>
@@ -28,19 +32,14 @@
 
 <body>
     <div id="three"></div>
+    <canvas id='canvas'></canvas>
     <div id="Stats-output"></div>
-<script type="x-shader/x-vertex" id="vertexshader">
-    void main(){ 
-        gl_PointSize=1.; 
-        gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); 
-    }
-</script>
-<script type="x-shader/x-fragment" id="fragmentshader">
-    uniform vec3 color; 
-    void main(){ 
-        gl_FragColor=vec4(color,1.0); 
-}
-</script>
+    <script type="x-shader/x-vertex" id="vertexshader">
+        attribute float size; attribute vec3 position2; uniform float val; void main(){ vec3 vPos; gl_PointSize=1.; vPos.x = position.x * val + position2.x * (1. - val); vPos.y = position.y * val + position2.y * (1. - val); vPos.z = position.z * val + position2.z * (1. - val); vec4 mvPosition = modelViewMatrix * vec4( vPos, 1.0 ); gl_PointSize = 4.; gl_Position = projectionMatrix * mvPosition; }
+    </script>
+    <script type="x-shader/x-fragment" id="fragmentshader">
+        uniform vec3 color; void main(){ gl_FragColor=vec4(color,1.0); }
+    </script>
 </body>
 <script type="text/javascript">
 (function(root) {
@@ -73,7 +72,7 @@
             // this.ambientlight();
             this.addpointlight();
             this.addspotlight();
-            this.addlensflare();
+            // this.addlensflare();
             // this.addconvexgeo();
             // this.addlathegeo();
             // this.addparticle();
@@ -85,13 +84,79 @@
             // this.addmeshfase();
             // this.addhemilight();
             // this.addPointSphere();
-            this.addRobot();
-            this.updaterobot();
+            // this.addRobot();
+            // this.updatetween();
+            // this.testBlending();
+            this.getearthtexture();
+
+            // this.updaterobot();
+            // this.robotpositionchange();
             this._render();
             this._addevent();
             // this.trigger('init')
             console.log(this.scene)
             // this.animate();
+        },
+        getearthtexture: function() {
+            var that=this;
+            var canvas = document.getElementById('canvas');
+            var ctx = canvas.getContext('2d');
+            var star = new Image();
+            star.src = 'earth/star.png';
+            var stardata;
+            star.onload = function() {
+                var canvas1 = document.createElement('canvas');
+                canvas1.width = star.width;
+                canvas1.height = star.height;
+                document.body.append(canvas1)
+                var ctx1 = canvas1.getContext('2d');
+                ctx1.drawImage(star, 0, 0);
+                stardata = ctx1.getImageData(0, 0, canvas1.width, canvas1.height).data;
+                var img = new Image();
+                img.src = 'earth/earth_1.png';
+                img.onload = function() {
+                    canvas.width=img.width;
+                    canvas.height=img.height;
+                    ctx.drawImage(img, 0, 0, img.width, img.height);
+                    var imgdata = ctx.getImageData(0, 0, img.width, img.height);
+                    for (var i = 0; i < imgdata.data.length; i += 4) {
+                        imgdata.data[i] = imgdata.data[i] | stardata[i % stardata.length];
+                        imgdata.data[i + 1] = imgdata.data[i + 1] | stardata[(i + 1) % stardata.length];
+                        imgdata.data[i + 2] = imgdata.data[i + 2] | stardata[(i + 2) % stardata.length];
+                        if (imgdata.data[i] >= 200 && imgdata.data[i + 1] >= 200 && imgdata.data[i + 2] >= 200) {
+                            imgdata.data[i + 3] = 0;
+                        } else if (imgdata.data[i] == 0 && imgdata.data[i + 1] == 0 && imgdata.data[i + 2] == 0) {
+                            imgdata.data[i + 3] = 0;
+                        }
+                    }
+                    ctx.putImageData(imgdata, 0, 0);
+                    that.earthctx=new THREE.CanvasTexture(canvas);
+                    that.addctxSphere();
+                }
+            }
+        },
+        addctxSphere:function(){
+            var that=this;
+            var geometry=new THREE.SphereGeometry(10,32,32);
+            var material=new THREE.MeshBasicMaterial({map:that.earthctx,transparent:true,side:THREE.DoubleSide});
+            var mesh=new THREE.Mesh(geometry,material);
+            mesh.position.y=10;
+            this.scene.add(mesh)
+            this._render();
+        },
+        testBlending: function() {
+            var that = this;
+            var loader = new THREE.JSONLoader().load('earth/station_b.js', function(geometry, materials) {
+                var material = materials[0];
+                var object = new THREE.Mesh(geometry, material);
+                that.scene.add(object);
+            });
+            var loader = new THREE.JSONLoader().load('earth/station_c.js', function(geometry, materials) {
+                var material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+                var object = new THREE.Mesh(geometry, material);
+                that.scene.add(object);
+            });
+            // this.scene.add(loader);
         },
         addRobot: function() {
             var that = this;
@@ -119,32 +184,115 @@
                 robot.scale.y = 0.1;
                 robot.scale.z = 0.1;
                 robot.rotation.x = -Math.PI / 2;
-                that.robot=robot;
-                that.scene.add(robot)
+                that.robot = robot;
+                // that.scene.add(robot)
                 that._render();
+                that.robotpositionchange();
 
             });
         },
-        updaterobot:function(){
+        updaterobot: function() {
             // TWEEN.update();
             this.stat.update();
-            var time=new Date()*0.005;
-            if(this.robot){
-            var obj=this.robot.geometry;
-            // console.log(obj)
-            var sizes=obj.attributes.position.array;
-            var len=sizes.length;
-            for(var i=0;i<len;i++){
-                sizes[i]=sizes[i] + 0.1;
-            }
-            obj.attributes.position.needsUpdate=true;
+            var time = new Date() * 0.005;
+            if (this.robot) {
+                var obj = this.robot.geometry;
+                // console.log(obj)
+                var sizes = obj.attributes.position.array;
+                var len = sizes.length;
+                for (var i = 0; i < len; i++) {
+                    sizes[i] = sizes[i] + 0.1;
+                }
+                obj.attributes.position.needsUpdate = true;
             }
             this._render();
             requestAnimationFrame(this.updaterobot.bind(this))
         },
+        robotpositionchange: function() {
+
+            var moreObj = this.robot.geometry;
+            moreObj.scale.x = 0.1;
+            moreObj.scale.y = 0.1;
+            moreObj.scale.z = 0.1;
+            // moreObj.rotation.x = -Math.PI / 2;
+            var lessObj = this.pointsphere;
+            if (moreObj.attributes.position.array.length < lessObj.attributes.position.array.length) {
+                [moreObj, lessObj] = [lessObj, moreObj];
+            }
+            var morePos = moreObj.attributes.position.array;
+            var lessPos = lessObj.attributes.position.array;
+            var moreLen = moreObj.attributes.position.array.length;
+            var lessLen = lessObj.attributes.position.array.length;
+            console.log(moreLen)
+            console.log(lessLen)
+            var position2 = new Float32Array(moreLen);
+            position2.set(lessPos);
+
+            for (var i = lessLen, j = 0; i < moreLen; i++, j++) {
+                j %= lessLen;
+                position2[i] = lessPos[j];
+                position2[i + 1] = lessPos[j + 1];
+                position2[i + 2] = lessPos[j + 2];
+            }
+
+            var sizes = new Float32Array(moreLen);
+            for (var i = 0; i < moreLen; i++) {
+                sizes[i] = 4;
+            }
+            moreObj.addAttribute('size', new THREE.BufferAttribute(sizes, 1));
+            moreObj.addAttribute('position2', new THREE.BufferAttribute(position2, 3));
+            moreObj.attributes.position.needsUpdate = true;
+            moreObj.attributes.position2.needsUpdate = true;
+            var uniforms = {
+                color: {
+                    type: 'v3',
+                    value: new THREE.Color(0xffffff)
+                },
+                val: {
+                    value: 1.0
+                }
+            };
+
+            var shaderMaterial = new THREE.ShaderMaterial({
+                uniforms: uniforms,
+                vertexShader: document.getElementById('vertexshader').textContent,
+                fragmentShader: document.getElementById('fragmentshader').textContent,
+                blending: THREE.AdditiveBlending,
+                depthTest: false, // 这个不设置的话，会导致带透明色的贴图始终会有方块般的黑色背景
+                transparent: true
+            });
+            var particleSystem = new THREE.Points(moreObj, shaderMaterial);
+            var pos = { val: 1 };
+            var tween = new TWEEN.Tween(pos).to({
+                val: 0
+            }, 1500).easing(TWEEN.Easing.Quadratic.InOut).delay(1000).onUpdate(function(val) {
+                particleSystem.material.uniforms.val.value = val;
+                // console.log(val)
+            });
+            var tweenBack = new TWEEN.Tween(pos).to({
+                val: 1
+            }, 1500).easing(TWEEN.Easing.Quadratic.InOut).delay(1000).onUpdate(function(val) {
+                particleSystem.material.uniforms.val.value = val;
+                // console.log(val)
+            });
+            tween.chain(tweenBack);
+            tweenBack.chain(tween);
+            tween.start();
+
+            this.scene.add(particleSystem);
+            this.particleSystem = particleSystem;
+
+        },
+        updatetween: function() {
+            requestAnimationFrame(this.updatetween.bind(this))
+            this._render();
+            // console.log(this.scene)
+            TWEEN.update();
+        },
+
         addPointSphere: function() {
             var material = new THREE.PointsMaterial({ color: 0xff55ca, size: 0.1, morphTargets: true });
-            var geomatry = new THREE.SphereGeometry(3, 32, 32);
+            var geomatry = new THREE.SphereBufferGeometry(3, 32, 32);
             var uniforms = {
                 color: {
                     type: 'v3',
@@ -159,6 +307,7 @@
                 depthTest: false,
                 transparent: true
             })
+            this.pointsphere = geomatry;
             var mesh = new THREE.Points(geomatry, shaderMaterial)
             mesh.position.y = 4;
             console.log(mesh)
@@ -691,6 +840,7 @@ window.onload = function() {
         fthree.chageintensity(e);
     })
 };
+
 </script>
 
 </html>
