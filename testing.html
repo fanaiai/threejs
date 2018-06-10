@@ -65,9 +65,9 @@
             this._initcamera();
             // this._initaxis();
             // this._addobj();
-            // this.addplane();
+            this.addplane();
             // this.addsphere();
-            this.addcube();
+            // this.addcube();
             // this._initlight();
             // this.ambientlight();
             this.addpointlight();
@@ -87,8 +87,9 @@
             // this.addRobot();
             // this.updatetween();
             // this.testBlending();
-            this.getearthtexture();
-            this.TestPropaties();
+            // this.getearthtexture();
+            // this.TestPropaties();
+            this.addclipbox();
             // this.updaterobot();
             // this.robotpositionchange();
             this._render();
@@ -97,11 +98,31 @@
             console.log(this.scene)
             // this.animate();
         },
+        addclipbox:function(){
+            var geometry=new THREE.BoxGeometry(8,8,8);
+            var material=new THREE.MeshPhongMaterial( {color:0xff0100} );
+            var box=new THREE.Mesh(geometry,material);
+            box.castShadow=true;
+            this.scene.add(box);
+        },
         TestPropaties:function(){
+            var clipPlanes = [
+                new THREE.Plane( new THREE.Vector3( 0, - 5, 0 ), 0.8 ),
+                new THREE.Plane( new THREE.Vector3( 0, 1, 0 ), 0.8 )
+            ];
+            console.log(new THREE.Plane( new THREE.Vector3( 1, 0, 0 ), 0 ))
             var geo1=new THREE.BoxGeometry(5,5,5);
-            var geo2=new THREE.CircleGeometry(9,6,6);
+            var geo2=new THREE.TorusKnotBufferGeometry( 10, 1.8, 950, 200 );
             var mat1=new THREE.MeshBasicMaterial( {color:0xff0000} );
-            var mat2=new THREE.MeshBasicMaterial( {color:0x00ff00,transparent:true,opacity:.5,depthTest:!1,AlphaTest:0,side:THREE.DoubleSide} );
+            // var mat2=new THREE.MeshLambertMaterial( {color:0x00ff00,transparent:true,opacity:.5,depthTest:1,AlphaTest:0,side:THREE.DoubleSide,clipIntersection: true,clippingPlanes:clipPlanes,depthWrite: !1} );
+            var mat2=new THREE.MeshPhongMaterial( {
+                        color: 0x80ee10,
+                        shininess: 100,
+                        side: THREE.DoubleSide,
+                        // ***** Clipping setup (material): *****
+                        clippingPlanes: clipPlanes,
+                        clipShadows: true
+                    } );
             var mesh1=new THREE.Mesh(geo1,mat1);
             mesh1.position.z=-6;
             var mesh2=new THREE.Mesh(geo2,mat2);
@@ -365,6 +386,7 @@
             this.renderer = new THREE.WebGLRenderer({ alpha: true ,antialias: true});
             this.renderer.setSize(this.size.width, this.size.height);
             this.renderer.setClearColor(0x000000)
+            this.renderer.localClippingEnabled =true;
             this.renderer.shadowMap.enabled = true
             this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             this.renderer.shadowMapSoft = true;
@@ -461,8 +483,8 @@
         },
         addspotlight: function() { //聚光灯
             this.spotlight = new THREE.SpotLight(0xffffff);
-            this.spotlight.position.set(20, 50, 20);
-            this.spotlight.castShadow = false;
+            this.spotlight.position.set(50, 50, 20);
+            this.spotlight.castShadow = true;
             this.spotlight.shadowDarkness = 1.1;
             this.spotlight.shadow.mapSize.width = 128
             this.spotlight.shadow.mapSize.height = 128
@@ -639,7 +661,7 @@
             var cube = new THREE.Mesh(geometry, material);
             cube.receiveShadow = true;
             cube.rotation.x = Math.PI / 2;
-            cube.position.y = -1;
+            cube.position.y = -10;
             this.scene.add(cube);
         },
         addconvexgeo: function() { //画一个凸起的包
