@@ -4,3 +4,6 @@
 法向量材质，不太懂，反正颜色怎么转都一样,也不能设置颜色
 ####PointsMaterial
 例子材料size设置例子的大小
+####material通用属性
+#####clippingPlanes
+不知道啥意思

@@ -4,10 +4,9 @@
 <head>
     <title></title>
     <style type="text/css">
-    #three,
-    #canvas {
-        width: 600px;
-        height: 400px;
+    #three{
+        width: 100%;
+        height: 600px;
         float: left;
         background: blue;
     }
@@ -54,6 +53,10 @@
         this.obj = null;
         this.stat = this._initstat();
         this.eventlists = [];
+        this.width = 200;
+        this.length = 400;
+        this.pointsize = 0.05;
+        this.imgdata = null;
         this.init();
     }
     FThree.prototype = {
@@ -88,8 +91,12 @@
             // this.updatetween();
             // this.testBlending();
             // this.getearthtexture();
+            // this.addwireframeobj();
+            // this.getpositiondedpoints();
+            this.getimgdata();
+            this.generateLine(this.width);
             // this.TestPropaties();
-            this.addclipbox();
+            // this.addclipbox();
             // this.updaterobot();
             // this.robotpositionchange();
             this._render();
@@ -98,39 +105,198 @@
             console.log(this.scene)
             // this.animate();
         },
-        addclipbox:function(){
-            var geometry=new THREE.BoxGeometry(8,8,8);
-            var material=new THREE.MeshPhongMaterial( {color:0xff0100} );
-            var box=new THREE.Mesh(geometry,material);
-            box.castShadow=true;
+        addwireframeobj: function() {
+            var sphereair = new THREE.TextureLoader().load("earth/bg_fragment_left.jpg");
+            var sphereairright = new THREE.TextureLoader().load("earth/bg_fragment_right.jpg");
+            var sphereaircircle = new THREE.TextureLoader().load("earth/clouds.jpg");
+            var texture1 = new THREE.TextureLoader().load("earth/contour2_1.png");
+            var texture2 = new THREE.TextureLoader().load("earth/contour1_1.png");
+            var texture3 = new THREE.TextureLoader().load("earth/earth_1.png");
+
+            var sphereairobj = new THREE.CircleBufferGeometry(24, 32, Math.PI / 2, Math.PI);
+            var sphereairobjright = new THREE.CircleBufferGeometry(24, 32, Math.PI * 3 / 2, Math.PI);
+            var geometry = new THREE.SphereGeometry(10, 128, 128);
+            var sphereaircircleobj = new THREE.SphereGeometry(14, 128, 128);
+
+            var pointsmaterial = new THREE.PointsMaterial({ transparent: true, depthTest: !1, depthWrite: !1, side: THREE.DoubleSide, color: 0x1f5b41, size: 0.1 });
+
+            var material1 = new THREE.MeshBasicMaterial({ alphaMap: texture1, transparent: true, depthTest: !1, depthWrite: !1, side: THREE.DoubleSide, color: 0xff0000 })
+            var material2 = new THREE.MeshBasicMaterial({ alphaMap: texture2, transparent: true, depthTest: !1, depthWrite: !1, side: THREE.DoubleSide, color: 0xffffff })
+            var material3 = new THREE.MeshBasicMaterial({ alphaMap: texture3, transparent: true, depthTest: !1, depthWrite: !1, side: THREE.DoubleSide, color: 0xffffff, blending: THREE.MultiplyBlending })
+            var airmaterial = new THREE.MeshBasicMaterial({ transparent: true, side: THREE.DoubleSide, alphaMap: sphereair, color: 0x1f5b41, opacity: 0.2 });
+            var airmaterialright = new THREE.MeshBasicMaterial({ transparent: true, side: THREE.DoubleSide, alphaMap: sphereairright, color: 0x1f5b41, opacity: 0.2 });
+            var aircirclematerial = new THREE.MeshBasicMaterial({ transparent: true, side: THREE.DoubleSide, alphaMap: sphereaircircle, color: 0x1f5b41, opacity: 0.4 });
+
+            var sphere = new THREE.Points(geometry, pointsmaterial);
+            var air = new THREE.Mesh(sphereairobj, airmaterial);
+            var airright = new THREE.Mesh(sphereairobjright, airmaterialright);
+            var aircircle = new THREE.Mesh(sphereaircircleobj, aircirclematerial);
+            var blend = new THREE.SceneUtils.createMultiMaterialObject(geometry, [material3]);
+            console.log(sphere)
+
+
+
+            var wireframe = new THREE.WireframeGeometry(geometry);
+            var line = new THREE.LineSegments(wireframe);
+            line.material.depthTest = false;
+            line.material.opacity = 1;
+            line.material.transparent = true;
+            this.scene.add(sphere);
+            // this.scene.add(air);
+            // this.scene.add(airright);
+            // this.scene.add(aircircle);
+            this.scene.add(blend);
+        },
+        getimgdata: function() {
+            var that = this;
+            var canvas = document.getElementById('canvas');
+            var ctx = canvas.getContext('2d');
+            var img = new Image();
+            img.src = 'earth/earth_1.png';
+            img.onload = function() {
+                canvas.width = that.length;
+                canvas.height = that.length;
+                ctx.drawImage(img, 0, 0, that.length, that.length);
+                that.imgdata = ctx.getImageData(0, 0, that.length, that.length);
+                var k=0;
+                for (var i = 0; i < that.length; i++) {
+                    for (var j = 0; j < that.length; j++) {
+                        // console.log(((j+1)*i+j) * 4 + 0)
+                        if (that.imgdata.data[(i*that.length+j) * 4 + 0] == 0 && that.imgdata.data[(i*that.length+j) * 4 + 1] == 0 && that.imgdata.data[(i*that.length+j) * 4 + 2] == 0) {
+                            // console.log((i*that.length+j) * 4)
+                            k++;
+                        }
+                    }
+                }
+                console.log(that.imgdata,k) 
+                var pcBuffer = that.generatePointcloud(new THREE.Color(1, 0, 0), that.width, that.length,k);
+
+                pcBuffer.scale.set(.08, .08, .08);
+                pcBuffer.position.set(0, 0, 0);
+                that.scene.add(pcBuffer);
+            }
+        },
+        generatePointCloudGeometry: function(color, width, length,plength) {
+            var that=this;
+            var geometry = new THREE.BufferGeometry();
+            var numPoints = width * length;
+
+            var positions = new Float32Array(plength*3);
+            var colors = new Float32Array(plength * 3);
+
+            var k = 0;
+
+            for (var i = 0; i < length; i++) {
+                for (var j = 0; j < length; j++) {
+                    if (that.imgdata.data[(i*length+j) * 4 + 0] == 0 && that.imgdata.data[(i*length+j) * 4 + 1] == 0 && that.imgdata.data[(i*length+j) * 4 + 2] == 0) {
+                    // console.log(i)
+                    // if(i==25){
+                        // console.log(i)
+                        var a = -i  * Math.PI / length;
+                        var b = -j*2 * Math.PI / length;//什么玩意，不会算了这东西
+                        var x = width * Math.sin(a) * Math.cos(b);
+                        var z = width * Math.sin(a) * Math.sin(b);
+                        var y = width * Math.cos(a);
+                        // console.log(x,z,y)
+                        // if (true) {
+                        positions[3 * k] = x;
+                        positions[3 * k + 1] = y;
+                        positions[3 * k + 2] = z;
+                        // console.log(i,j,x,y,z)
+
+                        // var intensity = ( y + 0.1 ) * 5;
+                        var intensity = 10;
+                        colors[3 * k] = color.r * intensity;
+                        colors[3 * k + 1] = color.g * intensity;
+                        colors[3 * k + 2] = color.b * intensity;
+                        k++;
+
+                    }
+                // }
+                    // colors[ 4 * k + 3 ] = 0;
+
+                }
+            }
+            geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3));
+            geometry.computeBoundingBox();
+            return geometry;
+
+        },
+        generatePointcloud: function(color, width, length,k) {
+
+            var geometry = this.generatePointCloudGeometry(color, width, length,k);
+
+            var material = new THREE.PointsMaterial({ size: this.pointsize, side: THREE.FrontSide ,color:0xff0000});
+            var pointcloud = new THREE.Points(geometry, material);
+            return pointcloud;
+
+        },
+        generateLine:function(width){
+            var contour=new THREE.TextureLoader().load('earth/contour.png');
+            var geometry = new THREE.SphereBufferGeometry(width,32,32);
+
+            var material = new THREE.MeshBasicMaterial({ alphaMap:contour , side: THREE.DoubleSide ,color:0xff0000,transparent:true});
+            var line = new THREE.Mesh(geometry, material);
+            line.scale.set(.08, .08, .08);
+            line.position.set(0, 0, 0);
+            line.rotation.y=-Math.PI;
+            this.scene.add(line)
+        },
+        getpositiondedpoints: function() {
+            var starsGeometry = new THREE.Geometry();
+
+            for (var i = 0; i < 10000; i++) {
+
+                var star = new THREE.Vector3();
+                star.x = THREE.Math.randFloatSpread(10);
+                star.y = THREE.Math.randFloatSpread(10);
+                star.z = THREE.Math.randFloatSpread(10);
+
+                starsGeometry.vertices.push(star);
+                starsGeometry.colors.push(0x00ff00);
+
+            }
+            starsGeometry.colors.NeedUpdate = true;
+            var starsMaterial = new THREE.PointsMaterial();
+
+            var starField = new THREE.Points(starsGeometry, starsMaterial);
+            console.log(starField)
+            this.scene.add(starField);
+        },
+        addclipbox: function() {
+            var geometry = new THREE.BoxGeometry(8, 8, 8);
+            var material = new THREE.MeshPhongMaterial({ color: 0xff0100, clippingPlanes: [new THREE.Plane(new THREE.Vector3(0, 1, 0), 1)] });
+            var box = new THREE.Mesh(geometry, material);
+            box.castShadow = true;
             this.scene.add(box);
         },
-        TestPropaties:function(){
+        TestPropaties: function() {
             var clipPlanes = [
-                new THREE.Plane( new THREE.Vector3( 0, - 5, 0 ), 0.8 ),
-                new THREE.Plane( new THREE.Vector3( 0, 1, 0 ), 0.8 )
+                new THREE.Plane(new THREE.Vector3(0, -5, 0), 0.8),
+                new THREE.Plane(new THREE.Vector3(0, 1, 0), 0.8)
             ];
-            console.log(new THREE.Plane( new THREE.Vector3( 1, 0, 0 ), 0 ))
-            var geo1=new THREE.BoxGeometry(5,5,5);
-            var geo2=new THREE.TorusKnotBufferGeometry( 10, 1.8, 950, 200 );
-            var mat1=new THREE.MeshBasicMaterial( {color:0xff0000} );
+            console.log(new THREE.Plane(new THREE.Vector3(1, 0, 0), 0))
+            var geo1 = new THREE.BoxGeometry(5, 5, 5);
+            var geo2 = new THREE.TorusKnotBufferGeometry(10, 1.8, 950, 200);
+            var mat1 = new THREE.MeshBasicMaterial({ color: 0xff0000 });
             // var mat2=new THREE.MeshLambertMaterial( {color:0x00ff00,transparent:true,opacity:.5,depthTest:1,AlphaTest:0,side:THREE.DoubleSide,clipIntersection: true,clippingPlanes:clipPlanes,depthWrite: !1} );
-            var mat2=new THREE.MeshPhongMaterial( {
-                        color: 0x80ee10,
-                        shininess: 100,
-                        side: THREE.DoubleSide,
-                        // ***** Clipping setup (material): *****
-                        clippingPlanes: clipPlanes,
-                        clipShadows: true
-                    } );
-            var mesh1=new THREE.Mesh(geo1,mat1);
-            mesh1.position.z=-6;
-            var mesh2=new THREE.Mesh(geo2,mat2);
+            var mat2 = new THREE.MeshPhongMaterial({
+                color: 0x80ee10,
+                shininess: 100,
+                side: THREE.DoubleSide,
+                // ***** Clipping setup (material): *****
+                clippingPlanes: clipPlanes,
+                clipShadows: true
+            });
+            var mesh1 = new THREE.Mesh(geo1, mat1);
+            mesh1.position.z = -6;
+            var mesh2 = new THREE.Mesh(geo2, mat2);
             this.scene.add(mesh1)
             this.scene.add(mesh2)
         },
         getearthtexture: function() {
-            var that=this;
+            var that = this;
             var canvas = document.getElementById('canvas');
             var ctx = canvas.getContext('2d');
             var star = new Image();
@@ -147,8 +313,8 @@
                 var img = new Image();
                 img.src = 'earth/earth_1.png';
                 img.onload = function() {
-                    canvas.width=img.width;
-                    canvas.height=img.height;
+                    canvas.width = img.width;
+                    canvas.height = img.height;
                     ctx.drawImage(img, 0, 0, img.width, img.height);
                     var imgdata = ctx.getImageData(0, 0, img.width, img.height);
                     for (var i = 0; i < imgdata.data.length; i += 4) {
@@ -162,27 +328,28 @@
                         }
                     }
                     ctx.putImageData(imgdata, 0, 0);
-                    that.earthctx=new THREE.CanvasTexture(canvas);
+                    that.earthctx = new THREE.CanvasTexture(canvas);
                     that.addctxSphere();
                 }
             }
         },
-        addctxSphere:function(){
-            var that=this;
-            var geometry=new THREE.SphereGeometry(10,64,64);
-            var material=new THREE.MeshBasicMaterial({
-                map:that.earthctx,
-            transparent: !0,
-            opacity: 1,
-            color: new THREE.Color(16777215),
-            blending: THREE.AdditiveBlending,
-            side: THREE.DoubleSide,
-            depthWrite: !1
-    }
 
-        );
-            var mesh=new THREE.Mesh(geometry,material);
-            mesh.position.y=10;
+        addctxSphere: function() {
+            var that = this;
+            var geometry = new THREE.SphereGeometry(10, 64, 64);
+            var material = new THREE.MeshBasicMaterial({
+                    map: that.earthctx,
+                    transparent: !0,
+                    opacity: 1,
+                    color: new THREE.Color(16777215),
+                    blending: THREE.AdditiveBlending,
+                    side: THREE.DoubleSide,
+                    depthWrite: !1
+                }
+
+            );
+            var mesh = new THREE.Mesh(geometry, material);
+            mesh.position.y = 10;
             this.scene.add(mesh)
             this._render();
         },
@@ -383,10 +550,10 @@
             return stats;
         },
         _initrenderer: function() {
-            this.renderer = new THREE.WebGLRenderer({ alpha: true ,antialias: true});
+            this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
             this.renderer.setSize(this.size.width, this.size.height);
             this.renderer.setClearColor(0x000000)
-            this.renderer.localClippingEnabled =true;
+            this.renderer.localClippingEnabled = true;
             this.renderer.shadowMap.enabled = true
             this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             this.renderer.shadowMapSoft = true;
@@ -483,7 +650,7 @@
         },
         addspotlight: function() { //聚光灯
             this.spotlight = new THREE.SpotLight(0xffffff);
-            this.spotlight.position.set(50, 50, 20);
+            this.spotlight.position.set(50, 25, 15);
             this.spotlight.castShadow = true;
             this.spotlight.shadowDarkness = 1.1;
             this.spotlight.shadow.mapSize.width = 128
@@ -883,7 +1050,6 @@ window.onload = function() {
         fthree.chageintensity(e);
     })
 };
-
 </script>
 
 </html>
