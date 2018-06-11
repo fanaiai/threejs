@@ -4,11 +4,15 @@
 <head>
     <title></title>
     <style type="text/css">
-    #three{
+    #three {
         width: 100%;
         height: 600px;
         float: left;
         background: blue;
+    }
+    #canvas{
+        width:300px;
+        height: 300px;
     }
     </style>
     <script type="text/javascript" src="jquery.min.js"></script>
@@ -31,7 +35,8 @@
 
 <body>
     <div id="three"></div>
-    <canvas id='canvas'></canvas>
+    <canvas id='canvas' width='300px' height='300px'></canvas>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEIAAAAhCAAAAABIXyLAAAAAOElEQVRIx2NgGAWjYBSMglEwEICREYRgFBZBqDCSLA2MGPUIVQETE9iNUAqLR5gIeoQKRgwXjwAAGn4AtaFeYLEAAAAASUVORK5CYII=">
     <div id="Stats-output"></div>
     <script type="x-shader/x-vertex" id="vertexshader">
         attribute float size; attribute vec3 position2; uniform float val; void main(){ vec3 vPos; gl_PointSize=1.; vPos.x = position.x * val + position2.x * (1. - val); vPos.y = position.y * val + position2.y * (1. - val); vPos.z = position.z * val + position2.z * (1. - val); vec4 mvPosition = modelViewMatrix * vec4( vPos, 1.0 ); gl_PointSize = 4.; gl_Position = projectionMatrix * mvPosition; }
@@ -149,7 +154,7 @@
         },
         getimgdata: function() {
             var that = this;
-            var canvas = document.getElementById('canvas');
+            var canvas = document.createElement('canvas');
             var ctx = canvas.getContext('2d');
             var img = new Image();
             img.src = 'earth/earth_1.png';
@@ -158,45 +163,59 @@
                 canvas.height = that.length;
                 ctx.drawImage(img, 0, 0, that.length, that.length);
                 that.imgdata = ctx.getImageData(0, 0, that.length, that.length);
-                var k=0;
+                var k = 0,
+                    k1 = 0;
                 for (var i = 0; i < that.length; i++) {
                     for (var j = 0; j < that.length; j++) {
                         // console.log(((j+1)*i+j) * 4 + 0)
-                        if (that.imgdata.data[(i*that.length+j) * 4 + 0] == 0 && that.imgdata.data[(i*that.length+j) * 4 + 1] == 0 && that.imgdata.data[(i*that.length+j) * 4 + 2] == 0) {
+                        if (that.imgdata.data[(i * that.length + j) * 4 + 0] == 0 && that.imgdata.data[(i * that.length + j) * 4 + 1] == 0 && that.imgdata.data[(i * that.length + j) * 4 + 2] == 0) {
                             // console.log((i*that.length+j) * 4)
                             k++;
+                        } else {
+                            k1++;
                         }
                     }
                 }
-                console.log(that.imgdata,k) 
-                var pcBuffer = that.generatePointcloud(new THREE.Color(1, 0, 0), that.width, that.length,k);
+                console.log(that.imgdata, k)
+                var pcBuffers = that.generatePointcloud(new THREE.Color(1, 0, 0), that.width, that.length, k, k1);
+                var pcBuffer = pcBuffers[0];
+                var pcBufferk = pcBuffers[1];
 
                 pcBuffer.scale.set(.08, .08, .08);
                 pcBuffer.position.set(0, 0, 0);
+                pcBufferk.scale.set(.08, .08, .08);
+                pcBufferk.position.set(0, 0, 0);
                 that.scene.add(pcBuffer);
+                that.scene.add(pcBufferk);
             }
         },
-        generatePointCloudGeometry: function(color, width, length,plength) {
-            var that=this;
+        generatePointCloudGeometry: function(color, width, length, plength, klength) {
+            var that = this;
             var geometry = new THREE.BufferGeometry();
+            var geometryk = new THREE.BufferGeometry();
             var numPoints = width * length;
 
-            var positions = new Float32Array(plength*3);
+            var positions = new Float32Array(plength * 3);
+            var positionsk = new Float32Array(klength * 3);
             var colors = new Float32Array(plength * 3);
+            var stars=new THREE.Group();
+            var stargeometry=new THREE.CircleBufferGeometry(0.4,6)
+            var starmaterial=new THREE.MeshBasicMaterial( {color:0x00ffff,side:THREE.DoubleSide} );
+            var star=new THREE.Mesh(stargeometry,starmaterial);
 
-            var k = 0;
+            var k = 0,
+                k1 = 0;
 
             for (var i = 0; i < length; i++) {
                 for (var j = 0; j < length; j++) {
-                    if (that.imgdata.data[(i*length+j) * 4 + 0] == 0 && that.imgdata.data[(i*length+j) * 4 + 1] == 0 && that.imgdata.data[(i*length+j) * 4 + 2] == 0) {
-                    // console.log(i)
-                    // if(i==25){
+                    var a = -i * Math.PI / length;
+                    var b = -j * 2 * Math.PI / length; //什么玩意，不会算了这东西
+                    var x = width * Math.sin(a) * Math.cos(b);
+                    var z = width * Math.sin(a) * Math.sin(b);
+                    var y = width * Math.cos(a);
+                    if (that.imgdata.data[(i * length + j) * 4 + 0] == 0 && that.imgdata.data[(i * length + j) * 4 + 1] == 0 && that.imgdata.data[(i * length + j) * 4 + 2] == 0) {
+                        // if(i==25){
                         // console.log(i)
-                        var a = -i  * Math.PI / length;
-                        var b = -j*2 * Math.PI / length;//什么玩意，不会算了这东西
-                        var x = width * Math.sin(a) * Math.cos(b);
-                        var z = width * Math.sin(a) * Math.sin(b);
-                        var y = width * Math.cos(a);
                         // console.log(x,z,y)
                         // if (true) {
                         positions[3 * k] = x;
@@ -204,43 +223,83 @@
                         positions[3 * k + 2] = z;
                         // console.log(i,j,x,y,z)
 
-                        // var intensity = ( y + 0.1 ) * 5;
-                        var intensity = 10;
-                        colors[3 * k] = color.r * intensity;
-                        colors[3 * k + 1] = color.g * intensity;
-                        colors[3 * k + 2] = color.b * intensity;
+                        // var intensity = 10;
+                        // colors[3 * k] = color.r * intensity;
+                        // colors[3 * k + 1] = color.g * intensity;
+                        // colors[3 * k + 2] = color.b * intensity;
                         k++;
+                    } else {
 
+                        if (Math.random() < 0.0005 && k1 < 50) {
+                            var starl=star.clone();
+                            starl.position.set(x*0.08,y*0.08,z*0.08)
+                            // starl.rotation.set(0,b,a);
+                            // starl.scale.set(.08, .08, .08);
+                            stars.add(starl);
+                            // positionsk[3 * k1] = x;
+                            // positionsk[3 * k1 + 1] = y;
+                            // positionsk[3 * k1 + 2] = z;
+
+                            k1++;
+                        }
                     }
-                // }
+                    // }
                     // colors[ 4 * k + 3 ] = 0;
 
                 }
             }
+            // console.log(positionsk)
             geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
             geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3));
             geometry.computeBoundingBox();
-            return geometry;
+            geometryk.addAttribute('position', new THREE.BufferAttribute(positionsk, 3));
+            geometryk.computeBoundingBox();
+            this.scene.add(stars);
+            return [geometry, geometryk];
 
         },
-        generatePointcloud: function(color, width, length,k) {
+        generatePointcloud: function(color, width, length, k, k1) {
+            var canvasstar=new THREE.CanvasTexture( this.generateStar());
+            var geometrys = this.generatePointCloudGeometry(color, width, length, k, k1)
+            var geometry = geometrys[0];
+            var geometryk = geometrys[1];
 
-            var geometry = this.generatePointCloudGeometry(color, width, length,k);
-
-            var material = new THREE.PointsMaterial({ size: this.pointsize, side: THREE.FrontSide ,color:0xff0000});
+            var material = new THREE.PointsMaterial({ size: this.pointsize, side: THREE.FrontSide, color: 0xff0000 });
+            var materialk = new THREE.PointsMaterial({ size: this.pointsize * 25, side: THREE.FrontSide, transparent:true, map:canvasstar });
             var pointcloud = new THREE.Points(geometry, material);
-            return pointcloud;
+            var pointcloudk = new THREE.Points(geometryk, materialk);
+            return [pointcloud, pointcloudk];
 
         },
-        generateLine:function(width){
-            var contour=new THREE.TextureLoader().load('earth/contour.png');
-            var geometry = new THREE.SphereBufferGeometry(width,32,32);
+        generateStar: function() {
+            var canvas = document.getElementById('canvas');
+            var cxt = canvas.getContext('2d');
+            cxt.save();
+            cxt.translate(100, 80);
+            cxt.beginPath();
+            cxt.strokeStyle = "orange";
+            cxt.lineWidth = "10";
+            cxt.closePath();
+            cxt.beginPath();
+            for (var i = 0; i < 5; i++) { 
+                cxt.lineTo(100 * Math.cos((18 + i * 72) * Math.PI / 180), -100 * Math.sin((18 + i * 72) * Math.PI / 180));
+                cxt.lineTo(50 * Math.cos((54 + i * 72) * Math.PI / 180), -50 * Math.sin((54 + i * 72) * Math.PI / 180)); } 
+            cxt.fillStyle = "yellow";
+            cxt.fill();
+            cxt.closePath();
+            cxt.stroke();
+            cxt.restore();
+            return canvas;
+        },
+        generateLine: function(width) {
+            var contour = new THREE.TextureLoader().load('earth/contour.png');
+            var geometry = new THREE.SphereBufferGeometry(width, 32, 32);
 
-            var material = new THREE.MeshBasicMaterial({ alphaMap:contour , side: THREE.DoubleSide ,color:0xff0000,transparent:true});
+            var material = new THREE.MeshBasicMaterial({ alphaMap: contour, side: THREE.DoubleSide, color: 0xff0000, transparent: true });
             var line = new THREE.Mesh(geometry, material);
             line.scale.set(.08, .08, .08);
             line.position.set(0, 0, 0);
-            line.rotation.y=-Math.PI;
+            line.rotation.y = -Math.PI;
             this.scene.add(line)
         },
         getpositiondedpoints: function() {
