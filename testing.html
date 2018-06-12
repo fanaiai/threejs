@@ -126,14 +126,6 @@
             cylinder.position.set(this.width*0.08+this.width*0.08/8,0,0)
             this.scene.add( cylinder );
 
-            var linesize=3;
-            var r=3;
-            var circlegeometry=new THREE.BufferGeometry();
-            var positions=new Float32Array(linesize * 3)
-            for(var i=0;i<3;i++){
-                var a=Math.PI/linesize;
-                // var x=
-            }
 
         },
         addwireframeobj: function() {
@@ -177,6 +169,24 @@
                 pcBufferk.scale.set(.08, .08, .08);
                 pcBufferk.position.set(0, 0, 0);
                 that.scene.add(pcBuffer);
+
+                var linesize=3;
+                var r=13;
+                var circlegeometry=new THREE.BufferGeometry();
+                var positions=new Float32Array(linesize * 3)
+                for(var i=0;i<3;i++){
+                    var a=i*Math.PI*2/linesize;
+                    positions[i*3]=Math.cos(a)*r;
+                    positions[i*3+1]=Math.sin(a)*r;
+                    positions[i*3+2]=0;
+                }
+                circlegeometry.addAttribute('position',new THREE.BufferAttribute(positions,3))
+                // circlegeometry.boundingSphere=pcBuffer;
+                // circlegeometry.computeBoundingSphere();
+                var material1=new THREE.MeshBasicMaterial( {color:0xffff00,side:THREE.DoubleSide} );
+                var circle=new THREE.Mesh(circlegeometry,material1);
+                circle.position.x=this.width*0.08;
+                that.scene.add(circle)
                 // that.scene.add(pcBufferk);
             }
         },
