@@ -13,6 +13,7 @@
     #canvas{
         width:300px;
         height: 300px;
+        display: none;
     }
     </style>
     <script type="text/javascript" src="jquery.min.js"></script>
@@ -29,6 +30,7 @@
     <!-- <script type="text/javascript" src="inflate.js"></script> -->
     <script type="text/javascript" src="FBXLoader.js"></script>
     <script type="text/javascript" src="OBJLoader.js"></script>
+    <script type="text/javascript" src="OrbitControls.js"></script>
     <script type="text/javascript" src="stats.min.js"></script>
     <script type="text/javascript" src="dat.gui.js"></script>
 </head>
@@ -59,9 +61,10 @@
         this.stat = this._initstat();
         this.eventlists = [];
         this.width = 200;
-        this.length = 400;
-        this.pointsize = 0.05;
+        this.length = 300;
+        this.pointsize = 0.1;
         this.imgdata = null;
+        this.controls=null;
         this.init();
     }
     FThree.prototype = {
@@ -77,7 +80,7 @@
             // this.addsphere();
             // this.addcube();
             // this._initlight();
-            // this.ambientlight();
+            this.addambientlight();
             this.addpointlight();
             this.addspotlight();
             // this.addlensflare();
@@ -96,61 +99,39 @@
             // this.updatetween();
             // this.testBlending();
             // this.getearthtexture();
-            // this.addwireframeobj();
+            this.addwireframeobj();
             // this.getpositiondedpoints();
             this.getimgdata();
             this.generateLine(this.width);
+            this.addraderlight();
             // this.TestPropaties();
             // this.addclipbox();
             // this.updaterobot();
             // this.robotpositionchange();
             this._render();
+            this._initcontrols();
+
             this._addevent();
             // this.trigger('init')
             console.log(this.scene)
-            // this.animate();
+            this.animate();
+        },
+        addraderlight:function(){
+            var texture=new THREE.TextureLoader().load('earth/lightray_yellow.jpg');
+
+            var geometry = new THREE.PlaneBufferGeometry( this.width*0.0038, this.width*0.08/4, 32 );
+            var material = new THREE.MeshBasicMaterial( {alphaMap:texture,transparent:true,side:THREE.DoubleSide } );
+            var cylinder = new THREE.Mesh( geometry, material );
+            cylinder.rotation.set(0,0,Math.PI/2)
+            cylinder.position.set(this.width*0.08+this.width*0.08/8,0,0)
+            this.scene.add( cylinder );
         },
         addwireframeobj: function() {
-            var sphereair = new THREE.TextureLoader().load("earth/bg_fragment_left.jpg");
-            var sphereairright = new THREE.TextureLoader().load("earth/bg_fragment_right.jpg");
+            var sphereaircircleobj=new THREE.SphereBufferGeometry(this.width*0.08*1.2,32,32);
             var sphereaircircle = new THREE.TextureLoader().load("earth/clouds.jpg");
-            var texture1 = new THREE.TextureLoader().load("earth/contour2_1.png");
-            var texture2 = new THREE.TextureLoader().load("earth/contour1_1.png");
-            var texture3 = new THREE.TextureLoader().load("earth/earth_1.png");
-
-            var sphereairobj = new THREE.CircleBufferGeometry(24, 32, Math.PI / 2, Math.PI);
-            var sphereairobjright = new THREE.CircleBufferGeometry(24, 32, Math.PI * 3 / 2, Math.PI);
-            var geometry = new THREE.SphereGeometry(10, 128, 128);
-            var sphereaircircleobj = new THREE.SphereGeometry(14, 128, 128);
-
-            var pointsmaterial = new THREE.PointsMaterial({ transparent: true, depthTest: !1, depthWrite: !1, side: THREE.DoubleSide, color: 0x1f5b41, size: 0.1 });
-
-            var material1 = new THREE.MeshBasicMaterial({ alphaMap: texture1, transparent: true, depthTest: !1, depthWrite: !1, side: THREE.DoubleSide, color: 0xff0000 })
-            var material2 = new THREE.MeshBasicMaterial({ alphaMap: texture2, transparent: true, depthTest: !1, depthWrite: !1, side: THREE.DoubleSide, color: 0xffffff })
-            var material3 = new THREE.MeshBasicMaterial({ alphaMap: texture3, transparent: true, depthTest: !1, depthWrite: !1, side: THREE.DoubleSide, color: 0xffffff, blending: THREE.MultiplyBlending })
-            var airmaterial = new THREE.MeshBasicMaterial({ transparent: true, side: THREE.DoubleSide, alphaMap: sphereair, color: 0x1f5b41, opacity: 0.2 });
-            var airmaterialright = new THREE.MeshBasicMaterial({ transparent: true, side: THREE.DoubleSide, alphaMap: sphereairright, color: 0x1f5b41, opacity: 0.2 });
-            var aircirclematerial = new THREE.MeshBasicMaterial({ transparent: true, side: THREE.DoubleSide, alphaMap: sphereaircircle, color: 0x1f5b41, opacity: 0.4 });
-
-            var sphere = new THREE.Points(geometry, pointsmaterial);
-            var air = new THREE.Mesh(sphereairobj, airmaterial);
-            var airright = new THREE.Mesh(sphereairobjright, airmaterialright);
+            var aircirclematerial = new THREE.MeshBasicMaterial({ transparent: true, side: THREE.FrontSide, alphaMap: sphereaircircle, color: new THREE.Color('rgb(19, 47, 38)'), opacity: 1,depthTest:!1,depthWrite:!1 ,clippingPlanes:[new THREE.Plane(new THREE.Vector3(0,0,this.width*0.08*1.2),1)]});
             var aircircle = new THREE.Mesh(sphereaircircleobj, aircirclematerial);
-            var blend = new THREE.SceneUtils.createMultiMaterialObject(geometry, [material3]);
-            console.log(sphere)
-
-
-
-            var wireframe = new THREE.WireframeGeometry(geometry);
-            var line = new THREE.LineSegments(wireframe);
-            line.material.depthTest = false;
-            line.material.opacity = 1;
-            line.material.transparent = true;
-            this.scene.add(sphere);
-            // this.scene.add(air);
-            // this.scene.add(airright);
-            // this.scene.add(aircircle);
-            this.scene.add(blend);
+            this.scene.add(aircircle);
         },
         getimgdata: function() {
             var that = this;
@@ -186,7 +167,7 @@
                 pcBufferk.scale.set(.08, .08, .08);
                 pcBufferk.position.set(0, 0, 0);
                 that.scene.add(pcBuffer);
-                that.scene.add(pcBufferk);
+                // that.scene.add(pcBufferk);
             }
         },
         generatePointCloudGeometry: function(color, width, length, plength, klength) {
@@ -198,20 +179,19 @@
             var positions = new Float32Array(plength * 3);
             var positionsk = new Float32Array(klength * 3);
             var colors = new Float32Array(plength * 3);
-            var stars=new THREE.Group();
-            var stargeometry=new THREE.CircleBufferGeometry(0.4,6)
-            var starmaterial=new THREE.MeshBasicMaterial( {color:0x00ffff,side:THREE.DoubleSide} );
-            var star=new THREE.Mesh(stargeometry,starmaterial);
+            // var stars=new THREE.Group();
+            // var stargeometry=new THREE.CircleBufferGeometry(0.4,6)
+            
 
             var k = 0,
                 k1 = 0;
 
             for (var i = 0; i < length; i++) {
                 for (var j = 0; j < length; j++) {
-                    var a = -i * Math.PI / length;
-                    var b = -j * 2 * Math.PI / length; //什么玩意，不会算了这东西
-                    var x = width * Math.sin(a) * Math.cos(b);
-                    var z = width * Math.sin(a) * Math.sin(b);
+                    var a = i * Math.PI / length;
+                    var b = j * 2 * Math.PI / length; //什么玩意，不会算了这东西
+                    var z = width * Math.sin(a) * Math.cos(b);
+                    var x = width * Math.sin(a) * Math.sin(b);
                     var y = width * Math.cos(a);
                     if (that.imgdata.data[(i * length + j) * 4 + 0] == 0 && that.imgdata.data[(i * length + j) * 4 + 1] == 0 && that.imgdata.data[(i * length + j) * 4 + 2] == 0) {
                         // if(i==25){
@@ -230,12 +210,17 @@
                         k++;
                     } else {
 
-                        if (Math.random() < 0.0005 && k1 < 50) {
-                            var starl=star.clone();
-                            starl.position.set(x*0.08,y*0.08,z*0.08)
-                            // starl.rotation.set(0,b,a);
+                        // if (Math.random() < 0.0005 && k1 < 50) {
+                        if(i==0 && j==10){
+                            // var starl=star.clone();
+                            // console.log(a,b,x,y,z)
+                            positions[3 * k] = x;
+                            positions[3 * k + 1] = y;
+                            positions[3 * k + 2] = z;
+                            // starl.position.set(x*0.08,y*0.08,z*0.08)
+                            // starl.rotation.set(a-Math.PI/2,b,0);
                             // starl.scale.set(.08, .08, .08);
-                            stars.add(starl);
+                            // stars.add(starl);
                             // positionsk[3 * k1] = x;
                             // positionsk[3 * k1 + 1] = y;
                             // positionsk[3 * k1 + 2] = z;
@@ -254,7 +239,7 @@
             geometry.computeBoundingBox();
             geometryk.addAttribute('position', new THREE.BufferAttribute(positionsk, 3));
             geometryk.computeBoundingBox();
-            this.scene.add(stars);
+            // this.scene.add(stars);
             return [geometry, geometryk];
 
         },
@@ -264,15 +249,15 @@
             var geometry = geometrys[0];
             var geometryk = geometrys[1];
 
-            var material = new THREE.PointsMaterial({ size: this.pointsize, side: THREE.FrontSide, color: 0xff0000 });
-            var materialk = new THREE.PointsMaterial({ size: this.pointsize * 25, side: THREE.FrontSide, transparent:true, map:canvasstar });
+            var material = new THREE.PointsMaterial({ size: this.pointsize, side: THREE.FrontSide, color: new THREE.Color('rgb(29, 95, 68)'),depthTest:!1,depthWrite:!1 });
+            var materialk = new THREE.PointsMaterial({ size: this.pointsize * 10, side: THREE.FrontSide, transparent:true, color: new THREE.Color('rgb(129, 95, 68)')});
             var pointcloud = new THREE.Points(geometry, material);
             var pointcloudk = new THREE.Points(geometryk, materialk);
             return [pointcloud, pointcloudk];
 
         },
         generateStar: function() {
-            var canvas = document.getElementById('canvas');
+            var canvas = document.createElement('canvas');
             var cxt = canvas.getContext('2d');
             cxt.save();
             cxt.translate(100, 80);
@@ -295,11 +280,11 @@
             var contour = new THREE.TextureLoader().load('earth/contour.png');
             var geometry = new THREE.SphereBufferGeometry(width, 32, 32);
 
-            var material = new THREE.MeshBasicMaterial({ alphaMap: contour, side: THREE.DoubleSide, color: 0xff0000, transparent: true });
+            var material = new THREE.MeshBasicMaterial({ alphaMap: contour, side: THREE.DoubleSide, color: 0xffff00, transparent: true });
             var line = new THREE.Mesh(geometry, material);
             line.scale.set(.08, .08, .08);
             line.position.set(0, 0, 0);
-            line.rotation.y = -Math.PI;
+            line.rotation.set(0,-Math.PI/2,0)
             this.scene.add(line)
         },
         getpositiondedpoints: function() {
@@ -659,7 +644,7 @@
             this.scene.add(texts);
         },
         _initcamera: function() {
-            this.camera = new THREE.PerspectiveCamera(75, this.size.width / this.size.height, 0.1, 1000);
+            this.camera = new THREE.PerspectiveCamera(75, this.size.width / this.size.height, this.width*0.08*1.05, 1000);
             this.camera.position.z = 30;
             this.camera.position.y = 15;
             this.camera.lookAt(0, 0, 0);
@@ -1051,10 +1036,17 @@
             // this.scene.rotation.x=Math.PI/4
             this.renderer.render(this.scene, this.camera);
         },
+        _initcontrols:function(){
+            this.controls = new THREE.OrbitControls( this.camera );
+            this.controls.autoRotate=true;
+            // this.controls.autoRotateSpeed=5.0;
+            this.controls.update();
+        },
         animate: function() {
             requestAnimationFrame(this.animate.bind(this));
             this.stat.update();
-            this.scene.rotation.y += 0.01;
+            this.controls.update();
+            // this.scene.rotation.y += 0.01;
             this._render();
         }
 

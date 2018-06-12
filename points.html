@@ -56,9 +56,9 @@
     var clock;
 
     var threshold = 0.1;
-    var pointSize = 1.1;
+    var pointSize = 0.05;
     var width = 100;
-    var length = 16;
+    var length =400;
     var imgdata=[];
     var rotateY = new THREE.Matrix4().makeRotationY(0.005);
 
@@ -74,26 +74,30 @@
         img.onload = function() {
             canvas.width = length;
             canvas.height = length;
+            // ctx.translate(length,0);
+            // ctx.rotate((Math.PI/2));
+            // ctx.scale(5,5);
             ctx.drawImage(img, 0, 0,length,length);
             imgdata = ctx.getImageData(0,0,length, length);
-            console.log(imgdata)
             var pcBuffer = generatePointcloud(new THREE.Color(1, 0, 0), width, length);
 
 	        pcBuffer.scale.set(.05, .05, .05);
 	        pcBuffer.position.set(0, 0, 0);
 	        scene.add(pcBuffer);
-            // for(var i=0;i<length;i++){
-            // 	for(var j=0;j<length;j++){
-
-            // 	}
-            // }
+            
+            var linetexture=new THREE.TextureLoader().load('earth/contour.png');
+            var linegeo=new THREE.SphereBufferGeometry(width*0.05,32,32);
+            var linemat=new THREE.MeshBasicMaterial({transparent:true,alphaMap:linetexture,side:THREE.DoubleSide,depthTest:!1,depthWrite:!1,color:0xff0000});
+            var line=new THREE.Mesh(linegeo,linemat);
+            line.rotation.set(0,-Math.PI/2,0)
+            scene.add(line);
         }
     }
 
     function generatePointCloudGeometry(color, width, length) {
 
         var geometry = new THREE.BufferGeometry();
-        var numPoints = width * length;
+        var numPoints = length * length;
 
         var positions = new Float32Array(numPoints * 3);
         var colors = new Float32Array(numPoints * 3);
@@ -110,9 +114,9 @@
 
 
         for (var i = 0; i < length; i++) {
-            for (var j = length/2; j < length; j++) {
-                var a=j*2*Math.PI/length;
-                var b=i*2*Math.PI/length;
+            for (var j = 0; j < length; j++) {
+                var a=i*Math.PI/length;
+                var b=j*2*Math.PI/length;
 
                 var x=width*Math.sin(a)*Math.sin(b);
                 var y=width*Math.cos(a);
@@ -125,12 +129,10 @@
                 // var y = width * Math.sin(a) * Math.sin(b);
                 // var z = width * Math.cos(a);
 
-
-
-
-                // if (imgdata.data[(i*length+j)*4+0]==0 || imgdata.data[(i*length+j)*4+1]==0 || imgdata.data[(i*length+j)*4+2]==0) {
-                // if ((j==length*1/8 || j==length*7/8) && (i==0 || i==1 || i==8)) {
-                    if(i>length/2){
+                if (imgdata.data[(i*length+j)*4+0]==0 && imgdata.data[(i*length+j)*4+1]==0 && imgdata.data[(i*length+j)*4+2]==0) {
+                // if ((j==length*1/8 || j==length*7/8) && (i==length*7/8 || i==length*3/8)) {
+                    // if(i>length/2){
+                    // console.log(i,j,a,b,x,y,z)
                     positions[3 * k] = x;
                     positions[3 * k + 1] = y;
                     positions[3 * k + 2] = z;
@@ -149,37 +151,9 @@
 
             }
         }
-        scene.add(stars);
-
-        console.log(k)
-        // for( var i = 0; i < width; i++ ) {
-
-        // 	for( var j = 0; j < length; j++ ) {
-
-        // 		var u = i / width;
-        // 		var v = j / length;
-        // 		var x = u - 0.5;
-        // 		var y = ( Math.cos( u * Math.PI * 8 ) + Math.sin( v * Math.PI * 8 ) ) / 20;
-        // 		var z = v - 0.5;
-
-        // 		positions[ 3 * k ] = x;
-        // 		positions[ 3 * k + 1 ] = y;
-        // 		positions[ 3 * k + 2 ] = z;
-
-        // 		var intensity = ( y + 0.1 ) * 5;
-        // 		colors[ 3 * k ] = color.r * intensity;
-        // 		colors[ 3 * k + 1 ] = color.g * intensity;
-        // 		colors[ 3 * k + 2 ] = color.b * intensity;
-
-        // 		k++;
-
-        // 	}
-
-        // }
-
+        
         geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
-        console.log(positions)
-        geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3));
+        // geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3));
         geometry.computeBoundingBox();
         console.log(geometry)
         return geometry;
@@ -190,7 +164,7 @@
 
         var geometry = generatePointCloudGeometry(color, width, length);
 
-        var material = new THREE.PointsMaterial({ size: pointSize, vertexColors: THREE.VertexColors ,side:THREE.DoubleSide});
+        var material = new THREE.PointsMaterial({ size: pointSize, color: 0xff0000 ,side:THREE.DoubleSide,transparent:true});
         var pointcloud = new THREE.Points(geometry, material);
         console.log(pointcloud)
         return pointcloud;
