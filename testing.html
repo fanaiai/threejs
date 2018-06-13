@@ -10,8 +10,9 @@
         float: left;
         background: blue;
     }
-    #canvas{
-        width:300px;
+
+    #canvas {
+        width: 300px;
         height: 300px;
         display: none;
     }
@@ -64,7 +65,9 @@
         this.length = 300;
         this.pointsize = 0.1;
         this.imgdata = null;
-        this.controls=null;
+        this.controls = null;
+        this.stari = 0;
+        this.earth=new THREE.Group();
         this.init();
     }
     FThree.prototype = {
@@ -73,6 +76,7 @@
             this._initscene();
             var axes = new THREE.AxisHelper(20);
             this.scene.add(axes);
+            this.scene.add(this.earth);
             this._initcamera();
             // this._initaxis();
             // this._addobj();
@@ -103,6 +107,7 @@
             // this.getpositiondedpoints();
             this.getimgdata();
             this.generateLine(this.width);
+            // this.generatestars();
             // this.addraderlight();
             // this.TestPropaties();
             // this.addclipbox();
@@ -116,36 +121,60 @@
             console.log(this.scene)
             this.animate();
         },
-        addraderlight:function(a,b,x,y,z){
-            var texture=new THREE.TextureLoader().load('earth/lightray_yellow.jpg');
+        addstars: function() {
+            var spriteMap = new THREE.TextureLoader().load("img/snow.png");
+            var spriteMaterial = new THREE.SpriteMaterial({ map: spriteMap, color: 0xffffff });
+            var sprite = new THREE.Sprite(spriteMaterial);
+            sprite.name='snow'+this.stari;
+            sprite.random=Math.random()*2-1;
+            this.scene.add(sprite);
+            this.stari++;
+            console.log(this.stari)
+        },
+        generatestars:function(){
+            for(var i=0;i<100;i++){
+                this.addstars();
+            }
+        },
+        addraderlight: function(a, b) {
+            var texture = new THREE.TextureLoader().load('earth/lightray_yellow.jpg');
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set( 1, 1 );
+            texture.repeat.set(1, 1);
             // var geometry = new THREE.CylinderBufferGeometry( 5, 5, 20, 32);
-            var geometry = new THREE.PlaneBufferGeometry( this.width*0.0038, this.width*0.08/4, 32 );
-            var material = new THREE.MeshBasicMaterial( {alphaMap:texture,transparent:true,side:THREE.DoubleSide } );
-            var cylinder = new THREE.Mesh( geometry, material );
+            var geometry = new THREE.PlaneBufferGeometry(this.width * 0.0038, this.width * 0.08 / 4, 32);
+            var material = new THREE.MeshBasicMaterial({ alphaMap: texture, transparent: true, side: THREE.DoubleSide });
+            var cylinder = new THREE.Mesh(geometry, material);
             // cylinder.position.set(x,y,z)
             // cylinder.rotateX(Math.PI/4)
             // cylinder.rotateZ(Math.PI/4)
-            var cylinder1=cylinder.copy();
-            cylinder1.material.setValues({'color':0xff0000})
-            cylinder1.rotateZ(Math.PI/4)
-
-            console.log(cylinder)
+            var cylinder1 = cylinder.clone();
+            cylinder1.material.setValues({ 'color': 0xff0000 })
+            cylinder1.rotateZ(a)
+            cylinder1.rotateX(b)
+            var a = Math.PI - a;
+            var b = Math.PI / 2 + b;
+            var R = (this.width * 0.08 + this.width * 0.08 / 8);
+            var x = R * Math.sin(a) * Math.sin(b);
+            var y = R * Math.cos(a)
+            var z = R * Math.sin(a) * Math.cos(b);
+            // cylinder1.position.set(x,y,z)
+            console.log(a, b)
             // cylinder.rotateZ(b)
             // cylinder.rotation.set(a,-b,0)
             // console.log(x,y,z)
             // console.log(this.width*0.08)
-            this.scene.add( cylinder );
-            this.scene.add( cylinder1 );
+            this.earth.add(cylinder);
+            this.earth.add(cylinder1);
+
         },
+
         addwireframeobj: function() {
-            var sphereaircircleobj=new THREE.SphereBufferGeometry(this.width*0.08*1.2,32,32);
+            var sphereaircircleobj = new THREE.SphereBufferGeometry(this.width * 0.08 * 1.2, 32, 32);
             var sphereaircircle = new THREE.TextureLoader().load("earth/clouds.jpg");
-            var aircirclematerial = new THREE.MeshBasicMaterial({ transparent: true, side: THREE.FrontSide, alphaMap: sphereaircircle, color: new THREE.Color('rgb(19, 47, 38)'), opacity: 1,depthTest:!1,depthWrite:!1 ,clippingPlanes:[new THREE.Plane(new THREE.Vector3(0,0,this.width*0.08*1.2),1)]});
+            var aircirclematerial = new THREE.MeshBasicMaterial({ transparent: true, side: THREE.FrontSide, alphaMap: sphereaircircle, color: new THREE.Color('rgb(19, 47, 38)'), opacity: 1, depthTest: !1, depthWrite: !1, clippingPlanes: [new THREE.Plane(new THREE.Vector3(0, 0, this.width * 0.08 * 1.2), 1)] });
             var aircircle = new THREE.Mesh(sphereaircircleobj, aircirclematerial);
-            this.scene.add(aircircle);
+            this.earth.add(aircircle);
         },
         getimgdata: function() {
             var that = this;
@@ -176,53 +205,53 @@
 
                 pcBuffer.scale.set(.08, .08, .08);
                 pcBuffer.position.set(0, 0, 0);
-                that.scene.add(pcBuffer);
+                that.earth.add(pcBuffer);
 
-                var linesize=5;
-                var trangsize=linesize-2;
-                var r=0.6;
-                var R=that.width*0.08;
-                var circlegeometry=new THREE.Geometry();
-                var positions=new Float32Array(linesize * 3);
-                for(var i=0;i<linesize;i++){
-                    var a=r/R;
-                    var b=i*Math.PI*2/linesize;
-                    positions[i*3]=Math.sin(a)*Math.sin(b)*R;
-                    positions[i*3+1]=Math.cos(a)*R;
-                    positions[i*3+2]=Math.sin(a)*Math.cos(b)*R;
-                    circlegeometry.vertices.push(new THREE.Vector3(positions[i*3],positions[i*3+1],positions[i*3+2]))
+                var linesize = 5;
+                var trangsize = linesize - 2;
+                var r = 0.6;
+                var R = that.width * 0.08;
+                var circlegeometry = new THREE.Geometry();
+                var positions = new Float32Array(linesize * 3);
+                for (var i = 0; i < linesize; i++) {
+                    var a = r / R;
+                    var b = i * Math.PI * 2 / linesize;
+                    positions[i * 3] = Math.sin(a) * Math.sin(b) * R;
+                    positions[i * 3 + 1] = Math.cos(a) * R;
+                    positions[i * 3 + 2] = Math.sin(a) * Math.cos(b) * R;
+                    circlegeometry.vertices.push(new THREE.Vector3(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]))
                 }
-                for(var j=0;j<trangsize;j++){
-                    circlegeometry.faces[j]=new THREE.Face3(0,j+1,j+2)
+                for (var j = 0; j < trangsize; j++) {
+                    circlegeometry.faces[j] = new THREE.Face3(0, j + 1, j + 2)
                 }
-                var circlegroup=new THREE.Group();
-                var material1=new THREE.MeshBasicMaterial( {color:0xffff00,side:THREE.FrontSize} );
-                var linematerial=new THREE.LineBasicMaterial( {color:new THREE.Color('rgb(29, 95, 68)'),side:THREE.DoubleSide} );
-                var circlemesh=new THREE.Mesh(circlegeometry,material1);
+                var circlegroup = new THREE.Group();
+                var material1 = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.FrontSize });
+                var linematerial = new THREE.LineBasicMaterial({ color: new THREE.Color('rgb(29, 95, 68)'), side: THREE.DoubleSide });
+                var circlemesh = new THREE.Mesh(circlegeometry, material1);
 
-                var groupgeometry=new THREE.Geometry();
-                var linegroup=new THREE.Group();
-                for(var i=0;i<angles.length/2;i++){
-                    var circle=circlegeometry.clone();
-                    circle.rotateX(angles[i*2]);
-                    circle.rotateY(angles[i*2+1]);
-                    groupgeometry.vertices=groupgeometry.vertices.concat(circle.vertices);
-                    linegroup.add(new THREE.LineLoop(circle,linematerial));
-                    for(var j=0;j<trangsize;j++){
-                        groupgeometry.faces[i*trangsize+j]=new THREE.Face3(i*linesize,i*linesize+j+1,i*linesize+j+2)
+                var groupgeometry = new THREE.Geometry();
+                var linegroup = new THREE.Group();
+                for (var i = 0; i < angles.length / 2; i++) {
+                    var circle = circlegeometry.clone();
+                    circle.rotateX(angles[i * 2]);
+                    circle.rotateY(angles[i * 2 + 1]);
+                    groupgeometry.vertices = groupgeometry.vertices.concat(circle.vertices);
+                    linegroup.add(new THREE.LineLoop(circle, linematerial));
+                    for (var j = 0; j < trangsize; j++) {
+                        groupgeometry.faces[i * trangsize + j] = new THREE.Face3(i * linesize, i * linesize + j + 1, i * linesize + j + 2)
                     }
-                    if(i==20){
-                        var b=angles[i*2+1];
-                        var a=angles[i*2]>Math.PI/2?(Math.PI/2-angles[i*2]):(Math.PI/2+angles[i*2])
+                    if (i == 0) {
+                        var b = angles[i * 2 + 1];
+                        var a = angles[i * 2] > Math.PI / 2 ? (Math.PI / 2 - angles[i * 2]) : (Math.PI / 2 + angles[i * 2])
                         var z = R * Math.sin(a) * Math.cos(b);
                         var x = R * Math.sin(a) * Math.sin(b);
                         var y = R * Math.cos(a);
-                        that.addraderlight(angles[i*2],angles[i*2+1],x,y,z)
+                        that.addraderlight(angles[i * 2], angles[i * 2 + 1])
                     }
                 }
-                var groupcirclemesh=new THREE.Mesh(groupgeometry,material1);
-                var grouplinemesh=new THREE.Line(groupgeometry,linematerial);
-                that.scene.add( linegroup );
+                var groupcirclemesh = new THREE.Mesh(groupgeometry, material1);
+                var grouplinemesh = new THREE.Line(groupgeometry, linematerial);
+                that.earth.add(linegroup);
                 // that.scene.add( grouplinemesh );
             }
         },
@@ -231,7 +260,7 @@
             var geometry = new THREE.BufferGeometry();
             var positions = new Float32Array(plength * 3);
             var colors = new Float32Array(plength * 3);
-            var angles=new Float32Array(100*2);
+            var angles = new Float32Array(100 * 2);
             var k = 0,
                 k1 = 0;
 
@@ -250,8 +279,8 @@
                     } else {
 
                         if (Math.random() < 0.001 && k1 < 100) {
-                            angles[k1*2]=a;
-                            angles[k1*2+1]=b;
+                            angles[k1 * 2] = a;
+                            angles[k1 * 2 + 1] = b;
                             k1++;
                         }
                     }
@@ -264,12 +293,12 @@
 
         },
         generatePointcloud: function(color, width, length, k, k1) {
-            var canvasstar=new THREE.CanvasTexture( this.generateStar());
+            var canvasstar = new THREE.CanvasTexture(this.generateStar());
             var geometrys = this.generatePointCloudGeometry(color, width, length, k, k1)
             var geometry = geometrys[0];
             var angles = geometrys[1];
 
-            var material = new THREE.PointsMaterial({ size: this.pointsize, side: THREE.DoubleSide, color: new THREE.Color('rgb(29, 95, 68)'),depthTest:!1,depthWrite:!1,transparent:true });
+            var material = new THREE.PointsMaterial({ size: this.pointsize, side: THREE.DoubleSide, color: new THREE.Color('rgb(29, 95, 68)'), depthTest: !1, depthWrite: !1, transparent: true });
             var pointcloud = new THREE.Points(geometry, material);
             return [pointcloud, angles];
 
@@ -284,9 +313,10 @@
             cxt.lineWidth = "10";
             cxt.closePath();
             cxt.beginPath();
-            for (var i = 0; i < 5; i++) { 
+            for (var i = 0; i < 5; i++) {
                 cxt.lineTo(100 * Math.cos((18 + i * 72) * Math.PI / 180), -100 * Math.sin((18 + i * 72) * Math.PI / 180));
-                cxt.lineTo(50 * Math.cos((54 + i * 72) * Math.PI / 180), -50 * Math.sin((54 + i * 72) * Math.PI / 180)); } 
+                cxt.lineTo(50 * Math.cos((54 + i * 72) * Math.PI / 180), -50 * Math.sin((54 + i * 72) * Math.PI / 180));
+            }
             cxt.fillStyle = "yellow";
             cxt.fill();
             cxt.closePath();
@@ -298,11 +328,11 @@
             var contour = new THREE.TextureLoader().load('earth/contour.png');
             var geometry = new THREE.SphereBufferGeometry(width, 32, 32);
 
-            var material = new THREE.MeshBasicMaterial({ alphaMap: contour, side: THREE.DoubleSide, color: 0xffff00, transparent: true,depthTest:0,depthWrite:0 });
+            var material = new THREE.MeshBasicMaterial({ alphaMap: contour, side: THREE.DoubleSide, color: 0xffff00, transparent: true, depthTest: 0, depthWrite: 0 });
             var line = new THREE.Mesh(geometry, material);
             line.scale.set(.08, .08, .08);
             line.position.set(0, 0, 0);
-            line.rotation.set(0,-Math.PI/2,0)
+            line.rotation.set(0, -Math.PI / 2, 0)
             this.scene.add(line)
         },
         getpositiondedpoints: function() {
@@ -662,7 +692,7 @@
             this.scene.add(texts);
         },
         _initcamera: function() {
-            this.camera = new THREE.PerspectiveCamera(75, this.size.width / this.size.height, this.width*0.08*1.05, 1000);
+            this.camera = new THREE.PerspectiveCamera(75, this.size.width / this.size.height, this.width * 0.08 * 1.05, 1000);
             this.camera.position.z = 30;
             this.camera.position.y = 15;
             this.camera.lookAt(0, 0, 0);
@@ -1054,9 +1084,9 @@
             // this.scene.rotation.x=Math.PI/4
             this.renderer.render(this.scene, this.camera);
         },
-        _initcontrols:function(){
-            this.controls = new THREE.OrbitControls( this.camera );
-            this.controls.autoRotate=true;
+        _initcontrols: function() {
+            this.controls = new THREE.OrbitControls(this.earth);
+            this.controls.autoRotate = true;
             // this.controls.autoRotateSpeed=5.0;
             this.controls.update();
         },
@@ -1064,7 +1094,23 @@
             requestAnimationFrame(this.animate.bind(this));
             this.stat.update();
             this.controls.update();
+            this.earth.rotation.z=this.earth.rotation.z+0.01;
+            // console.log(this.earth.rotation.z)
+            this.earth.updateMatrix();
             // this.scene.rotation.y += 0.01;
+            // for(var i=0;i<this.scene.children.length;i++){
+            //     var sprite=this.scene.children[i];
+            //     if(sprite.name.indexOf('snow')>-1){
+            //         if(sprite.position.z<20){
+            //         sprite.position.z+=0.1;
+            //         sprite.position.x+=(sprite.name.substr(4)-50)/50;
+            //         sprite.position.y+=(sprite.name.substr(4)-50)/50;}
+            //         else{
+            //             this.scene.remove(sprite);
+            //             // this.addstars();
+            //         }
+            //     }
+            // }
             this._render();
         }
 
