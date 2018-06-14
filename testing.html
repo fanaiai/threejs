@@ -136,7 +136,7 @@
                 this.addstars();
             }
         },
-        addraderlight: function(a, b) {
+        addraderlight: function(a, b,c) {
             var texture = new THREE.TextureLoader().load('earth/lightray_yellow.jpg');
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
@@ -145,30 +145,53 @@
             var geometry = new THREE.PlaneBufferGeometry(this.width * 0.0038, this.width * 0.08 / 4, 32);
             var material = new THREE.MeshBasicMaterial({ alphaMap: texture, transparent: true, side: THREE.DoubleSide });
             var cylinder = new THREE.Mesh(geometry, material);
-            // cylinder.position.set(x,y,z)
-            // cylinder.rotateX(Math.PI/4)
-            // cylinder.rotateZ(Math.PI/4)
-            var cylinder1 = cylinder.clone();
-            cylinder1.material.setValues({ 'color': 0xff0000 })
-            cylinder1.rotateZ(a)
-            cylinder1.rotateX(b)
-            var a = Math.PI - a;
-            var b = Math.PI / 2 + b;
             var R = (this.width * 0.08 + this.width * 0.08 / 8);
-            var x = R * Math.sin(a) * Math.sin(b);
-            var y = R * Math.cos(a)
-            var z = R * Math.sin(a) * Math.cos(b);
-            // cylinder1.position.set(x,y,z)
+            var cylinder1 = cylinder.clone();
+            // this.rotateAroundWorldAxis(cylinder1,new THREE.Vector3( 1, 0, 0 ),a)
+            // this.rotateAroundWorldAxis(cylinder1,new THREE.Vector3( 0, 1, 0 ),b)
+            // this.rotateAroundWorldAxis(cylinder1,new THREE.Vector3( 0, 0, 1 ),c)
+            cylinder1.position.set(0,-R,0)
+            var positions=this.rotate(0,-R,0,a,b,0)
+            // cylinder1.position.set(positions[0],positions[1],positions[2])
+            var group=new THREE.Object3D();
+            group.add(cylinder1);
+            group.rotateX(a)
+            group.rotateY(b)
+            group.rotateZ(c)
+            // cylinder1.rotateZ(0)
+            // cylinder1.rotateOnWorldAxis(new THREE.Vector3( 1,0,0 ),a)
+            // cylinder1.rotateY(b)
             console.log(a, b)
-            // cylinder.rotateZ(b)
-            // cylinder.rotation.set(a,-b,0)
-            // console.log(x,y,z)
-            // console.log(this.width*0.08)
             this.earth.add(cylinder);
-            this.earth.add(cylinder1);
+            this.earth.add(group);
 
         },
-
+         rotateAroundWorldAxis:function(object, axis, radians) {
+        rotWorldMatrix = new THREE.Matrix4();
+        rotWorldMatrix.makeRotationAxis(axis.normalize(), radians);
+        rotWorldMatrix.multiply(object.matrix);                // pre-multiply
+        object.matrix = rotWorldMatrix;
+        object.rotation.setFromRotationMatrix(object.matrix);
+        },
+        rotatex:function(x,y,z,a){
+            console.log([x,y*Math.cos(a)-z*Math.sin(a),y*Math.sin(a)+z*Math.cos(a)])
+            return [x,y*Math.cos(a)-z*Math.sin(a),y*Math.sin(a)+z*Math.cos(a)]
+        },
+        rotatey:function([x,y,z],b){
+            console.log('y',[x*Math.cos(b)-z*Math.sin(b),y,-x*Math.sin(b)+z*Math.cos(b)])
+            return [x*Math.cos(b)-z*Math.sin(b),y,-x*Math.sin(b)+z*Math.cos(b)]
+        },
+        rotatez:function([x,y,z],c){
+            console.log('z',[x*Math.cos(c)-y*Math.sin(c),x*Math.sin(c)+y*Math.cos(c),z])
+            return [x*Math.cos(c)-y*Math.sin(c),x*Math.sin(c)+y*Math.cos(c),z]
+        },
+        rotate:function(x,y,z,a,b,c){
+            var angles=[];
+            var that=this;
+            angles=that.rotatez(that.rotatey(that.rotatex(x,y,z,a),b),c);
+            console.log(angles);
+            return angles
+        },
         addwireframeobj: function() {
             var sphereaircircleobj = new THREE.SphereBufferGeometry(this.width * 0.08 * 1.2, 32, 32);
             var sphereaircircle = new THREE.TextureLoader().load("earth/clouds.jpg");
@@ -240,13 +263,13 @@
                     for (var j = 0; j < trangsize; j++) {
                         groupgeometry.faces[i * trangsize + j] = new THREE.Face3(i * linesize, i * linesize + j + 1, i * linesize + j + 2)
                     }
-                    if (i == 0) {
+                    if (i % 5==0) {
                         var b = angles[i * 2 + 1];
                         var a = angles[i * 2] > Math.PI / 2 ? (Math.PI / 2 - angles[i * 2]) : (Math.PI / 2 + angles[i * 2])
                         var z = R * Math.sin(a) * Math.cos(b);
                         var x = R * Math.sin(a) * Math.sin(b);
                         var y = R * Math.cos(a);
-                        that.addraderlight(angles[i * 2], angles[i * 2 + 1])
+                        that.addraderlight(angles[i * 3], angles[i * 3 + 1], angles[i * 3 + 2])
                     }
                 }
                 var groupcirclemesh = new THREE.Mesh(groupgeometry, material1);
@@ -279,8 +302,9 @@
                     } else {
 
                         if (Math.random() < 0.001 && k1 < 100) {
-                            angles[k1 * 2] = a;
-                            angles[k1 * 2 + 1] = b;
+                            angles[k1 * 3] = a;
+                            angles[k1 * 3 + 1] = b;
+                            angles[k1 * 3 + 2] = b;
                             k1++;
                         }
                     }
