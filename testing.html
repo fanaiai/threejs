@@ -1093,8 +1093,8 @@
         animate: function() {
             requestAnimationFrame(this.animate.bind(this));
             this.stat.update();
-            this.controls.update();
-            this.earth.rotation.z=this.earth.rotation.z+0.01;
+            // this.controls.update();
+            this.earth.rotation.y+=0.01;
             // console.log(this.earth.rotation.z)
             this.earth.updateMatrix();
             // this.scene.rotation.y += 0.01;
