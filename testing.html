@@ -357,27 +357,22 @@
             line.scale.set(.08, .08, .08);
             line.position.set(0, 0, 0);
             line.rotation.set(0, -Math.PI / 2, 0)
-            this.scene.add(line)
+            this.earth.add(line);
         },
         getpositiondedpoints: function() {
             var starsGeometry = new THREE.Geometry();
-
             for (var i = 0; i < 10000; i++) {
-
                 var star = new THREE.Vector3();
                 star.x = THREE.Math.randFloatSpread(10);
                 star.y = THREE.Math.randFloatSpread(10);
                 star.z = THREE.Math.randFloatSpread(10);
-
                 starsGeometry.vertices.push(star);
                 starsGeometry.colors.push(0x00ff00);
-
             }
             starsGeometry.colors.NeedUpdate = true;
             var starsMaterial = new THREE.PointsMaterial();
 
             var starField = new THREE.Points(starsGeometry, starsMaterial);
-            console.log(starField)
             this.scene.add(starField);
         },
         addclipbox: function() {
