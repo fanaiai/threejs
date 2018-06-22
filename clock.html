@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <style type="text/css">
+    canvas {
+        width: 500px;
+        height: 500px;
+        background: #f5f5f5;
+    }
+    </style>
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="moment.js"></script>
+</head>
+
+<body>
+    <canvas width="500px" height="500px" id='clock'></canvas>
+</body>
+<script type="text/javascript">
+var canvas = document.getElementById('clock');
+var ctx = canvas.getContext('2d');
+ctx.font = '30px fantasy';
+var width = canvas.width;
+var height = canvas.height;
+var ballsize = 5;
+var g = 10;
+var time = '00 : 00 : 00';
+var textposition = {
+    x: 100,
+    y: 200,
+    width: ctx.measureText(time).width,
+    height: 30
+}
+console.log(Math.random() * (textposition.height) + textposition.y - textposition.height / 2)
+var balls = [];
+
+var starttime = new Date().getTime();
+
+function addtext(time) {
+    ctx.fillStyle = 'rgba(255, 100, 255, 1)';
+    ctx.fillText(time, textposition.x, textposition.y);
+}
+
+function gettime(date3) {
+    var date3 = parseInt(date3 / 1000) * 1000
+    var days = Math.floor(date3 / (24 * 3600 * 1000))
+    var leave1 = date3 % (24 * 3600 * 1000) //计算天数后剩余的毫秒数  
+    var hours = Math.floor(leave1 / (3600 * 1000))
+    var leave2 = leave1 % (3600 * 1000) //计算小时数后剩余的毫秒数  
+    var minutes = Math.floor(leave2 / (60 * 1000))
+    var leave3 = leave2 % (60 * 1000) //计算分钟数后剩余的毫秒数  
+    var seconds = Math.round(leave3 / 1000)
+    return ((hours > 9 ? hours : ('0' + hours)) + " : " + (minutes > 9 ? minutes : ('0' + minutes)) + " : " + (seconds > 9 ? seconds : ('0' + seconds)))
+}
+
+function addball() {
+    var ball = {
+        x: Math.random() * (textposition.width) + textposition.x,
+        y: Math.random() * (textposition.height) + textposition.y - textposition.height / 2
+    }
+    var r = Math.random() * 255;
+    var g = Math.random() * 255;
+    var b = Math.random() * 255;
+    ball.color = 'rgba(' + r + ', ' + g + ', ' + b + ', 1)';
+    ball.vx = Math.random() * 30 - 15;
+    ball.vy = -(Math.random() * 20 + 40);
+    // ball.vy = -40;
+    balls.push(ball);
+}
+addball();
+drawball();
+
+function drawball() {
+    for (var i = balls.length-1; i >=0; i--) {
+        ctx.save();
+        ctx.fillStyle = balls[i].color;
+        ctx.beginPath();
+        // ctx.arc(100,100,ballsize*10,0,2*Math.PI);
+        ctx.arc(balls[i].x, balls[i].y, ballsize, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.restore();
+        balls[i].y = balls[i].y + balls[i].vy;
+        balls[i].x = balls[i].x + balls[i].vx;
+        if (balls[i].y > textposition.y + textposition.height / 2) {
+            balls[i].vy = -balls[i].vy * 0.6;
+            balls[i].y=textposition.y + textposition.height / 2;
+        } else {
+        	balls[i].vy = balls[i].vy + g;
+        }
+        if(balls[i].x<0 || balls[i].y>width){
+        	// balls.splice(i,1)
+        }
+    }
+}
+
+
+var interval = window.setInterval(function() {
+    var nowtime = new Date().getTime();
+    ctx.clearRect(0, 0, width, height);
+    if (time != gettime(nowtime - starttime)) {
+        addball();
+    }
+    time = gettime(nowtime - starttime);
+    addtext(time);
+    drawball();
+    // console.log(balls.length)
+}, 50)
+</script>
+
+</html>
