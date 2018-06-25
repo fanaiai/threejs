@@ -33,7 +33,6 @@ var textposition = {
     width: ctx.measureText(time).width,
     height: 30
 }
-console.log(Math.random() * (textposition.height) + textposition.y - textposition.height / 2)
 var balls = [];
 
 var starttime = new Date().getTime();
@@ -69,8 +68,8 @@ function addball() {
     // ball.vy = -40;
     balls.push(ball);
 }
-addball();
-drawball();
+// addball();
+// drawball();
 
 function drawball() {
     for (var i = balls.length-1; i >=0; i--) {
