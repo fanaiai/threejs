@@ -42,10 +42,19 @@
     <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEIAAAAhCAAAAABIXyLAAAAAOElEQVRIx2NgGAWjYBSMglEwEICREYRgFBZBqDCSLA2MGPUIVQETE9iNUAqLR5gIeoQKRgwXjwAAGn4AtaFeYLEAAAAASUVORK5CYII=">
     <div id="Stats-output"></div>
     <script type="x-shader/x-vertex" id="vertexshader">
-        attribute float size; attribute vec3 position2; uniform float val; void main(){ vec3 vPos; gl_PointSize=1.; vPos.x = position.x * val + position2.x * (1. - val); vPos.y = position.y * val + position2.y * (1. - val); vPos.z = position.z * val + position2.z * (1. - val); vec4 mvPosition = modelViewMatrix * vec4( vPos, 1.0 ); gl_PointSize = 4.; gl_Position = projectionMatrix * mvPosition; }
+        void main() {
+            gl_PointSize = 1.0;
+            gl_Position = vec4( position*0.5, 1.0 );
+        }
     </script>
     <script type="x-shader/x-fragment" id="fragmentshader">
-        uniform vec3 color; void main(){ gl_FragColor=vec4(color,1.0); }
+        uniform float u_time; 
+
+        void main(){ 
+            //vec2 st = gl_FragCoord.xy/u_resolution.xy;
+            vec3 color=vec3(sin(u_time),cos(u_time+0.5),0.0);
+            gl_FragColor=vec4(color,1.0); 
+        }
     </script>
 </body>
 <script type="text/javascript">
@@ -53,6 +62,9 @@
     function FThree(el) {
         this.$el = $(el);
         this.size = { width: $(el).width(), height: $(el).height() };
+        this.uniforms={
+            u_time: { type: "f", value: 1.0 }
+        };
         this.cubelength = 0;
         this.scene = null;
         this.renderer = null;
@@ -69,6 +81,7 @@
         this.stari = 0;
         this.earth=new THREE.Group();
         this.init();
+
     }
     FThree.prototype = {
         init: function() {
@@ -107,6 +120,7 @@
             // this.getpositiondedpoints();
             this.getimgdata();
             this.generateLine(this.width);
+            this.addshadergeo();
             // this.generatestars();
             // this.addraderlight();
             // this.TestPropaties();
@@ -118,8 +132,30 @@
 
             this._addevent();
             // this.trigger('init')
-            console.log(this.scene)
+            // console.log(this.scene)
             this.animate();
+        },
+        addshadergeo:function(){
+            var vertices = new Float32Array([
+                0.5,  0.5,  0.5,//顶点0
+                -0.5,  0.5,  0.5,//顶点1
+                -0.5, -0.5,  0.5,//顶点2
+                0.5, -0.5,  0.5,//顶点3
+            ]);
+            //类型数组格式顶点数据转为BufferAttribute对象
+            var verticesPosition = new THREE.BufferAttribute( vertices, 3 );
+            var geometry = new THREE.BufferGeometry();//缓冲几何对象
+            //顶点数据关联着色器程序
+            geometry.addAttribute('position',verticesPosition);
+            console.log(geometry);
+            var material = new THREE.ShaderMaterial( {
+                uniforms: this.uniforms,
+                vertexShader: document.getElementById( 'vertexshader' ).textContent,
+                fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+                } );
+            // material=new THREE.MeshBasicMaterial({color:0xffff00});
+            var pointcloud = new THREE.Mesh(geometry, material);
+            this.scene.add(pointcloud);
         },
         addstars: function() {
             var spriteMap = new THREE.TextureLoader().load("img/snow.png");
@@ -161,7 +197,7 @@
             // cylinder1.rotateZ(0)
             // cylinder1.rotateOnWorldAxis(new THREE.Vector3( 1,0,0 ),a)
             // cylinder1.rotateY(b)
-            console.log(a, b)
+            // console.log(a, b)
             this.earth.add(cylinder);
             this.earth.add(group);
 
@@ -174,22 +210,22 @@
         object.rotation.setFromRotationMatrix(object.matrix);
         },
         rotatex:function(x,y,z,a){
-            console.log([x,y*Math.cos(a)-z*Math.sin(a),y*Math.sin(a)+z*Math.cos(a)])
+            // console.log([x,y*Math.cos(a)-z*Math.sin(a),y*Math.sin(a)+z*Math.cos(a)])
             return [x,y*Math.cos(a)-z*Math.sin(a),y*Math.sin(a)+z*Math.cos(a)]
         },
         rotatey:function([x,y,z],b){
-            console.log('y',[x*Math.cos(b)-z*Math.sin(b),y,-x*Math.sin(b)+z*Math.cos(b)])
+            // console.log('y',[x*Math.cos(b)-z*Math.sin(b),y,-x*Math.sin(b)+z*Math.cos(b)])
             return [x*Math.cos(b)-z*Math.sin(b),y,-x*Math.sin(b)+z*Math.cos(b)]
         },
         rotatez:function([x,y,z],c){
-            console.log('z',[x*Math.cos(c)-y*Math.sin(c),x*Math.sin(c)+y*Math.cos(c),z])
+            // console.log('z',[x*Math.cos(c)-y*Math.sin(c),x*Math.sin(c)+y*Math.cos(c),z])
             return [x*Math.cos(c)-y*Math.sin(c),x*Math.sin(c)+y*Math.cos(c),z]
         },
         rotate:function(x,y,z,a,b,c){
             var angles=[];
             var that=this;
             angles=that.rotatez(that.rotatey(that.rotatex(x,y,z,a),b),c);
-            console.log(angles);
+            // console.log(angles);
             return angles
         },
         addwireframeobj: function() {
@@ -248,10 +284,15 @@
                     circlegeometry.faces[j] = new THREE.Face3(0, j + 1, j + 2)
                 }
                 var circlegroup = new THREE.Group();
-                var material1 = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.FrontSize });
+
+                var material1 = new THREE.ShaderMaterial( {
+                uniforms: that.uniforms,
+                // vertexShader: document.getElementById( 'vertexShader' ).textContent,
+                fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+                } );
+                // var material1 = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.FrontSize });
                 var linematerial = new THREE.LineBasicMaterial({ color: new THREE.Color('rgb(29, 95, 68)'), side: THREE.DoubleSide });
                 var circlemesh = new THREE.Mesh(circlegeometry, material1);
-
                 var groupgeometry = new THREE.Geometry();
                 var linegroup = new THREE.Group();
                 for (var i = 0; i < angles.length / 2; i++) {
@@ -322,8 +363,15 @@
             var geometry = geometrys[0];
             var angles = geometrys[1];
 
-            var material = new THREE.PointsMaterial({ size: this.pointsize, side: THREE.DoubleSide, color: new THREE.Color('rgb(29, 95, 68)'), depthTest: !1, depthWrite: !1, transparent: true });
+            // var material = new THREE.PointsMaterial({ size: this.pointsize, side: THREE.DoubleSide, color: new THREE.Color('rgb(29, 95, 68)'), depthTest: !1, depthWrite: !1, transparent: true });
+
+            var material = new THREE.ShaderMaterial( {
+                uniforms: this.uniforms,
+                vertexShader: document.getElementById( 'vertexshader' ).textContent,
+                fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+                } );
             var pointcloud = new THREE.Points(geometry, material);
+            this.scene.add(pointcloud);
             return [pointcloud, angles];
 
         },
@@ -387,7 +435,7 @@
                 new THREE.Plane(new THREE.Vector3(0, -5, 0), 0.8),
                 new THREE.Plane(new THREE.Vector3(0, 1, 0), 0.8)
             ];
-            console.log(new THREE.Plane(new THREE.Vector3(1, 0, 0), 0))
+            // console.log(new THREE.Plane(new THREE.Vector3(1, 0, 0), 0))
             var geo1 = new THREE.BoxGeometry(5, 5, 5);
             var geo2 = new THREE.TorusKnotBufferGeometry(10, 1.8, 950, 200);
             var mat1 = new THREE.MeshBasicMaterial({ color: 0xff0000 });
@@ -498,7 +546,7 @@
                     depthTest: false,
                     transparent: true
                 })
-                console.log(shaderMaterial)
+                // console.log(shaderMaterial)
                 var robot = new THREE.Points(geometry, shaderMaterial);
                 robot.scale.x = 0.1;
                 robot.scale.y = 0.1;
@@ -543,8 +591,8 @@
             var lessPos = lessObj.attributes.position.array;
             var moreLen = moreObj.attributes.position.array.length;
             var lessLen = lessObj.attributes.position.array.length;
-            console.log(moreLen)
-            console.log(lessLen)
+            // console.log(moreLen)
+            // console.log(lessLen)
             var position2 = new Float32Array(moreLen);
             position2.set(lessPos);
 
@@ -630,7 +678,7 @@
             this.pointsphere = geomatry;
             var mesh = new THREE.Points(geomatry, shaderMaterial)
             mesh.position.y = 4;
-            console.log(mesh)
+            // console.log(mesh)
             this.scene.add(mesh);
         },
         on: function(type, fn) {
@@ -707,7 +755,7 @@
                     }
                 }
             });
-            console.log(texts)
+            // console.log(texts)
             this.scene.add(texts);
         },
         _initcamera: function() {
@@ -1057,11 +1105,11 @@
         },
         addmergeobj: function() { //一次添加多个几何体，不知道怎么弄
             var geometries = new THREE.BoxBufferGeometry(2, 2, 2);
-            console.log(THREE.BufferGeometryUtils)
+            // console.log(THREE.BufferGeometryUtils)
             for (var i = 0; i < 40; i++) {
                 THREE.BufferGeometryUtils.mergeBufferGeometries([this.addcube()])
             }
-            console.log(geometries)
+            // console.log(geometries)
             var material = new THREE.MeshPhongMaterial({ color: 0xffff00 });
             var mesh = new THREE.Mesh(geometries, material);
             this.scene.add(mesh);
@@ -1114,6 +1162,7 @@
             this.stat.update();
             // this.controls.update();
             this.earth.rotation.y+=0.01;
+            this.uniforms.u_time.value += 0.05;
             // console.log(this.earth.rotation.z)
             this.earth.updateMatrix();
             // this.scene.rotation.y += 0.01;
