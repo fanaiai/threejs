@@ -42,9 +42,12 @@
     <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEIAAAAhCAAAAABIXyLAAAAAOElEQVRIx2NgGAWjYBSMglEwEICREYRgFBZBqDCSLA2MGPUIVQETE9iNUAqLR5gIeoQKRgwXjwAAGn4AtaFeYLEAAAAASUVORK5CYII=">
     <div id="Stats-output"></div>
     <script type="x-shader/x-vertex" id="vertexshader">
+        uniform float u_time;
+
         void main() {
-            gl_PointSize = 1.0;
-            gl_Position = vec4( position*0.5, 1.0 );
+            gl_PointSize = 10.0;
+            vec3 p=vec3(position.x,position.y,position.z*sin(u_time));
+            gl_Position = vec4(p, 1.0 );
         }
     </script>
     <script type="x-shader/x-fragment" id="fragmentshader">
@@ -136,17 +139,29 @@
             this.animate();
         },
         addshadergeo:function(){
-            var vertices = new Float32Array([
-                0.5,  0.5,  0.5,//顶点0
-                -0.5,  0.5,  0.5,//顶点1
-                -0.5, -0.5,  0.5,//顶点2
-                0.5, -0.5,  0.5,//顶点3
-            ]);
+            var vertices = [
+                // 0.5,  0.5,  0.5,//顶点0
+                // -0.5,  0.5,  0.5,//顶点1
+                // 0.5, -0.5,  0.5,//顶点3
+                // -0.5, -0.5,  0.5,//顶点2
+                new THREE.Vector3(0.5,0.5,0.5),
+                new THREE.Vector3(-0.7,0.5,-0.5),
+                new THREE.Vector3(-0.5,-0.5,0.5),
+                new THREE.Vector3(0.5,-0.5,0.5)
+            ];
+            var faces=[
+                new THREE.Face3(0,1,2),
+                new THREE.Face3(2,3,0)
+                ]
             //类型数组格式顶点数据转为BufferAttribute对象
-            var verticesPosition = new THREE.BufferAttribute( vertices, 3 );
-            var geometry = new THREE.BufferGeometry();//缓冲几何对象
+            // var verticesPosition = new THREE.BufferAttribute( vertices, 3 );
+            var geometry = new THREE.Geometry();//缓冲几何对象
             //顶点数据关联着色器程序
-            geometry.addAttribute('position',verticesPosition);
+            // geometry.addAttribute('position',verticesPosition);
+            geometry.vertices=vertices;
+            geometry.faces=faces;
+            geometry.computeFaceNormals();
+            // geometry.computeVertexNormals();
             console.log(geometry);
             var material = new THREE.ShaderMaterial( {
                 uniforms: this.uniforms,
