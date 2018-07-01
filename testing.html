@@ -46,9 +46,9 @@
         varying vec3 color;
         void main() {
             gl_PointSize = 10.0;
-            vec3 p=vec3(position.x,position.y,position.z*sin(u_time));
+            vec3 p=vec3(position.x,position.y,position.z);
             gl_Position = vec4(p, 1.0 );
-            color= p;
+            color= vec3(1.0-position.x,0.0,0.0);
         }
     </script>
     <script type="x-shader/x-fragment" id="fragmentshader">
