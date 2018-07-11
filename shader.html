@@ -346,9 +346,9 @@
 			,createMaterial('#vertex-shader', '#fragment-shader-5') // 前
 			,createMaterial('#vertex-shader', '#fragment-shader-6') // 后
 		]
-		
+		console.log(cubeGeometry)
 		// 定义网格
-        cube = new THREE.Mesh(cubeGeometry, meshMaterial);
+        cube = new THREE.Mesh(cubeGeometry, createMaterial('#vertex-shader', '#fragment-shader-1'));
         scene.add(cube);
 		
 		/** 用来保存那些需要修改的变量 */
