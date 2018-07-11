@@ -48,7 +48,11 @@
             gl_PointSize = 10.0;
             vec3 p=vec3(position.x,position.y*cos(u_time),position.z*sin(u_time));
             gl_Position = vec4(p, 1.0 );
+<<<<<<< HEAD
             color= vec3(1.0*p.z,1.0*(1.0-p.z),1.0*p.y);
+=======
+            color= vec3(position.x,0.0,0.0);
+>>>>>>> e1a2d6696ede876b32e1175d6b12d84a34169729
         }
     </script>
     <script type="x-shader/x-fragment" id="fragmentshader">
