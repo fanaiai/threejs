@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="css/reset.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <script type="text/javascript" src="vendor/jquery.min.js"></script>
+    <script type="text/javascript" src="vendor/three.js"></script>
+    <script type="text/javascript" src="vendor/stats.min.js"></script>
+    <!-- <script type="text/javascript" src="vendor/dat.gui.js"></script> -->
+    <script type="text/javascript" src="js/bar.js"></script>
+</head>
+
+<body>
+    <div id="three"></div>
+    <div id="Stats-output"></div>
+</body>
+<script type="text/javascript">
+var data=[
+    {"name":"百度","value":500},
+    {"name":"谷歌","value":5000},
+    {"name":"360","value":10},
+    {"name":"雅虎","value":1000},
+    {"name":"搜狐","value":100}
+]
+var fthree = new FThree($("#three"),data)
+</script>
+
+</html>
