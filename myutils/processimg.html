@@ -9,6 +9,19 @@
         #imgcanvas{
             width:400px;
             height: 400px;
+            background: #ccc;
+            border:1px solid orange;
+        }
+        .imgbtns{
+            height: 30px;
+            background: rgba(0,0,0,.6);
+            line-height: 30px;
+        }
+        .imgbtns>a{
+            display: inline-block;
+            font-size: 12px;
+            padding:0 5px;
+            cursor: pointer;
         }
     </style>
     <script type="text/javascript" src="vendor/jquery.min.js"></script>
@@ -19,7 +32,8 @@
     <div id="imgcanvas"></div>
 </body>
 <script type="text/javascript">
-var processimg = new ProcessImg($("#imgcanvas"),{})
+var processimg = new ProcessImg($("#imgcanvas"),{});
+processimg.loadimg("../img/002.jpg")
 </script>
 
 </html>
