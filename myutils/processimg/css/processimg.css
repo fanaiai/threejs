@@ -1,3 +1,11 @@
+.fl{
+    float:left;
+}
+.fr{
+    float:right;
+}
+.clearfix:after{content:"";display:block;height:0;clear:both;visibility:hidden}
+.clearfix{*+height:1%;}
 .sprite,
 .spriteaft {
     position: relative;
@@ -49,24 +57,27 @@
 
 .imgbtns {
     height: auto;
-    background: rgba(0, 0, 0, .6);
     position: absolute;
-    bottom: 0;
+    top: 0;
     right: 0;
-    padding: 3px 10px;
 }
-
-.imgbtns>a {
+.imgbtns .customopelist{
+    padding: 0 10px;
+    background: rgba(0,0,0,.3);
+}
+.imgbtns a {
     display: inline-block;
     cursor: pointer;
     padding:0 3px;
 }
-
+.imgbtns a.on{
+    background: red;
+}
 #rect,
 #text {
     border: 2px solid green;
     position: absolute;
-    display: inline-block;
+    display: none;
     box-sizing: border-box;
     height: 30px;
     width: 100px;
@@ -96,4 +107,37 @@
 }
 #imgcanvas .confirm>span:hover{
     background: #efefef;
+}
+.textstyle{
+    margin-top:2px;
+    background: rgba(0,0,0,.9);
+    padding: 0 10px;
+}
+.textstyle span,.textstyle select{
+    font-size: 12px;
+}
+.selectdiv>select{
+    background: #eee;
+    height: 26px;
+}
+.textstyle .currentcolor{
+    margin-left: 3px;
+}
+.textstyle .currentcolor>span{
+    display: inline-block;
+    width:26px;
+    height: 26px;
+    background: red;
+}
+.textstyle .colorlist{
+    width:78px;
+}
+.textstyle .colorlist span{
+    width:10px;
+    height: 10px;
+    display: inline-block;
+    background: yellow;
+    float:left;
+    margin-left: 3px;
+    margin-top: 2px;
 }

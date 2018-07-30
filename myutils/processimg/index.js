@@ -7,9 +7,13 @@
         this.option = $.extend(true, defaultoption, option);
         this.imgopeinfo = {
             "clip": { x: 0, y: 0, width: 0, height: 0 },
-            "rect": [{ x: 0, y: 0, width: 0, height: 0 }],
-            "text": [{ x: 0, y: 0, font: '16px 微软雅黑', fillStyle: 'blue', 'text': '哈哈哈哈' }]
+            "rect": [],
+            "text": []
         };
+        this.fontstyle={
+            font:'16px 微软雅黑',
+            fillStyle:'#ff0000'
+        }
         this.init();
     }
     ProcessImg.prototype = {
@@ -96,18 +100,71 @@
                 mousedown = false;
             })
 
+            $("#fontsizeselect").change(function(e){
+                that.fontstyle.font=$("#fontsizeselect option:selected").val()+' 微软雅黑';
+                $("#text").css({"font-size":$("#fontsizeselect option:selected").val()});
+            })
+
         },
         addbtns: function() {
-            var btnhtml = "<div class='imgbtns'><a class='clip sprite' id='clip'></a><a class='addselection sprite' id='addselection'></a><a class='addword sprite' id='addword'></a><a class='clearall sprite' id='clearall'></a></div>"
+            var btnhtml = `<div class='imgbtns'><div class="customopelist"><a class='clip sprite' id='clip'></a><a class='addselection sprite' id='addselection'></a><a class='addword sprite' id='addword'></a><a class='clearall sprite' id='clearall'></a></div>
+                <div class='textstyle clearfix'>
+                    <div class='selectdiv fl'>
+                        <select id="fontsizeselect">
+                            <option value='12px'>12</option>
+                            <option value='14px'>14</option>
+                            <option value='16px'>16</option>
+                            <option value='18px'>18</option>
+                            <option value='20px'>20</option>
+                            <option value='24px'>24</option>
+                            <option value='28px'>28</option>
+                            <option value='30px'>30</option>
+                        </select>
+                    </div>
+                    <div class="fl currentcolor">
+                        <span class="curcolor"></span>
+                    </div>
+                    <div class="fl colorlist clearfix">
+                        <span data-color="#ff0000" style='background:#ff0000'></span>
+                        <span data-color="#0000ff" style='background:#0000ff'></span>
+                        <span data-color="#00ff00" style='background:#00ff00'></span>
+                        <span data-color="#ffff00" style='background:#ffff00'></span>
+                        <span data-color="#ffffff" style='background:#ffffff'></span>
+                        <span data-color="#000000" style='background:#000000'></span>
+                        <span data-color="#ccc" style='background:#ccc'></span>
+                        <span data-color="#811616" style='background:#811616'></span>
+                        <span data-color="#162f81" style='background:#162f81'></span>
+                        <span data-color="#45ac13" style='background:#45ac13'></span>
+                        <span data-color="#e823cf" style='background:#e823cf'></span>
+                        <span data-color="#c9c3c8" style='background:#c9c3c8'></span>
+                    </div>
+                </div>
+            </div>`
             this.$el.append(btnhtml);
             this.getopeclass();
         },
         getopeclass: function() {
             var that = this;
-            $(".imgbtns>a").click(function(e) {
-                var id = $(e.currentTarget).attr('id');
-                that.opeclass = id;
-
+            $(".imgbtns").click(function(e) {
+                e.stopPropagation();
+                var $target=$(e.target);
+                var id = $target.attr('id');
+                if(id){
+                if($target.hasClass('on')){
+                    $target.removeClass('on')
+                    that.opeclass = "";
+                }
+                else{
+                    $('.on').removeClass('on');
+                    $target.addClass('on');
+                    that.opeclass = id;
+                }}
+                else if($target.parent('.colorlist').length>0){
+                    var color=$target.attr('data-color');
+                    that.fontstyle.fillStyle=color;
+                    $("#text").css({color:color});
+                    $(".curcolor").css({background:color});
+                }
             })
             $(".confirm>span").click(function(e) {
                 var id = $(e.currentTarget).attr('id');
@@ -129,8 +186,8 @@
                             x: parseInt($("#text").css('left')),
                             y: parseInt($("#text").css('top')),
                             text: $("#text").val(),
-                            font: '16px 微软雅黑',
-                            fillStyle: 'red'
+                            font: that.fontstyle.font,
+                            fillStyle: that.fontstyle.fillStyle
                         })
                         that.opeclass = '';
                         $("#text").val('').hide();
@@ -143,12 +200,23 @@
         doclip: function() {
             var that = this;
             that.imgopeinfo.clip = that.recttemp;
+            var canvaspro = that.size.width / that.size.height;
             var sx = that.recttemp.x-that.imginfo.dx<0?0:(that.recttemp.x-that.imginfo.dx);
             var sy = that.recttemp.y-that.imginfo.dy<0?0:(that.recttemp.y-that.imginfo.dy);
-            console.log(that.recttemp.y,that.imginfo.dy)
-            var imgwidth = that.recttemp.width-that.imginfo.dx;
-            var imgheight = that.recttemp.height-that.imginfo.dy;
-            var canvaspro = that.size.width / that.size.height;
+            var imgwidth = that.recttemp.width;
+            var imgheight = that.recttemp.height;
+            if(that.imginfo.imgwidth/that.imginfo.imgheight>canvaspro){
+                imgwidth=that.imginfo.imgwidth*imgwidth/that.size.width;
+                imgheight=that.imginfo.imgwidth*imgheight/that.size.width;
+                sx=that.imginfo.imgwidth*sx/that.size.width;
+                sy=that.imginfo.imgwidth*sy/that.size.width;
+            }
+            else{
+                imgheight=that.imginfo.imgheight*imgheight/that.size.height
+                imgwidth=that.imginfo.imgheight*imgwidth/that.size.height
+                sx=that.imginfo.imgheight*sx/that.size.height
+                sy=that.imginfo.imgheight*sy/that.size.height
+            }
             var dx = 0;
             var dy = 0;
             var dWidth = that.size.width;
@@ -162,6 +230,8 @@
             }
             that.imginfo = {
                 img: that.imginfo.img,
+                imgwidth:that.imginfo.imagewidth,
+                imgheight:that.imginfo.imgheight,
                 sx: sx,
                 sy: sy,
                 swidth: imgwidth,
@@ -193,6 +263,8 @@
                 }
                 that.imginfo = {
                     img: img,
+                    imgwidth:imgwidth,
+                    imgheight:imgheight,
                     sx: 0,
                     sy: 0,
                     swidth: imgwidth,
