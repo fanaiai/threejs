@@ -5,35 +5,19 @@
     <title></title>
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="css/reset.css">
-    <style type="text/css">
-        #imgcanvas{
-            width:400px;
-            height: 400px;
-            background: #ccc;
-            border:1px solid orange;
-        }
-        .imgbtns{
-            height: 30px;
-            background: rgba(0,0,0,.6);
-            line-height: 30px;
-        }
-        .imgbtns>a{
-            display: inline-block;
-            font-size: 12px;
-            padding:0 5px;
-            cursor: pointer;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="processimg/css/processimg.css">
+
     <script type="text/javascript" src="vendor/jquery.min.js"></script>
     <script type="text/javascript" src="processimg/index.js"></script>
 </head>
 
 <body>
-    <div id="imgcanvas"></div>
+    <div id="imgcanvas">
+    </div>
 </body>
 <script type="text/javascript">
 var processimg = new ProcessImg($("#imgcanvas"),{});
-processimg.loadimg("../img/002.jpg")
+processimg.loadimg("../img/jd.png")
 </script>
 
 </html>

@@ -1,0 +1,99 @@
+.sprite,
+.spriteaft {
+    position: relative;
+}
+
+.sprite:before,
+.spriteaft:after {
+    content: '';
+    display: inline-block;
+    position: relative;
+    left: 0;
+    top: 0;
+    background: url(../img/sprite.png) no-repeat;
+    width: 25px;
+    height: 22px;
+}
+
+.spriteaft:after {
+    left: auto;
+    right: 0;
+}
+.clip:before{
+    background-position:-33px 0;
+}
+.addword:before{
+    background-position:-66px 0;
+}
+.addselection:before{
+    background-position:3px 0;
+}
+#confirm:before{
+    background-position:-135px 0;
+
+}
+#cancel:before{
+    background-position:-169px 0;
+
+}
+.clearall:before{
+    background-position:-100px 0;
+}
+#imgcanvas {
+    width: 800px;
+    height: 600px;
+    background: #ccc;
+    border: 1px solid orange;
+    position: relative;
+}
+
+.imgbtns {
+    height: auto;
+    background: rgba(0, 0, 0, .6);
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 3px 10px;
+}
+
+.imgbtns>a {
+    display: inline-block;
+    cursor: pointer;
+    padding:0 3px;
+}
+
+#rect,
+#text {
+    border: 2px solid green;
+    position: absolute;
+    display: inline-block;
+    box-sizing: border-box;
+    height: 30px;
+    width: 100px;
+}
+
+#text {
+    border: 1px dashed yellow;
+    background: none;
+    font-size: 16px;
+    color: red;
+}
+
+#imgcanvas .confirm {
+    height: 18px;
+    background: rgb(255, 255, 255);
+    color: rgb(51, 51, 51);
+    position: absolute;
+    display: none;
+    padding: 5px;
+    cursor: pointer;
+}
+#imgcanvas .confirm>span{
+    display: inline-block;
+    height: auto;
+}
+#imgcanvas .confirm>span:before{
+}
+#imgcanvas .confirm>span:hover{
+    background: #efefef;
+}
