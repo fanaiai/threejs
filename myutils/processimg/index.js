@@ -6,13 +6,13 @@
         this.size = { width: this.$el.width(), height: this.$el.height() };
         this.option = $.extend(true, defaultoption, option);
         this.imgopeinfo = {
-            "clip": { x: 0, y: 0, width: 0, height: 0 },
             "rect": [],
-            "text": []
+            "text": [],
+            "arrow": []
         };
-        this.fontstyle={
-            font:'16px 微软雅黑',
-            fillStyle:'#ff0000'
+        this.fontstyle = {
+            font: '16px 微软雅黑',
+            fillStyle: '#ff0000'
         }
         this.init();
     }
@@ -22,10 +22,8 @@
             this.canvas.width = this.size.width;
             this.canvas.height = this.size.height;
             this.$el.html(this.canvas);
-            this.rect = '<div id="rect"></div>';
             this.confirm = '<div class="confirm"><span id="confirm" class="sprite"></span><span id="cancel" class="sprite"></span></div>';
             this.text = '<input type="text" id="text"></input>';
-            this.$el.append(this.rect);
             this.$el.append(this.confirm);
             this.$el.append(this.text);
             this.ctx = this.canvas.getContext('2d');
@@ -65,12 +63,14 @@
                     that.ctx.clearRect(0, 0, that.size.width, that.size.height);
                     that.redrawimg();
                     that.ctx.save();
+                    that.ctx.fillStyle = 'rgba(0,0,0,.3)';
+                    that.ctx.fillRect(0, 0, that.size.width, that.size.height);
                     that.ctx.beginPath();
                     that.ctx.rect(startpos.left, startpos.top, width, height);
                     that.ctx.clip();
                     that.redrawimgonly();
                     if (that.opeclass == 'addselection') {
-                        that.ctx.strokeStyle = 'blue';
+                        that.ctx.strokeStyle = that.fontstyle.fillStyle;
                         that.ctx.lineWidth = 4;
                     } else {
                         that.ctx.strokeStyle = 'red';
@@ -79,6 +79,12 @@
                     that.ctx.strokeRect(startpos.left, startpos.top, width, height);
                     that.ctx.closePath();
                     that.ctx.restore();
+                }
+                if (mousedown && that.opeclass == 'addarrow') {
+                    that.redrawimg();
+                    var left = e.clientX - that.canvas.getBoundingClientRect().left;
+                    var top = e.clientY - that.canvas.getBoundingClientRect().top;
+                    that.drawArrow(startpos.left, startpos.top, left, top, 45, 15, 3, that.fontstyle.fillStyle);
                 }
             })
             $(document).mouseup(function(e) {
@@ -90,27 +96,85 @@
                     if (that.opeclass == 'addselection' || that.opeclass == 'clip') {
                         $(".confirm").css({ 'top': startpos.top + height + 'px', 'left': startpos.left + width + 'px' }).show();
                         that.recttemp = {
+                            strokeStyle:that.fontstyle.fillStyle,
                             x: startpos.left,
                             y: startpos.top,
                             width: width,
                             height: height
                         }
                     }
+                    if (that.opeclass == 'addarrow') {
+                        var left = e.clientX - that.canvas.getBoundingClientRect().left;
+                        var top = e.clientY - that.canvas.getBoundingClientRect().top;
+                        that.imgopeinfo.arrow.push({
+                            fromX: startpos.left,
+                            fromY: startpos.top,
+                            toX: left,
+                            toY: top,
+                            theta: 45,
+                            headlen: 15,
+                            width: 3,
+                            color: that.fontstyle.fillStyle
+                        })
+                        that.redrawimg();
+                    }
                 }
                 mousedown = false;
             })
 
-            $("#fontsizeselect").change(function(e){
-                that.fontstyle.font=$("#fontsizeselect option:selected").val()+' 微软雅黑';
-                $("#text").css({"font-size":$("#fontsizeselect option:selected").val()});
+            $(".fontsizeselect").change(function(e) {
+                that.fontstyle.font = $(".fontsizeselect option:selected").val() + ' 微软雅黑';
+                $("#text").css({ "font-size": $(".fontsizeselect option:selected").val() });
             })
 
         },
+        drawArrow: function(fromX, fromY, toX, toY, theta, headlen, width, color) {
+            var ctx = this.ctx;
+            var theta = theta || 30,
+                headlen = headlen || 10,
+                width = width || 1,
+                color = color || '#000',
+                angle = Math.atan2(fromY - toY, fromX - toX) * 180 / Math.PI,
+                angle1 = (angle + theta) * Math.PI / 180,
+                angle2 = (angle - theta) * Math.PI / 180,
+                topX = headlen * Math.cos(angle1),
+                topY = headlen * Math.sin(angle1),
+                botX = headlen * Math.cos(angle2),
+                botY = headlen * Math.sin(angle2);
+            ctx.save();
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = width;
+            ctx.beginPath();
+            var arrowX, arrowY;
+            ctx.moveTo(fromX, fromY);
+            // ctx.lineTo(toX>fromX?toX-3:toX+3, (toY*(toX>fromX?toX-3:toX+3)/toX));
+            ctx.lineTo(toX, toY);
+            ctx.stroke();
+            ctx.closePath();
+            ctx.beginPath();
+            arrowX = toX + topX;
+            arrowY = toY + topY;
+            ctx.moveTo(arrowX, arrowY);
+            ctx.lineTo(toX, toY);
+            arrowX = toX + botX;
+            arrowY = toY + botY;
+            ctx.lineTo(arrowX, arrowY);
+            ctx.fill();
+            ctx.restore();
+        },
         addbtns: function() {
-            var btnhtml = `<div class='imgbtns'><div class="customopelist"><a class='clip sprite' id='clip'></a><a class='addselection sprite' id='addselection'></a><a class='addword sprite' id='addword'></a><a class='clearall sprite' id='clearall'></a></div>
+            var btnhtml = `<div class='imgbtns'><div class="customopelist">
+                <a class='clip sprite' id='clip' title="裁剪"></a>
+                <a class='addselection sprite' id='addselection' title="矩形"></a>
+                <a class='addword sprite' id='addword' title="文字"></a>
+                <a class='addarrow sprite' id='addarrow' title="箭头"></a>
+                <a class='save sprite' id='save' title="保存"></a>
+                <a class='clearall sprite' id='clearall' title="取消"></a>
+                </div>
                 <div class='textstyle clearfix'>
                     <div class='selectdiv fl'>
-                        <select id="fontsizeselect">
+                        <select class="fontsizeselect">
                             <option value='12px'>12</option>
                             <option value='14px'>14</option>
                             <option value='16px'>16</option>
@@ -147,23 +211,47 @@
             var that = this;
             $(".imgbtns").click(function(e) {
                 e.stopPropagation();
-                var $target=$(e.target);
+                var $target = $(e.target);
                 var id = $target.attr('id');
-                if(id){
-                if($target.hasClass('on')){
-                    $target.removeClass('on')
-                    that.opeclass = "";
-                }
-                else{
-                    $('.on').removeClass('on');
-                    $target.addClass('on');
-                    that.opeclass = id;
-                }}
-                else if($target.parent('.colorlist').length>0){
-                    var color=$target.attr('data-color');
-                    that.fontstyle.fillStyle=color;
-                    $("#text").css({color:color});
-                    $(".curcolor").css({background:color});
+                if (id) {
+                    $(".textstyle").hide();
+                    if (id=='clearall') {
+                        that.imgopeinfo.rect = [];
+                        that.imgopeinfo.text = [];
+                        that.imgopeinfo.arrow = [];
+                        that.redraworiginimg(that.imginfo.img);
+                    }
+                    if(id=='save'){
+                        var imgsrc=that.canvas.toDataURL("image/jpeg");
+                        if(that.option.save && typeof that.option.save =='function'){
+                            that.option.save(imgsrc);
+                        }
+                    }
+                    if(id=='addselection'){
+                        $(".textstyle").show();
+                        $(".textstyle .selectdiv").hide();
+                    }
+                    if(id=='addword'){
+                        $(".textstyle").show();
+                        $(".textstyle .selectdiv").show();
+                    }
+                    if(id=='addarrow'){
+                        $(".textstyle").show();
+                        $(".textstyle .selectdiv").hide();
+                    }
+                    if ($target.hasClass('on')) {
+                        $target.removeClass('on')
+                        that.opeclass = "";
+                    } else {
+                        $('.on').removeClass('on');
+                        $target.addClass('on');
+                        that.opeclass = id;
+                    }
+                } else if ($target.parent('.colorlist').length > 0) {
+                    var color = $target.attr('data-color');
+                    that.fontstyle.fillStyle = color;
+                    $("#text").css({ color: color });
+                    $(".curcolor").css({ background: color });
                 }
             })
             $(".confirm>span").click(function(e) {
@@ -201,22 +289,22 @@
             var that = this;
             that.imgopeinfo.clip = that.recttemp;
             var canvaspro = that.size.width / that.size.height;
-            var sx = that.recttemp.x-that.imginfo.dx<0?0:(that.recttemp.x-that.imginfo.dx);
-            var sy = that.recttemp.y-that.imginfo.dy<0?0:(that.recttemp.y-that.imginfo.dy);
+            var sx = that.recttemp.x - that.imginfo.dx < 0 ? 0 : (that.recttemp.x - that.imginfo.dx);
+            var sy = that.recttemp.y - that.imginfo.dy < 0 ? 0 : (that.recttemp.y - that.imginfo.dy);
+
             var imgwidth = that.recttemp.width;
             var imgheight = that.recttemp.height;
-            if(that.imginfo.imgwidth/that.imginfo.imgheight>canvaspro){
-                imgwidth=that.imginfo.imgwidth*imgwidth/that.size.width;
-                imgheight=that.imginfo.imgwidth*imgheight/that.size.width;
-                sx=that.imginfo.imgwidth*sx/that.size.width;
-                sy=that.imginfo.imgwidth*sy/that.size.width;
+
+            var scale = 1;
+            if (that.imginfo.swidth / that.imginfo.sheight > canvaspro) {
+                scale = that.imginfo.swidth / that.size.width;
+            } else {
+                scale = that.imginfo.sheight / that.size.height;
             }
-            else{
-                imgheight=that.imginfo.imgheight*imgheight/that.size.height
-                imgwidth=that.imginfo.imgheight*imgwidth/that.size.height
-                sx=that.imginfo.imgheight*sx/that.size.height
-                sy=that.imginfo.imgheight*sy/that.size.height
-            }
+            imgheight = scale * imgheight
+            imgwidth = scale * imgwidth
+            sx = scale * sx + that.imginfo.sx;
+            sy = scale * sy + that.imginfo.sy;
             var dx = 0;
             var dy = 0;
             var dWidth = that.size.width;
@@ -230,8 +318,9 @@
             }
             that.imginfo = {
                 img: that.imginfo.img,
-                imgwidth:that.imginfo.imagewidth,
-                imgheight:that.imginfo.imgheight,
+                scale: scale * that.imginfo.scale,
+                imgwidth: that.imginfo.imagewidth,
+                imgheight: that.imginfo.imgheight,
                 sx: sx,
                 sy: sy,
                 swidth: imgwidth,
@@ -241,45 +330,19 @@
                 dWidth: dWidth,
                 dHeight: dHeight
             };
+
+            that.resetselection();
+        },
+        resetselection: function() {
+            this.imgopeinfo.rect = [];
+            this.imgopeinfo.text = [];
         },
         loadimg: function(url) {
             var that = this;
             var img = new Image();
             img.src = url;
             img.onload = function() {
-                var imgwidth = img.width;
-                var imgheight = img.height;
-                var canvaspro = that.size.width / that.size.height;
-                var dx = 0;
-                var dy = 0;
-                var dWidth = that.size.width;
-                var dHeight = that.size.height;
-                if (imgwidth / imgheight > canvaspro) {
-                    dy = (that.size.height - that.size.width * imgheight / imgwidth) / 2;
-                    dHeight = that.size.width * imgheight / imgwidth;
-                } else {
-                    dx = (that.size.width - that.size.height * imgwidth / imgheight) / 2;
-                    dWidth = that.size.height * imgwidth / imgheight;
-                }
-                that.imginfo = {
-                    img: img,
-                    imgwidth:imgwidth,
-                    imgheight:imgheight,
-                    sx: 0,
-                    sy: 0,
-                    swidth: imgwidth,
-                    sheight: imgheight,
-                    dx: dx,
-                    dy: dy,
-                    dWidth: dWidth,
-                    dHeight: dHeight
-                };
-                this.imgopeinfo = {
-                    "clip": { x: 0, y: 0, width: imgwidth, height: imgheight },
-                    "rect": [],
-                    "text": []
-                };
-                that.redrawimgonly();
+                that.redraworiginimg(img);
             }
         },
         redrawimg: function() {
@@ -295,7 +358,7 @@
                     that.ctx.rect(ele.x, ele.y, ele.width, ele.height);
                     that.ctx.clip();
                     that.redrawimgonly();
-                    that.ctx.strokeStyle = 'blue';
+                    that.ctx.strokeStyle = ele.strokeStyle;
                     that.ctx.lineWidth = 4;
                     that.ctx.strokeRect(ele.x, ele.y, ele.width, ele.height);
                     that.ctx.closePath();
@@ -310,10 +373,46 @@
                 that.ctx.fillText(ele.text, ele.x, ele.y);
                 that.ctx.restore();
             })
+            that.imgopeinfo.arrow.forEach(function(ele) {
+                that.drawArrow(ele.fromX, ele.fromY, ele.toX, ele.toY, ele.theta, ele.headlen, ele.width, ele.color)
+            })
+
         },
         redrawimgonly: function() {
             var that = this;
             that.ctx.drawImage(that.imginfo.img, that.imginfo.sx, that.imginfo.sy, that.imginfo.swidth, that.imginfo.sheight, that.imginfo.dx, that.imginfo.dy, that.imginfo.dWidth, that.imginfo.dHeight);
+        },
+        redraworiginimg: function(img) {
+            var that = this;
+            var imgwidth = img.width;
+            var imgheight = img.height;
+            var canvaspro = that.size.width / that.size.height;
+            var dx = 0;
+            var dy = 0;
+            var dWidth = that.size.width;
+            var dHeight = that.size.height;
+            if (imgwidth / imgheight > canvaspro) {
+                dy = (that.size.height - that.size.width * imgheight / imgwidth) / 2;
+                dHeight = that.size.width * imgheight / imgwidth;
+            } else {
+                dx = (that.size.width - that.size.height * imgwidth / imgheight) / 2;
+                dWidth = that.size.height * imgwidth / imgheight;
+            }
+            that.imginfo = {
+                img: img,
+                scale: 1,
+                imgwidth: imgwidth,
+                imgheight: imgheight,
+                sx: 0,
+                sy: 0,
+                swidth: imgwidth,
+                sheight: imgheight,
+                dx: dx,
+                dy: dy,
+                dWidth: dWidth,
+                dHeight: dHeight
+            };
+            that.redrawimgonly();
         }
 
 
