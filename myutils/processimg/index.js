@@ -3,7 +3,8 @@
 
     function ProcessImg(el, option) {
         this.$el = $(el);
-        this.size = { width: this.$el.width(), height: this.$el.height() };
+        $(el).css('position','relative')
+        this.size = { width: this.$el.width()*2, height: this.$el.height()*2 };
         this.option = $.extend(true, defaultoption, option);
         this.imgopeinfo = {
             "rect": [],
@@ -11,7 +12,7 @@
             "arrow": []
         };
         this.fontstyle = {
-            font: '16px 微软雅黑',
+            font: '32px 微软雅黑',
             fillStyle: '#ff0000'
         }
         this.init();
@@ -21,9 +22,10 @@
             this.canvas = document.createElement('canvas');
             this.canvas.width = this.size.width;
             this.canvas.height = this.size.height;
+            $(this.canvas).css({width:this.size.width/2,height:this.size.height/2,"background":"#fff"})
             this.$el.html(this.canvas);
-            this.confirm = '<div class="confirm"><span id="confirm" class="sprite"></span><span id="cancel" class="sprite"></span></div>';
-            this.text = '<input type="text" id="text"></input>';
+            this.confirm = '<div class="processimg confirm"><span id="confirm" class="sprite"></span><span id="cancel" class="sprite"></span></div>';
+            this.text = '<input type="text" id="text" class="processimg"></input>';
             this.$el.append(this.confirm);
             this.$el.append(this.text);
             this.ctx = this.canvas.getContext('2d');
@@ -42,12 +44,12 @@
                 var $target = $(e.target);
                 if ($target[0] == $(that.canvas)[0]) {
                     mousedown = true;
-                    startpos.left = e.clientX - that.canvas.getBoundingClientRect().left;
-                    startpos.top = e.clientY - that.canvas.getBoundingClientRect().top;
+                    startpos.left = (e.clientX - that.canvas.getBoundingClientRect().left)*2;
+                    startpos.top = (e.clientY - that.canvas.getBoundingClientRect().top)*2;
                     if (that.opeclass == 'addword') {
-                        $("#text").css({ top: startpos.top + 'px', left: startpos.left + 'px' }).show(100, function() {
+                        $("#text").css({ top: startpos.top/2 + 'px', left: startpos.left/2 + 'px' }).show(100, function() {
                             $("#text").focus();
-                            $(".confirm").css({ 'top': startpos.top + 'px', 'left': startpos.left + 100 + 'px' }).show();
+                            $(".confirm").css({ 'top': startpos.top/2 + 'px', 'left': startpos.left/2 + 100 + 'px' }).show();
                             addingtext = true;
                         });
                     }
@@ -56,8 +58,8 @@
 
             $(document).mousemove(function(e) {
                 if (mousedown && (that.opeclass == 'addselection' || that.opeclass == 'clip')) {
-                    var left = e.clientX - that.canvas.getBoundingClientRect().left;
-                    var top = e.clientY - that.canvas.getBoundingClientRect().top;
+                    var left = (e.clientX - that.canvas.getBoundingClientRect().left)*2;
+                    var top = (e.clientY - that.canvas.getBoundingClientRect().top)*2;
                     var width = left - startpos.left;
                     var height = top - startpos.top;
                     that.ctx.clearRect(0, 0, that.size.width, that.size.height);
@@ -82,19 +84,19 @@
                 }
                 if (mousedown && that.opeclass == 'addarrow') {
                     that.redrawimg();
-                    var left = e.clientX - that.canvas.getBoundingClientRect().left;
-                    var top = e.clientY - that.canvas.getBoundingClientRect().top;
+                    var left = (e.clientX - that.canvas.getBoundingClientRect().left)*2;
+                    var top = (e.clientY - that.canvas.getBoundingClientRect().top)*2;
                     that.drawArrow(startpos.left, startpos.top, left, top, 45, 15, 3, that.fontstyle.fillStyle);
                 }
             })
             $(document).mouseup(function(e) {
                 if (mousedown) {
-                    var left = e.clientX - that.canvas.getBoundingClientRect().left;
-                    var top = e.clientY - that.canvas.getBoundingClientRect().top;
+                    var left = (e.clientX - that.canvas.getBoundingClientRect().left)*2;
+                    var top = (e.clientY - that.canvas.getBoundingClientRect().top)*2;
                     var width = left - startpos.left;
                     var height = top - startpos.top;
                     if (that.opeclass == 'addselection' || that.opeclass == 'clip') {
-                        $(".confirm").css({ 'top': startpos.top + height + 'px', 'left': startpos.left + width + 'px' }).show();
+                        $(".confirm").css({ 'top': top/2 + 'px', 'left': left/2 + 'px' }).show();
                         that.recttemp = {
                             strokeStyle:that.fontstyle.fillStyle,
                             x: startpos.left,
@@ -104,8 +106,8 @@
                         }
                     }
                     if (that.opeclass == 'addarrow') {
-                        var left = e.clientX - that.canvas.getBoundingClientRect().left;
-                        var top = e.clientY - that.canvas.getBoundingClientRect().top;
+                        var left = (e.clientX - that.canvas.getBoundingClientRect().left)*2;
+                        var top = (e.clientY - that.canvas.getBoundingClientRect().top)*2;
                         that.imgopeinfo.arrow.push({
                             fromX: startpos.left,
                             fromY: startpos.top,
@@ -124,7 +126,7 @@
 
             $(".fontsizeselect").change(function(e) {
                 that.fontstyle.font = $(".fontsizeselect option:selected").val() + ' 微软雅黑';
-                $("#text").css({ "font-size": $(".fontsizeselect option:selected").val() });
+                $("#text").css({ "font-size": $(".fontsizeselect option:selected").text() });
             })
 
         },
@@ -164,7 +166,7 @@
             ctx.restore();
         },
         addbtns: function() {
-            var btnhtml = `<div class='imgbtns'><div class="customopelist">
+            var btnhtml = `<div class='imgbtns processimg'><div class="customopelist">
                 <a class='clip sprite' id='clip' title="裁剪"></a>
                 <a class='addselection sprite' id='addselection' title="矩形"></a>
                 <a class='addword sprite' id='addword' title="文字"></a>
@@ -175,14 +177,14 @@
                 <div class='textstyle clearfix'>
                     <div class='selectdiv fl'>
                         <select class="fontsizeselect">
-                            <option value='12px'>12</option>
-                            <option value='14px'>14</option>
-                            <option value='16px'>16</option>
-                            <option value='18px'>18</option>
-                            <option value='20px'>20</option>
-                            <option value='24px'>24</option>
-                            <option value='28px'>28</option>
-                            <option value='30px'>30</option>
+                            <option value='24px'>12</option>
+                            <option value='28px'>14</option>
+                            <option value='32px'>16</option>
+                            <option value='36px'>18</option>
+                            <option value='40px'>20</option>
+                            <option value='48px'>24</option>
+                            <option value='56px'>28</option>
+                            <option value='60px'>30</option>
                         </select>
                     </div>
                     <div class="fl currentcolor">
@@ -222,7 +224,7 @@
                         that.redraworiginimg(that.imginfo.img);
                     }
                     if(id=='save'){
-                        var imgsrc=that.canvas.toDataURL("image/jpeg");
+                        var imgsrc=that.canvas.toDataURL("image/png",1);
                         if(that.option.save && typeof that.option.save =='function'){
                             that.option.save(imgsrc);
                         }
@@ -243,7 +245,7 @@
                         $target.removeClass('on')
                         that.opeclass = "";
                     } else {
-                        $('.on').removeClass('on');
+                        that.$el.children('.on').removeClass('on');
                         $target.addClass('on');
                         that.opeclass = id;
                     }
@@ -265,14 +267,14 @@
                     }
                     if (that.opeclass == 'addword') {
                         that.ctx.save();
-                        that.ctx.font = '16px 微软雅黑';
+                        that.ctx.font = '32px 微软雅黑';
                         that.ctx.fillStyle = 'red';
                         that.ctx.textBaseline = 'top';
                         that.ctx.fillText($("#text").val(), parseInt($("#text").css('left')), parseInt($("#text").css('top')));
                         that.ctx.restore();
                         that.imgopeinfo.text.push({
-                            x: parseInt($("#text").css('left')),
-                            y: parseInt($("#text").css('top')),
+                            x: parseInt($("#text").css('left'))*2,
+                            y: parseInt($("#text").css('top'))*2,
                             text: $("#text").val(),
                             font: that.fontstyle.font,
                             fillStyle: that.fontstyle.fillStyle

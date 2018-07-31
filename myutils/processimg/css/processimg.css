@@ -27,61 +27,54 @@
     left: auto;
     right: 0;
 }
-.clip:before{
+.processimg .clip:before{
     background-position:0 0;
 }
-.addword:before{
+.processimg .addword:before{
     background-position:-38px 0;
 }
-.addselection:before{
+.processimg .addselection:before{
     background-position:-76px 0;
 }
-#confirm:before{
+.processimg #confirm:before{
     background-position:-261px 0;
     width: 26px;
 }
-#cancel:before{
+.processimg #cancel:before{
     background-position:-185px 0;
     width: 26px;
 }
-.clearall:before{
+.processimg .clearall:before{
     background-position:-188px 0;
 }
-.save:before{
+.processimg .save:before{
     background-position:-113px 0;
 }
-.addarrow:before{
+.processimg .addarrow:before{
     background-position:-152px 0;
 }
-#imgcanvas {
-    width: 800px;
-    height: 600px;
-    background: #ccc;
-    border: 1px solid orange;
-    position: relative;
-}
 
-.imgbtns {
+.processimg.imgbtns {
     height: auto;
     position: absolute;
     top: 0;
     right: 0;
 }
-.imgbtns .customopelist{
+.processimg.imgbtns .customopelist{
     background: rgb(70, 67, 67);
     padding: 5px;
 }
-.imgbtns a {
+.processimg.imgbtns a {
     display: inline-block;
     cursor: pointer;
     padding: 3px 3px;
     height: 20px;
 }
-.imgbtns a.on,.imgbtns a:hover{
+.processimg.imgbtns a.on,.processimg.imgbtns a:hover{
     background: rgb(113, 110, 110);
 }
-#rect,
-#text {
+
+.processimg#text {
     border: 2px solid green;
     position: absolute;
     display: none;
@@ -90,14 +83,14 @@
     width: 100px;
 }
 
-#text {
+.processimg#text {
     border: 1px dashed yellow;
     background: none;
     font-size: 16px;
     color: red;
 }
 
-#imgcanvas .confirm {
+ .processimg.confirm {
     background: rgba(0,0,0,.8);
     color: rgb(51, 51, 51);
     position: absolute;
@@ -106,43 +99,43 @@
     cursor: pointer;
     border-radius: 3px;
 }
-#imgcanvas .confirm>span{
+ .processimg.confirm>span{
     display: inline-block;
     height: auto;
 }
-#imgcanvas .confirm>span:before{
+ .processimg.confirm>span:before{
 }
-#imgcanvas .confirm>span:hover{
+ .processimg.confirm>span:hover{
     background: rgb(113, 110, 110);
 }
-.textstyle{
+.processimg .textstyle{
     background: rgb(144, 144, 144);
     display: none;
     padding-top: 2px;
 }
-.textstyle span,.textstyle select{
+.processimg .textstyle span,.textstyle select{
     font-size: 12px;
 }
-.selectdiv{
+.processimg .selectdiv{
         margin-left: 2px;
 }
-.selectdiv>select{
+.processimg .selectdiv>select{
     background: #eee;
     height: 26px;
 }
-.textstyle .currentcolor{
+.processimg .textstyle .currentcolor{
     margin-left: 3px;
 }
-.textstyle .currentcolor>span{
+.processimg .textstyle .currentcolor>span{
     display: inline-block;
     width:26px;
     height: 26px;
     background: red;
 }
-.textstyle .colorlist{
+.processimg .textstyle .colorlist{
     width:78px;
 }
-.textstyle .colorlist span{
+.processimg .textstyle .colorlist span{
     width:10px;
     height: 10px;
     display: inline-block;
