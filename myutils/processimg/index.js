@@ -1,10 +1,10 @@
 (function(root) {
-    var defaultoption = {};
+    var defaultoption = {clearcolor:'#fff'};
 
     function ProcessImg(el, option) {
         this.$el = $(el);
-        $(el).css('position','relative')
-        this.size = { width: this.$el.width()*2, height: this.$el.height()*2 };
+        $(el).css('position', 'relative')
+        this.size = { width: this.$el.width() * 2, height: this.$el.height() * 2 };
         this.option = $.extend(true, defaultoption, option);
         this.imgopeinfo = {
             "rect": [],
@@ -13,7 +13,8 @@
         };
         this.fontstyle = {
             font: '32px 微软雅黑',
-            fillStyle: '#ff0000'
+            fillStyle: '#ff0000',
+            strokeWidth:4
         }
         this.init();
     }
@@ -22,16 +23,65 @@
             this.canvas = document.createElement('canvas');
             this.canvas.width = this.size.width;
             this.canvas.height = this.size.height;
-            $(this.canvas).css({width:this.size.width/2,height:this.size.height/2,"background":"#fff"})
+            $(this.canvas).css({ width: this.size.width / 2, height: this.size.height / 2, "background": "#fff" })
+            this.ctx = this.canvas.getContext('2d');
             this.$el.html(this.canvas);
-            this.confirm = '<div class="processimg confirm"><span id="confirm" class="sprite"></span><span id="cancel" class="sprite"></span></div>';
-            this.text = '<input type="text" id="text" class="processimg"></input>';
+            this.confirm = '<div class="processimg confirm"><span data-id="confirm" class="sprite confirmbtn"></span><span data-id="cancel" class="sprite cancelbtn"></span></div>';
+            this.text = '<input type="text" class="processimg text"></input>';
             this.$el.append(this.confirm);
             this.$el.append(this.text);
-            this.ctx = this.canvas.getContext('2d');
             this.opeclass = '';
             this.addbtns();
             this.addevents();
+        },
+        addbtns: function() {
+            this.btnhtml = `<div class='imgbtns processimg'><div class="customopelist">
+                <a class='clip sprite' data-id='clip' title="裁剪"></a>
+                <a class='addselection sprite' data-id='addselection' title="矩形"></a>
+                <a class='addword sprite' data-id='addword' title="文字"></a>
+                <a class='addarrow sprite' data-id='addarrow' title="箭头"></a>
+                <a class='save sprite' data-id='save' title="保存"></a>
+                <a class='clearall sprite' data-id='clearall' title="取消"></a>
+                </div>
+                <div class='textstyle clearfix'>
+                    <div class='linewidthdiv fl'>
+                        <span data-width="2" class="linewidth2"></span>
+                        <span data-width="4" class="linewidth4 on"></span>
+                        <span data-width="8" class="linewidth8"></span>
+                    </div>
+                    <div class='selectdiv fl'>
+                        <select class="fontsizeselect">
+                            <option value='24px'>12</option>
+                            <option value='28px'>14</option>
+                            <option value='32px' selected>16</option>
+                            <option value='36px'>18</option>
+                            <option value='40px'>20</option>
+                            <option value='48px'>24</option>
+                            <option value='56px'>28</option>
+                            <option value='60px'>30</option>
+                        </select>
+                    </div>
+                    <div class="fl currentcolor">
+                        <span class="curcolor"></span>
+                    </div>
+                    <div class="fl colorlist clearfix">
+                        <span data-color="#ff0000" style='background:#ff0000'></span>
+                        <span data-color="#0000ff" style='background:#0000ff'></span>
+                        <span data-color="#00ff00" style='background:#00ff00'></span>
+                        <span data-color="#ffff00" style='background:#ffff00'></span>
+                        <span data-color="#ffffff" style='background:#ffffff'></span>
+                        <span data-color="#000000" style='background:#000000'></span>
+                        <span data-color="#ccc" style='background:#ccc'></span>
+                        <span data-color="#811616" style='background:#811616'></span>
+                        <span data-color="#162f81" style='background:#162f81'></span>
+                        <span data-color="#45ac13" style='background:#45ac13'></span>
+                        <span data-color="#e823cf" style='background:#e823cf'></span>
+                        <span data-color="#c9c3c8" style='background:#c9c3c8'></span>
+                    </div>
+                </div>
+            </div>`
+            this.$el.append(this.btnhtml);
+            this.getopeclass();
         },
         addevents: function() {
             var that = this;
@@ -44,12 +94,12 @@
                 var $target = $(e.target);
                 if ($target[0] == $(that.canvas)[0]) {
                     mousedown = true;
-                    startpos.left = (e.clientX - that.canvas.getBoundingClientRect().left)*2;
-                    startpos.top = (e.clientY - that.canvas.getBoundingClientRect().top)*2;
+                    startpos.left = (e.clientX - that.canvas.getBoundingClientRect().left) * 2;
+                    startpos.top = (e.clientY - that.canvas.getBoundingClientRect().top) * 2;
                     if (that.opeclass == 'addword') {
-                        $("#text").css({ top: startpos.top/2 + 'px', left: startpos.left/2 + 'px' }).show(100, function() {
-                            $("#text").focus();
-                            $(".confirm").css({ 'top': startpos.top/2 + 'px', 'left': startpos.left/2 + 100 + 'px' }).show();
+                        that.$el.find(".text").css({ top: startpos.top / 2 + 'px', left: startpos.left / 2 + 'px' }).show(100, function() {
+                            that.$el.find(".text").focus();
+                            that.$el.find(".confirm").css({ 'top': startpos.top / 2 + 'px', 'left': startpos.left / 2 + 100 + 'px' }).show();
                             addingtext = true;
                         });
                     }
@@ -58,8 +108,8 @@
 
             $(document).mousemove(function(e) {
                 if (mousedown && (that.opeclass == 'addselection' || that.opeclass == 'clip')) {
-                    var left = (e.clientX - that.canvas.getBoundingClientRect().left)*2;
-                    var top = (e.clientY - that.canvas.getBoundingClientRect().top)*2;
+                    var left = (e.clientX - that.canvas.getBoundingClientRect().left) * 2;
+                    var top = (e.clientY - that.canvas.getBoundingClientRect().top) * 2;
                     var width = left - startpos.left;
                     var height = top - startpos.top;
                     that.ctx.clearRect(0, 0, that.size.width, that.size.height);
@@ -73,7 +123,7 @@
                     that.redrawimgonly();
                     if (that.opeclass == 'addselection') {
                         that.ctx.strokeStyle = that.fontstyle.fillStyle;
-                        that.ctx.lineWidth = 4;
+                        that.ctx.lineWidth = that.fontstyle.strokeWidth;
                     } else {
                         that.ctx.strokeStyle = 'red';
                         that.ctx.lineWidth = 2;
@@ -84,21 +134,22 @@
                 }
                 if (mousedown && that.opeclass == 'addarrow') {
                     that.redrawimg();
-                    var left = (e.clientX - that.canvas.getBoundingClientRect().left)*2;
-                    var top = (e.clientY - that.canvas.getBoundingClientRect().top)*2;
-                    that.drawArrow(startpos.left, startpos.top, left, top, 45, 15, 3, that.fontstyle.fillStyle);
+                    var left = (e.clientX - that.canvas.getBoundingClientRect().left) * 2;
+                    var top = (e.clientY - that.canvas.getBoundingClientRect().top) * 2;
+                    that.drawArrow(startpos.left, startpos.top, left, top, 45, that.fontstyle.strokeWidth*5, that.fontstyle.strokeWidth, that.fontstyle.fillStyle);
                 }
             })
             $(document).mouseup(function(e) {
                 if (mousedown) {
-                    var left = (e.clientX - that.canvas.getBoundingClientRect().left)*2;
-                    var top = (e.clientY - that.canvas.getBoundingClientRect().top)*2;
+                    var left = (e.clientX - that.canvas.getBoundingClientRect().left) * 2;
+                    var top = (e.clientY - that.canvas.getBoundingClientRect().top) * 2;
                     var width = left - startpos.left;
                     var height = top - startpos.top;
                     if (that.opeclass == 'addselection' || that.opeclass == 'clip') {
-                        $(".confirm").css({ 'top': top/2 + 'px', 'left': left/2 + 'px' }).show();
+                        that.$el.find(".confirm").css({ 'top': top / 2 + 'px', 'left': left / 2 + 'px' }).show();
                         that.recttemp = {
-                            strokeStyle:that.fontstyle.fillStyle,
+                            strokeStyle: that.fontstyle.fillStyle,
+                            strokeWidth:that.fontstyle.strokeWidth,
                             x: startpos.left,
                             y: startpos.top,
                             width: width,
@@ -106,16 +157,16 @@
                         }
                     }
                     if (that.opeclass == 'addarrow') {
-                        var left = (e.clientX - that.canvas.getBoundingClientRect().left)*2;
-                        var top = (e.clientY - that.canvas.getBoundingClientRect().top)*2;
+                        var left = (e.clientX - that.canvas.getBoundingClientRect().left) * 2;
+                        var top = (e.clientY - that.canvas.getBoundingClientRect().top) * 2;
                         that.imgopeinfo.arrow.push({
                             fromX: startpos.left,
                             fromY: startpos.top,
                             toX: left,
                             toY: top,
                             theta: 45,
-                            headlen: 15,
-                            width: 3,
+                            headlen: that.fontstyle.strokeWidth*5,
+                            width: that.fontstyle.strokeWidth,
                             color: that.fontstyle.fillStyle
                         })
                         that.redrawimg();
@@ -124,9 +175,9 @@
                 mousedown = false;
             })
 
-            $(".fontsizeselect").change(function(e) {
-                that.fontstyle.font = $(".fontsizeselect option:selected").val() + ' 微软雅黑';
-                $("#text").css({ "font-size": $(".fontsizeselect option:selected").text() });
+            that.$el.find(".fontsizeselect").change(function(e) {
+                that.fontstyle.font = that.$el.find(".fontsizeselect option:selected").val() + ' 微软雅黑';
+                that.$el.find(".text").css({ "font-size": that.$el.find(".fontsizeselect option:selected").text()+"px" });
             })
 
         },
@@ -165,99 +216,73 @@
             ctx.fill();
             ctx.restore();
         },
-        addbtns: function() {
-            var btnhtml = `<div class='imgbtns processimg'><div class="customopelist">
-                <a class='clip sprite' id='clip' title="裁剪"></a>
-                <a class='addselection sprite' id='addselection' title="矩形"></a>
-                <a class='addword sprite' id='addword' title="文字"></a>
-                <a class='addarrow sprite' id='addarrow' title="箭头"></a>
-                <a class='save sprite' id='save' title="保存"></a>
-                <a class='clearall sprite' id='clearall' title="取消"></a>
-                </div>
-                <div class='textstyle clearfix'>
-                    <div class='selectdiv fl'>
-                        <select class="fontsizeselect">
-                            <option value='24px'>12</option>
-                            <option value='28px'>14</option>
-                            <option value='32px'>16</option>
-                            <option value='36px'>18</option>
-                            <option value='40px'>20</option>
-                            <option value='48px'>24</option>
-                            <option value='56px'>28</option>
-                            <option value='60px'>30</option>
-                        </select>
-                    </div>
-                    <div class="fl currentcolor">
-                        <span class="curcolor"></span>
-                    </div>
-                    <div class="fl colorlist clearfix">
-                        <span data-color="#ff0000" style='background:#ff0000'></span>
-                        <span data-color="#0000ff" style='background:#0000ff'></span>
-                        <span data-color="#00ff00" style='background:#00ff00'></span>
-                        <span data-color="#ffff00" style='background:#ffff00'></span>
-                        <span data-color="#ffffff" style='background:#ffffff'></span>
-                        <span data-color="#000000" style='background:#000000'></span>
-                        <span data-color="#ccc" style='background:#ccc'></span>
-                        <span data-color="#811616" style='background:#811616'></span>
-                        <span data-color="#162f81" style='background:#162f81'></span>
-                        <span data-color="#45ac13" style='background:#45ac13'></span>
-                        <span data-color="#e823cf" style='background:#e823cf'></span>
-                        <span data-color="#c9c3c8" style='background:#c9c3c8'></span>
-                    </div>
-                </div>
-            </div>`
-            this.$el.append(btnhtml);
-            this.getopeclass();
-        },
+
         getopeclass: function() {
             var that = this;
-            $(".imgbtns").click(function(e) {
+            this.$el.children('.imgbtns').click(function(e) {
                 e.stopPropagation();
                 var $target = $(e.target);
-                var id = $target.attr('id');
+                var id = $target.attr('data-id');
                 if (id) {
-                    $(".textstyle").hide();
-                    if (id=='clearall') {
+                    that.$el.find(".text").hide();
+                    that.$el.children('.confirm').hide();
+                    that.$el.find(".textstyle").hide();
+                    if ($target.hasClass('on')) {
+                        $target.removeClass('on')
+                        that.opeclass = "";
+                        return;
+                    }
+                    that.$el.find('.customopelist>.on').removeClass('on');
+                    $target.addClass('on');
+                    that.opeclass = id;
+                    if (id == 'clearall') {
                         that.imgopeinfo.rect = [];
                         that.imgopeinfo.text = [];
                         that.imgopeinfo.arrow = [];
                         that.redraworiginimg(that.imginfo.img);
+                        that.$el.find('.customopelist>.on').removeClass('on');
                     }
-                    if(id=='save'){
-                        var imgsrc=that.canvas.toDataURL("image/png",1);
-                        if(that.option.save && typeof that.option.save =='function'){
+                    if (id == 'save') {
+                        var imgsrc = that.canvas.toDataURL("image/png", 1);
+                        if (that.option.save && typeof that.option.save == 'function') {
                             that.option.save(imgsrc);
                         }
                     }
-                    if(id=='addselection'){
-                        $(".textstyle").show();
-                        $(".textstyle .selectdiv").hide();
+                    if (id == 'addselection') {
+                        that.$el.find(".textstyle").show();
+                        that.$el.find(".textstyle .selectdiv").hide();
+                        that.$el.find(".textstyle .linewidthdiv").show();
                     }
-                    if(id=='addword'){
-                        $(".textstyle").show();
-                        $(".textstyle .selectdiv").show();
+                    if (id == 'addword') {
+                        that.$el.find(".text").show();
+                        that.$el.find(".textstyle").show();
+                        that.$el.find(".textstyle .selectdiv").show();
+                        that.$el.find(".textstyle .linewidthdiv").hide();
                     }
-                    if(id=='addarrow'){
-                        $(".textstyle").show();
-                        $(".textstyle .selectdiv").hide();
+                    if (id == 'addarrow') {
+                        that.$el.find(".textstyle").show();
+                        that.$el.find(".textstyle .selectdiv").hide();
+                        that.$el.find(".textstyle .linewidthdiv").show();
                     }
-                    if ($target.hasClass('on')) {
-                        $target.removeClass('on')
-                        that.opeclass = "";
-                    } else {
-                        that.$el.children('.on').removeClass('on');
-                        $target.addClass('on');
-                        that.opeclass = id;
-                    }
-                } else if ($target.parent('.colorlist').length > 0) {
+
+                } 
+                else if ($target.parent('.colorlist').length > 0) {
                     var color = $target.attr('data-color');
                     that.fontstyle.fillStyle = color;
-                    $("#text").css({ color: color });
-                    $(".curcolor").css({ background: color });
+                    that.$el.find(".text").css({ color: color });
+                    that.$el.find(".curcolor").css({ background: color });
                 }
+                else if ($target.parent('.linewidthdiv').length > 0) {
+                    var width = $target.attr('data-width');
+                    that.fontstyle.strokeWidth = width;
+                    $target.addClass('on');
+                    $target.siblings('.on').removeClass('on');
+                }
+                that.redrawimg();
             })
-            $(".confirm>span").click(function(e) {
-                var id = $(e.currentTarget).attr('id');
+            this.$el.children('.confirm').children('span').click(function(e) {
+                var id = $(e.currentTarget).attr('data-id');
+                console.log(id);
                 if (id == 'confirm') {
                     if (that.opeclass == 'addselection') {
                         that.imgopeinfo.rect.push(that.recttemp);
@@ -270,21 +295,21 @@
                         that.ctx.font = '32px 微软雅黑';
                         that.ctx.fillStyle = 'red';
                         that.ctx.textBaseline = 'top';
-                        that.ctx.fillText($("#text").val(), parseInt($("#text").css('left')), parseInt($("#text").css('top')));
+                        that.ctx.fillText(that.$el.find(".text").val(), parseInt(that.$el.find(".text").css('left')), parseInt(that.$el.find(".text").css('top')));
                         that.ctx.restore();
                         that.imgopeinfo.text.push({
-                            x: parseInt($("#text").css('left'))*2,
-                            y: parseInt($("#text").css('top'))*2,
-                            text: $("#text").val(),
+                            x: parseInt(that.$el.find(".text").css('left')) * 2,
+                            y: parseInt(that.$el.find(".text").css('top')) * 2,
+                            text: that.$el.find(".text").val(),
                             font: that.fontstyle.font,
                             fillStyle: that.fontstyle.fillStyle
                         })
                         that.opeclass = '';
-                        $("#text").val('').hide();
+                        that.$el.find(".text").val('').hide();
                     }
                 }
                 that.redrawimg();
-                $(".confirm").hide();
+                that.$el.children('.confirm').hide();
             })
         },
         doclip: function() {
@@ -349,7 +374,7 @@
         },
         redrawimg: function() {
             that = this;
-            that.ctx.clearRect(0, 0, that.size.width, that.size.height);
+
             that.redrawimgonly();
             if (that.imgopeinfo.rect.length > 0) {
                 that.ctx.fillStyle = 'rgba(' + 0 + ',0,0,' + 0.5 + ')';
@@ -361,7 +386,7 @@
                     that.ctx.clip();
                     that.redrawimgonly();
                     that.ctx.strokeStyle = ele.strokeStyle;
-                    that.ctx.lineWidth = 4;
+                    that.ctx.lineWidth = ele.strokeWidth;
                     that.ctx.strokeRect(ele.x, ele.y, ele.width, ele.height);
                     that.ctx.closePath();
                     that.ctx.restore();
@@ -382,6 +407,11 @@
         },
         redrawimgonly: function() {
             var that = this;
+            that.ctx.clearRect(0, 0, that.size.width, that.size.height);
+            that.ctx.save();
+            that.ctx.fillStyle=that.option.clearcolor;
+            that.ctx.fillRect(0, 0, that.size.width, that.size.height);
+            that.ctx.restore();
             that.ctx.drawImage(that.imginfo.img, that.imginfo.sx, that.imginfo.sy, that.imginfo.swidth, that.imginfo.sheight, that.imginfo.dx, that.imginfo.dy, that.imginfo.dWidth, that.imginfo.dHeight);
         },
         redraworiginimg: function(img) {

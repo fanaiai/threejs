@@ -1,11 +1,23 @@
-.fl{
-    float:left;
+.fl {
+    float: left;
 }
-.fr{
-    float:right;
+
+.fr {
+    float: right;
 }
-.clearfix:after{content:"";display:block;height:0;clear:both;visibility:hidden}
-.clearfix{*+height:1%;}
+
+.clearfix:after {
+    content: "";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden
+}
+
+.clearfix {
+    *+height: 1%;
+}
+
 .sprite,
 .spriteaft {
     position: relative;
@@ -27,31 +39,39 @@
     left: auto;
     right: 0;
 }
-.processimg .clip:before{
-    background-position:0 0;
+
+.processimg .clip:before {
+    background-position: 0 0;
 }
-.processimg .addword:before{
-    background-position:-38px 0;
+
+.processimg .addword:before {
+    background-position: -38px 0;
 }
-.processimg .addselection:before{
-    background-position:-76px 0;
+
+.processimg .addselection:before {
+    background-position: -76px 0;
 }
-.processimg #confirm:before{
-    background-position:-261px 0;
+
+.processimg>.confirmbtn:before {
+    background-position: -261px 0;
     width: 26px;
 }
-.processimg #cancel:before{
-    background-position:-185px 0;
+
+.processimg>.cancelbtn:before {
+    background-position: -185px 0;
     width: 26px;
 }
-.processimg .clearall:before{
-    background-position:-188px 0;
+
+.processimg .clearall:before {
+    background-position: -188px 0;
 }
-.processimg .save:before{
-    background-position:-113px 0;
+
+.processimg .save:before {
+    background-position: -113px 0;
 }
-.processimg .addarrow:before{
-    background-position:-152px 0;
+
+.processimg .addarrow:before {
+    background-position: -152px 0;
 }
 
 .processimg.imgbtns {
@@ -60,21 +80,25 @@
     top: 0;
     right: 0;
 }
-.processimg.imgbtns .customopelist{
+
+.processimg.imgbtns .customopelist {
     background: rgb(70, 67, 67);
     padding: 5px;
 }
+
 .processimg.imgbtns a {
     display: inline-block;
     cursor: pointer;
     padding: 3px 3px;
-    height: 20px;
+    height: 26px;
 }
-.processimg.imgbtns a.on,.processimg.imgbtns a:hover{
+
+.processimg.imgbtns a.on,
+.processimg.imgbtns a:hover {
     background: rgb(113, 110, 110);
 }
 
-.processimg#text {
+.processimg.text {
     border: 2px solid green;
     position: absolute;
     display: none;
@@ -83,15 +107,15 @@
     width: 100px;
 }
 
-.processimg#text {
-    border: 1px dashed yellow;
+.processimg.text {
+    border: 2px solid rgb(255, 0, 0);
     background: none;
     font-size: 16px;
     color: red;
 }
 
- .processimg.confirm {
-    background: rgba(0,0,0,.8);
+.processimg.confirm {
+    background: rgba(0, 0, 0, .8);
     color: rgb(51, 51, 51);
     position: absolute;
     display: none;
@@ -99,48 +123,99 @@
     cursor: pointer;
     border-radius: 3px;
 }
- .processimg.confirm>span{
+
+.processimg.confirm>span {
     display: inline-block;
     height: auto;
 }
- .processimg.confirm>span:before{
-}
- .processimg.confirm>span:hover{
+
+.processimg.confirm>span:hover {
     background: rgb(113, 110, 110);
 }
-.processimg .textstyle{
+
+.processimg .textstyle {
     background: rgb(144, 144, 144);
     display: none;
     padding-top: 2px;
 }
-.processimg .textstyle span,.textstyle select{
+
+.processimg .textstyle span,
+.textstyle select {
     font-size: 12px;
 }
-.processimg .selectdiv{
-        margin-left: 2px;
+
+.processimg .selectdiv {
+    margin-left: 2px;
 }
-.processimg .selectdiv>select{
+
+.processimg .selectdiv>select {
     background: #eee;
     height: 26px;
+        width: 60px;
 }
-.processimg .textstyle .currentcolor{
+
+.processimg .linewidthdiv {
+    text-align: center;
+padding-top: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    display: none;
+}
+.processimg .linewidthdiv>span{
+        position: relative;
+    height: 17px;
+    display: inline-block;
+    cursor: pointer;
+}
+.processimg .linewidthdiv>span.on{
+    background: rgb(113, 110, 110);
+}
+.processimg .linewidthdiv>span:before {
+    content: '';
+    position: relative;
+    display: inline-block;
+    background: rgb(255, 255, 255);
+    border-radius: 50%;
+    vertical-align: middle;
+    margin: 0 5px;
+}
+
+.processimg .linewidthdiv>span.linewidth2:before {
+    width: 4px;
+    height: 4px;
+}
+
+.processimg .linewidthdiv>span.linewidth4:before {
+    width: 6px;
+    height: 6px;
+}
+
+.processimg .linewidthdiv>span.linewidth8:before {
+    width: 8px;
+    height: 8px;
+}
+
+.processimg .textstyle .currentcolor {
     margin-left: 3px;
 }
-.processimg .textstyle .currentcolor>span{
+
+.processimg .textstyle .currentcolor>span {
     display: inline-block;
-    width:26px;
+    width: 26px;
     height: 26px;
     background: red;
 }
-.processimg .textstyle .colorlist{
-    width:78px;
+
+.processimg .textstyle .colorlist {
+    width: 78px;
 }
-.processimg .textstyle .colorlist span{
-    width:10px;
+
+.processimg .textstyle .colorlist span {
+    width: 10px;
     height: 10px;
     display: inline-block;
     background: yellow;
-    float:left;
+    float: left;
     margin-left: 3px;
     margin-top: 2px;
 }
