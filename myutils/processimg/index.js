@@ -33,6 +33,10 @@
             this.opeclass = '';
             this.addbtns();
             this.addevents();
+            this.initcolorpicker();
+        },
+        initcolorpicker:function(){
+            
         },
         addbtns: function() {
             this.btnhtml = `<div class='imgbtns processimg'><div class="customopelist">
@@ -79,9 +83,12 @@
                         <span data-color="#c9c3c8" style='background:#c9c3c8'></span>
                     </div>
                 </div>
+                <div class="colorpicker">
+                    <canvas></canvas>
+                </div>
             </div>`
             this.$el.append(this.btnhtml);
-            this.getopeclass();
+            this.addopeevents();
         },
         addevents: function() {
             var that = this;
@@ -217,7 +224,7 @@
             ctx.restore();
         },
 
-        getopeclass: function() {
+        addopeevents: function() {
             var that = this;
             this.$el.children('.imgbtns').click(function(e) {
                 e.stopPropagation();
@@ -282,7 +289,6 @@
             })
             this.$el.children('.confirm').children('span').click(function(e) {
                 var id = $(e.currentTarget).attr('data-id');
-                console.log(id);
                 if (id == 'confirm') {
                     if (that.opeclass == 'addselection') {
                         that.imgopeinfo.rect.push(that.recttemp);
@@ -309,6 +315,7 @@
                     }
                 }
                 that.redrawimg();
+                that.$el.find(".text").hide();
                 that.$el.children('.confirm').hide();
             })
         },
