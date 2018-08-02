@@ -9,7 +9,7 @@
         this.size = { width: this.$el.width() * 2, height: this.$el.height() * 2 };
         this.option = $.extend(true, defaultoption, option);
         this.position={
-            huebar:{x0:this.size.width*9.48/10, y0:10,x1:this.size.width*1.04/10,y1:5},
+            huebar:{x0:this.size.width*9.48/10, y0:10,x1:this.size.width*1.04/10,y1:15},
             hue:{x0:this.size.width*9.5/10, y0:0, x1:this.size.width/10, y1:this.size.height/2},
             lightsat:{x0:0, y0:0, x1:this.size.width*9.2/10, y1:this.size.height/2},
             opacity:{x0:0,y0:this.size.height*1.02/2,x1:this.size.width,y1:20},
@@ -42,9 +42,15 @@
         },
         addevents:function(){
             var that=this;
-            $(document).click(function(e){
+            var mousedown=false;
+            $(document).mousedown(function(e){
                 var $target=$(e.target);
                 if($target[0]==that.canvas){
+                    mousedown=true;
+                }
+            })
+            $(document).mousemove(function(e){
+                if(mousedown){
                     var mousepos={
                         x:(e.clientX - that.canvas.getBoundingClientRect().left) * 2,
                         y:(e.clientY - that.canvas.getBoundingClientRect().top) * 2
@@ -57,15 +63,19 @@
                     that.addrectpicker();
                 }
             })
+            $(document).mouseup(function(e){
+                var $target=$(e.target);
+                    mousedown=false;
+            })
         },
         checkposition:function(mousepos){
             var that=this;
             Object.keys(this.position).forEach(function(ele){
                 if(mousepos.x>=that.position[ele].x0 && mousepos.y>=that.position[ele].y0 && mousepos.x<=that.position[ele].x0+that.position[ele].x1 && mousepos.y<=that.position[ele].y0+that.position[ele].y1){
                     that.posinfo.type=ele;
+                    that.posinfo.color=that.ctx.getImageData(mousepos.x,mousepos.y,1,1).data;
                 }
             })
-            this.posinfo.color=that.ctx.getImageData(mousepos.x,mousepos.y,1,1).data;
             return this.posinfo;
         },
         addrectpicker: function() {
@@ -106,8 +116,17 @@
             this.ctx.fillStyle = grd2;
             this.ctx.fillRect(this.position.hue.x0,this.position.hue.y0,this.position.hue.x1,this.position.hue.y1);
 
-            this.ctx.fillStyle="#000";
-            this.ctx.fillRect(this.position.huebar.x0,this.position.huebar.y0,this.position.huebar.x1,this.position.huebar.y1);
+            this.ctx.beginPath();
+            this.ctx.lineCap="round";
+            this.ctx.strokeStyle="rgba(0,0,0,.6)";
+            this.ctx.fillStyle="red";
+            this.ctx.lineWidth=this.position.huebar.y1;
+            this.ctx.lineWidth=this.position.huebar.y1;
+            this.ctx.moveTo(this.position.huebar.x0,this.position.huebar.y0);
+            this.ctx.lineTo(this.position.huebar.x0+this.position.huebar.x1,this.position.huebar.y0);
+            this.ctx.stroke();
+            this.ctx.closePath();
+            this.ctx.fill();
             this.ctx.restore();
         },
         addrectlightsat:function(){
