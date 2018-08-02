@@ -17,7 +17,7 @@
         };
         this.posinfo={
             color:[255,0,0,255],
-            hue:this._calcHue([255,0,0,255])
+            hue:[255,0,0,255]
         }
         this.init();
         
@@ -50,7 +50,8 @@
                 }
             })
             $(document).mousemove(function(e){
-                if(mousedown){
+                var $target=$(e.target);
+                if(mousedown && $target[0]==that.canvas){
                     var mousepos={
                         x:(e.clientX - that.canvas.getBoundingClientRect().left) * 2,
                         y:(e.clientY - that.canvas.getBoundingClientRect().top) * 2
@@ -58,7 +59,7 @@
                     var posinfo=that.checkposition(mousepos);
                     if(posinfo.type=='hue'){
                         that.position.huebar.y0=mousepos.y;
-                        that.posinfo.hue=that._calcHue(posinfo.color);
+                        that.posinfo.hue=posinfo.color;
                     }
                     that.addrectpicker();
                 }
@@ -131,11 +132,15 @@
         },
         addrectlightsat:function(){
             this.ctx.save();
-            var grd2 = this.ctx.createLinearGradient(0,0,0,this.position.lightsat.y1);
-            grd2.addColorStop(0, "hsla("+this.posinfo.hue+",0%,100%,1)");
-            grd2.addColorStop(0.5, "hsla("+this.posinfo.hue+",50%,50%,1)");
-            grd2.addColorStop(1, "hsla("+this.posinfo.hue+",100%,0%,1)");
+            var grd2 = this.ctx.createLinearGradient(0,0,0,this.position.lightsat.y0+this.position.lightsat.y1);
+            grd2.addColorStop(0, "rgb(255,255,255)");
+            grd2.addColorStop(1, "rgb("+this.posinfo.hue[0]+","+this.posinfo.hue[1]+","+this.posinfo.hue[2]+")");
             this.ctx.fillStyle = grd2;
+            this.ctx.fillRect(this.position.lightsat.x0,this.position.lightsat.y0,this.position.lightsat.x1,this.position.lightsat.y1);
+            var grd3 = this.ctx.createLinearGradient(0,0,this.position.lightsat.x0+this.position.lightsat.x1,this.position.lightsat.y0+this.position.lightsat.y1);
+            grd3.addColorStop(0, "rgba(0,0,0,0)");
+            grd3.addColorStop(1, "rgba(0,0,0,1)");
+            this.ctx.fillStyle = grd3;
             this.ctx.fillRect(this.position.lightsat.x0,this.position.lightsat.y0,this.position.lightsat.x1,this.position.lightsat.y1);
             this.ctx.restore();
         },
