@@ -115,6 +115,7 @@
 
             $(document).mousemove(function(e) {
                 if (mousedown && (that.opeclass == 'addselection' || that.opeclass == 'clip')) {
+                    that.$el.find('.imgbtns').hide();
                     var left = (e.clientX - that.canvas.getBoundingClientRect().left) * 2;
                     var top = (e.clientY - that.canvas.getBoundingClientRect().top) * 2;
                     var width = left - startpos.left;
@@ -140,6 +141,7 @@
                     that.ctx.restore();
                 }
                 if (mousedown && that.opeclass == 'addarrow') {
+                    that.$el.find('.imgbtns').hide();
                     that.redrawimg();
                     var left = (e.clientX - that.canvas.getBoundingClientRect().left) * 2;
                     var top = (e.clientY - that.canvas.getBoundingClientRect().top) * 2;
@@ -147,6 +149,9 @@
                 }
             })
             $(document).mouseup(function(e) {
+                if(that.opeclass == 'addword'){
+                    that.$el.find(".text").show();
+                }
                 if (mousedown) {
                     var left = (e.clientX - that.canvas.getBoundingClientRect().left) * 2;
                     var top = (e.clientY - that.canvas.getBoundingClientRect().top) * 2;
@@ -164,6 +169,7 @@
                         }
                     }
                     if (that.opeclass == 'addarrow') {
+                        that.$el.find('.imgbtns').show();
                         var left = (e.clientX - that.canvas.getBoundingClientRect().left) * 2;
                         var top = (e.clientY - that.canvas.getBoundingClientRect().top) * 2;
                         that.imgopeinfo.arrow.push({
@@ -261,7 +267,6 @@
                         that.$el.find(".textstyle .linewidthdiv").show();
                     }
                     if (id == 'addword') {
-                        that.$el.find(".text").show();
                         that.$el.find(".textstyle").show();
                         that.$el.find(".textstyle .selectdiv").show();
                         that.$el.find(".textstyle .linewidthdiv").hide();
@@ -310,13 +315,13 @@
                             font: that.fontstyle.font,
                             fillStyle: that.fontstyle.fillStyle
                         })
-                        that.opeclass = '';
                         that.$el.find(".text").val('').hide();
                     }
                 }
                 that.redrawimg();
                 that.$el.find(".text").hide();
                 that.$el.children('.confirm').hide();
+                that.$el.find('.imgbtns').show();
             })
         },
         doclip: function() {

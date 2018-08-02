@@ -13,6 +13,7 @@
             hue:{x0:this.size.width*9.5/10, y0:0, x1:this.size.width/10, y1:this.size.height/2},
             lightsat:{x0:0, y0:0, x1:this.size.width*9.2/10, y1:this.size.height/2},
             opacity:{x0:0,y0:this.size.height*1.02/2,x1:this.size.width,y1:20},
+            opacitybar:{x0:0, y0:this.size.height*1.02/2-4,x1:15,y1:this.size.height*1.02/2+24},
             cur:{x0:0,y0:30+this.size.height*1.02/2,x1:this.size.height/3,y1:this.size.height/3}
         };
         this.posinfo={
@@ -100,8 +101,17 @@
             this.ctx.fillStyle = grd2;
             this.ctx.fillRect(this.position.opacity.x0,this.position.opacity.y0,this.position.opacity.x1,this.position.opacity.y1);
 
-            // this.ctx.fillStyle="#000";
-            // this.ctx.fillRect(this.position.huebar.x0,this.position.huebar.y0,this.position.huebar.x1,this.position.huebar.y1);
+            this.ctx.beginPath();
+            this.ctx.lineCap="round";
+            this.ctx.strokeStyle="rgba(0,0,0,.6)";
+            this.ctx.fillStyle="red";
+            this.ctx.lineWidth=this.position.opacitybar.x1;
+            this.ctx.moveTo(this.position.opacitybar.x0,this.position.opacitybar.y0);
+            this.ctx.lineTo(this.position.opacitybar.x0+this.position.opacitybar.x1,this.position.opacitybar.y0);
+            this.ctx.stroke();
+            this.ctx.closePath();
+            this.ctx.fill();
+
             this.ctx.restore();
         },
         addrecthue:function(){

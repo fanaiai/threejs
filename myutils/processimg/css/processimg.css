@@ -226,5 +226,6 @@ padding-top: 5px;
 .processimg .colorpicker{
     width:100%;
     height: 100px;
+    display: none;
     background: blue;
 }
