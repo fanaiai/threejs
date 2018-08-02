@@ -124,7 +124,7 @@
     display: none;
     padding: 3px;
     cursor: pointer;
-    border-radius: 3px;
+    border-radius: 2px;
 }
 
 .processimg.confirm>span {
@@ -133,7 +133,7 @@
 }
 
 .processimg.confirm>span:hover {
-    background: rgb(113, 110, 110);
+    background: rgb(42, 41, 41);
 }
 
 .processimg .textstyle {
