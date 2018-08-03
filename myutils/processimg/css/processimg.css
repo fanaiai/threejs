@@ -51,7 +51,7 @@
 }
 
 .processimg .addselection:before {
-    background-position: -76px 0;
+    background-position: -74px 0;
 }
 
 .processimg>.confirmbtn:before {
@@ -98,7 +98,7 @@
 
 .processimg.imgbtns a.on,
 .processimg.imgbtns a:hover {
-    background: rgb(113, 110, 110);
+    background: rgb(93, 90, 90);
 }
 
 .processimg.text {
