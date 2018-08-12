@@ -6,6 +6,7 @@
       canvas{
          width: 600px;
          height: 400px;
+         border:1px solid #ccc;
          /*background: red;*/
       }
    </style>
@@ -17,22 +18,31 @@
 		</canvas>
 	</div>
 	<script id="vertex-shader" type="notjs">
-		attribute vec4 a_position;
+      attribute vec2 a_position;
+      uniform vec2 u_resolution;
 		void main(){
-		gl_Position=a_position;
+      vec2 zeroToOne=a_position/u_resolution;
+
+      vec2 zeroToTwo=zeroToOne * 2.0;
+      vec2 clipSpace=zeroToTwo - 1.0;
+
+		gl_Position=vec4(clipSpace,0,1);
 	}
 	</script>
 	<script id="fragment-shader" type="notjs">
-		precision medium float;
+		precision mediump float;
 		void main(){
-		gl_FragColor=vect4(1,0,0.5,1);
+		gl_FragColor=vec4(1,0,0.5,1);
 	}
 	</script>
 </body>
 <script>
    var canvas=document.getElementById("c");
+   canvas.width=1200;
+   canvas.height=800;
    var gl=canvas.getContext("webgl");
-   if(!gl){
+   console.log(gl)
+   if(gl){
    		function createShader(gl,type,source){
    			var shader=gl.createShader(type);
    			gl.shaderSource(shader,source);
@@ -44,14 +54,14 @@
    			console.log(gl.getShaderInfoLog(shader));
    			gl.deleteShader(shader);
    		}
-   		var vertexShaderSource=document.getElementById("vertext-shader").text;
+   		var vertexShaderSource=document.getElementById("vertex-shader").text;
    		var fragmentShaderSource=document.getElementById("fragment-shader").text;
    		var vertexShader=createShader(gl,gl.VERTEX_SHADER,vertexShaderSource);
    		var fragmentShader=createShader(gl,gl.FRAGMENT_SHADER,fragmentShaderSource);
 
    		function createProgram(gl,vertexShader,fragmentShader){
    			var program=gl.createProgram();
-   			gl.attachShader(program,vertextShader);
+   			gl.attachShader(program,vertexShader);
    			gl.attachShader(program,fragmentShader);
    			gl.linkProgram(program);
    			var success=gl.getProgramParameter(program,gl.LINK_STATUS);
@@ -62,7 +72,7 @@
    			gl.deleteProgram(program);
    		}
 
-   		var program=createProgram(gl,vertextShader,fragmentShader);
+   		var program=createProgram(gl,vertexShader,fragmentShader);
    		var positionAttributeLocation=gl.getAttribLocation(program,"a_position");
          var positionBuffer=gl.createBuffer();
          gl.bindBuffer(gl.ARRAY_BUFFER,positionBuffer);
@@ -72,11 +82,11 @@
             0,0.5,
             0.7,0,
          ];
-         gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(positions),gl.gl.STATIC_DRAW);
+         gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(positions),gl.STATIC_DRAW);
 
          gl.viewport(0,0,gl.canvas.width,gl.canvas.height);
-         gl.clearColor(0,0,0,1);
-         gl.clear(gl.gl.COLOR_BUFFER_BIT);
+         gl.clearColor(255,255,255,1);
+         gl.clear(gl.COLOR_BUFFER_BIT);
          gl.useProgram(program);
          gl.enableVertexAttribArray(positionAttributeLocation);
          gl.bindBuffer(gl.ARRAY_BUFFER,positionBuffer);
@@ -88,7 +98,7 @@
          var offset=0;
          gl.vertexAttribPointer(positionAttributeLocation,size,type,normalize,stride,offset);
 
-         var primitiveType=gl.gl.TRIANGLES;
+         var primitiveType=gl.TRIANGLES;
          var offset=0;
          var count=3;
          gl.drawArrays(primitiveType  ,offset,count);
