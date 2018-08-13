@@ -27,22 +27,19 @@
       vec2 zeroToTwo=zeroToOne * 2.0;
       vec2 clipSpace=zeroToTwo - 1.0;
 
-		gl_Position=vec4(clipSpace,0,1);
+		gl_Position=vec4(clipSpace*vec2(1,-1),0,1);
 	}
 	</script>
 	<script id="fragment-shader" type="notjs">
 		precision mediump float;
+
+      uniform vec4 u_color;
 		void main(){
-		gl_FragColor=vec4(1,0,0.5,1);
+		gl_FragColor=vec4(100,100,0,1);
 	}
 	</script>
 </body>
 <script>
-   var j='{\"pathobj\":{\"curpath\":[],\"similarpath\":{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI\"},\"editedpath\":[],\"parentpaths\":[{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(1)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(1)\"},{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(2)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(2)\"},{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(3)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(3)\"},{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(4)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(4)\"},{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(5)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(5)\"},{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(6)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(6)\"},{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(7)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(7)\"},{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(8)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(8)\"},{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(9)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(9)\"},{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(10)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(10)\"},{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(11)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(11)\"},{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(12)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(12)\"},{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(13)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(13)\"},{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(14)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(14)\"},{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(15)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(15)\"}],\"processedpaths\":[{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI\",\"DIV.msgs:nth-of-type(1)\",\"STRONG:nth-of-type(1)\",\"A:nth-of-type(1)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI>DIV.msgs:nth-of-type(1)>STRONG:nth-of-type(1)>A:nth-of-type(1)\"},{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI\",\"DIV.msgs:nth-of-type(1)\",\"P.p1:nth-of-type(1)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI>DIV.msgs:nth-of-type(1)>P.p1:nth-of-type(1)\"},{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI\",\"DIV.msgs:nth-of-type(1)\",\"P:nth-of-type(2)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI>DIV.msgs:nth-of-type(1)>P:nth-of-type(2)\"},{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI\",\"DIV.some:nth-of-type(2)\",\"CITE:nth-of-type(1)\",\"FONT:nth-of-type(1)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI>DIV.some:nth-of-type(2)>CITE:nth-of-type(1)>FONT:nth-of-type(1)\"},{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI\",\"DIV.some:nth-of-type(2)\",\"P:nth-of-type(1)\",\"B.newPj_v:nth-of-type(1)\",\"I:nth-of-type(1)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI>DIV.some:nth-of-type(2)>P:nth-of-type(1)>B.newPj_v:nth-of-type(1)>I:nth-of-type(1)\"},{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI\",\"DIV.some:nth-of-type(2)\",\"A:nth-of-type(1)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI>DIV.some:nth-of-type(2)>A:nth-of-type(1)\"}],\"cleaningpath\":[],\"pagepaths\":[{\"patharray\":[\"A.next\"],\"pathstring\":\"A.next\"}]},\"step\":3,\"extra\":1,\"selectsimilar\":true,\"contentsimilar\":true,\"similarpath\":{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI\"},\"similarpaths\":{\"0\":{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(1)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(1)\"},\"1\":{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(2)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(2)\"},\"2\":{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(3)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(3)\"},\"3\":{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(4)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(4)\"},\"4\":{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(5)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(5)\"},\"5\":{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(6)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(6)\"},\"6\":{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(7)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(7)\"},\"7\":{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(8)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(8)\"},\"8\":{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(9)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(9)\"},\"9\":{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(10)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(10)\"},\"10\":{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(11)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(11)\"},\"11\":{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(12)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(12)\"},\"12\":{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(13)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(13)\"},\"13\":{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(14)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(14)\"},\"14\":{\"patharray\":[\"UL.search_ul.search_ul_yb\",\"LI:nth-of-type(15)\"],\"pathstring\":\"UL.search_ul.search_ul_yb>LI:nth-of-type(15)\"}},\"extratmp\":{\"col_name\":\"生产厂商\",\"col_extract_method\":\"csspath\",\"css_val\":\"TEXT\",\"field_type\":\"STRING\",\"col_extract_expr\":\"UL.search_ul.search_ul_yb>LI>DIV.msgs:nth-of-type(1)>P:nth-of-type(2)\",\"col_attr\":\"\",\"clean_expr\":[],\"need_download\":0,\"download_img\":0,\"clean_regex\":{\"clean_type\":\"0\",\"replace_from\":\"\\[,生产厂商,\\]\",\"replace_to\":\"\",\"split_ch\":\" \\s+\",\"index\":\"1\",\"reg_pattern\":\"[^\\]]*\\](.+)$\",\"group_exp\":\"$1\"},\"ajax\":false},\"postData\":[{\"col_name\":\"药品名称\",\"col_extract_method\":\"csspath\",\"css_val\":\"TEXT\",\"field_type\":\"STRING\",\"col_extract_expr\":\"UL.search_ul.search_ul_yb>LI>DIV.msgs:nth-of-type(1)>STRONG:nth-of-type(1)>A:nth-of-type(1)\",\"col_attr\":\"\",\"clean_expr\":\"\",\"need_download\":0,\"download_img\":0,\"clean_regex\":{\"clean_type\":0,\"replace_from\":\"\",\"replace_to\":\"\",\"split_ch\":\"\",\"index\":\"\",\"reg_pattern\":\"\",\"group_exp\":\"\"},\"ajax\":false},{\"col_name\":\"用途\",\"col_extract_method\":\"csspath\",\"css_val\":\"TEXT\",\"field_type\":\"STRING\",\"col_extract_expr\":\"UL.search_ul.search_ul_yb>LI>DIV.msgs:nth-of-type(1)>P.p1:nth-of-type(1)\",\"col_attr\":\"\",\"clean_expr\":\"\",\"need_download\":0,\"download_img\":0,\"clean_regex\":{\"clean_type\":0,\"replace_from\":\"\",\"replace_to\":\"\",\"split_ch\":\"\",\"index\":\"\",\"reg_pattern\":\"\",\"group_exp\":\"\"},\"ajax\":false},{\"col_name\":\"生产厂商\",\"col_extract_method\":\"csspath\",\"css_val\":\"TEXT\",\"field_type\":\"STRING\",\"col_extract_expr\":\"UL.search_ul.search_ul_yb>LI>DIV.msgs:nth-of-type(1)>P:nth-of-type(2)\",\"col_attr\":\"\",\"clean_expr\":\"\",\"need_download\":0,\"download_img\":0,\"clean_regex\":{\"clean_type\":\"3\",\"replace_from\":\"\\[,生产厂商,\\]\",\"replace_to\":\"\",\"split_ch\":\" \\s+\",\"index\":\"1\",\"reg_pattern\":\"[^\\]]*\\](.+)$\",\"group_exp\":\"$1\"},\"ajax\":false},{\"col_name\":\"参考价格\",\"col_extract_method\":\"csspath\",\"css_val\":\"TEXT\",\"field_type\":\"STRING\",\"col_extract_expr\":\"UL.search_ul.search_ul_yb>LI>DIV.some:nth-of-type(2)>CITE:nth-of-type(1)>FONT:nth-of-type(1)\",\"col_attr\":\"\",\"clean_expr\":\"\",\"need_download\":0,\"download_img\":0,\"clean_regex\":{\"clean_type\":0,\"replace_from\":\"\",\"replace_to\":\"\",\"split_ch\":\"\",\"index\":\"\",\"reg_pattern\":\"\",\"group_exp\":\"\"},\"ajax\":false},{\"col_name\":\"评论数\",\"col_extract_method\":\"csspath\",\"css_val\":\"TEXT\",\"field_type\":\"STRING\",\"col_extract_expr\":\"UL.search_ul.search_ul_yb>LI>DIV.some:nth-of-type(2)>P:nth-of-type(1)>B.newPj_v:nth-of-type(1)>I:nth-of-type(1)\",\"col_attr\":\"\",\"clean_expr\":\"\",\"need_download\":0,\"download_img\":0,\"clean_regex\":{\"clean_type\":0,\"replace_from\":\"\",\"replace_to\":\"\",\"split_ch\":\"\",\"index\":\"\",\"reg_pattern\":\"\",\"group_exp\":\"\"},\"ajax\":false},{\"col_name\":\"药店数量\",\"col_extract_method\":\"csspath\",\"css_val\":\"TEXT\",\"field_type\":\"STRING\",\"col_extract_expr\":\"UL.search_ul.search_ul_yb>LI>DIV.some:nth-of-type(2)>A:nth-of-type(1)\",\"col_attr\":\"\",\"clean_expr\":\"\",\"need_download\":0,\"download_img\":0,\"clean_regex\":{\"clean_type\":0,\"replace_from\":\"\",\"replace_to\":\"\",\"split_ch\":\"\",\"index\":\"\",\"reg_pattern\":\"\",\"group_exp\":\"\"},\"ajax\":false}],\"pageData\":{\"type\":\"click\",\"interval\":100,\"times\":1,\"eventeffect\":\"reload\",\"col_extract_expr\":\"A.next\",\"waitcss\":\"\"},\"attrs\":[]}';
-   var t={"a":"\\\[生产厂商\\\]"};
-   console.log((JSON.stringify(t)));
-   var json=JSON.parse(decodeURI("{\"replace_from\":\"\\\\[,生产厂商,\\\\]\"}"));
-   console.log(json)
    var canvas=document.getElementById("c");
    canvas.width=1200;
    canvas.height=800;
@@ -50,25 +47,48 @@
    console.log(gl)
    if(gl){
    		function createShader(gl,type,source){
+
+            //创建一个shader
    			var shader=gl.createShader(type);
+
+            //为这个shader添加数据源
    			gl.shaderSource(shader,source);
+
+            //编译shader
    			gl.compileShader(shader);
+
+            //获取着色器的参数
    			var success=gl.getShaderParameter(shader,gl.COMPILE_STATUS);
    			if(success){
+               //返回着色器
    				return shader;
    			}
    			console.log(gl.getShaderInfoLog(shader));
    			gl.deleteShader(shader);
    		}
+
+         //获取顶点着色器内容
    		var vertexShaderSource=document.getElementById("vertex-shader").text;
+
+         //获取片段着色器内容
    		var fragmentShaderSource=document.getElementById("fragment-shader").text;
+
+         //创建顶点着色器
    		var vertexShader=createShader(gl,gl.VERTEX_SHADER,vertexShaderSource);
+
+         //创建片段着色器
    		var fragmentShader=createShader(gl,gl.FRAGMENT_SHADER,fragmentShaderSource);
 
    		function createProgram(gl,vertexShader,fragmentShader){
+
+            //创建着色程序
    			var program=gl.createProgram();
+
+            //添加定义好的顶点着色器和片段着色器
    			gl.attachShader(program,vertexShader);
    			gl.attachShader(program,fragmentShader);
+
+            //将顶点着色器和片段着色器链接到一起
    			gl.linkProgram(program);
    			var success=gl.getProgramParameter(program,gl.LINK_STATUS);
    			if(success){
@@ -78,24 +98,49 @@
    			gl.deleteProgram(program);
    		}
 
+         //创建着色器程序
    		var program=createProgram(gl,vertexShader,fragmentShader);
+
+
+         //为着色器添加一个属性
    		var positionAttributeLocation=gl.getAttribLocation(program,"a_position");
+
+         //为着色器添加另一个属性
+         var resolutionUniformLocation=gl.getUniformLocation(program, "u_resolution");
+
+         //创建一个缓冲区
          var positionBuffer=gl.createBuffer();
+
+         //绑定缓冲区https://www.cnblogs.com/dbylk/p/4492306.html
          gl.bindBuffer(gl.ARRAY_BUFFER,positionBuffer);
 
+         //定义数据
          var positions=[
             0,0,
-            0,0.5,
-            0.7,0,
+            100,100,
+            100,0,
+            0,100,
+            0,0,
+            100,100,
          ];
+
+         //向缓冲区存放数据
          gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(positions),gl.STATIC_DRAW);
 
+
+         //以下代码为渲染代码，次次执行
+         //设置canvas可视区尺寸
          gl.viewport(0,0,gl.canvas.width,gl.canvas.height);
          gl.clearColor(255,255,255,1);
          gl.clear(gl.COLOR_BUFFER_BIT);
+
+         //应用着色程序
          gl.useProgram(program);
+         //启用定义的属性
          gl.enableVertexAttribArray(positionAttributeLocation);
+         // 将绑定点绑定到缓冲数据（positionBuffer）
          gl.bindBuffer(gl.ARRAY_BUFFER,positionBuffer);
+
 
          var size=2;
          var type=gl.FLOAT;
@@ -104,9 +149,10 @@
          var offset=0;
          gl.vertexAttribPointer(positionAttributeLocation,size,type,normalize,stride,offset);
 
+         gl.uniform2f(resolutionUniformLocation,gl.canvas.width,gl.canvas.height);
          var primitiveType=gl.TRIANGLES;
          var offset=0;
-         var count=3;
+         var count=6;
          gl.drawArrays(primitiveType  ,offset,count);
          
    }
