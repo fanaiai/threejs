@@ -3,6 +3,8 @@
 <head>
 	<title></title>
    <meta charset="utf-8">
+   <script type="text/javascript" src="utils/webgl-utils.js"></script>
+   <script type="text/javascript" src="utils/webgl-lessons-ui.js"></script>
    <style type="text/css">
       canvas{
          width: 600px;
@@ -21,21 +23,22 @@
 	<script id="vertex-shader" type="notjs">
       attribute vec2 a_position;
       uniform vec2 u_resolution;
-		void main(){
+      
+      //定义一个可变量，给片段着色器传值
+      varying vec4 v_color; 
+		  void main(){
       vec2 zeroToOne=a_position/u_resolution;
 
       vec2 zeroToTwo=zeroToOne * 2.0;
       vec2 clipSpace=zeroToTwo - 1.0;
 
-		gl_Position=vec4(clipSpace*vec2(1,-1),0,1);
+		  gl_Position=vec4(clipSpace*vec2(1,-1),0,1);
 	}
 	</script>
-	<script id="fragment-shader" type="notjs">
+	<script id="fragment-shader" type="x-shader/x-fragment">
 		precision mediump float;
-
-      uniform vec4 u_color;
 		void main(){
-		gl_FragColor=vec4(100,100,0,1);
+     gl_FragColor = vec4(0.7,0.5,0, 1.0);
 	}
 	</script>
 </body>
@@ -43,119 +46,74 @@
    var canvas=document.getElementById("c");
    canvas.width=1200;
    canvas.height=800;
-   var gl=canvas.getContext("webgl");
-   console.log(gl)
-   if(gl){
-   		function createShader(gl,type,source){
-
-            //创建一个shader
-   			var shader=gl.createShader(type);
-
-            //为这个shader添加数据源
-   			gl.shaderSource(shader,source);
-
-            //编译shader
-   			gl.compileShader(shader);
-
-            //获取着色器的参数
-   			var success=gl.getShaderParameter(shader,gl.COMPILE_STATUS);
-   			if(success){
-               //返回着色器
-   				return shader;
-   			}
-   			console.log(gl.getShaderInfoLog(shader));
-   			gl.deleteShader(shader);
-   		}
-
-         //获取顶点着色器内容
-   		var vertexShaderSource=document.getElementById("vertex-shader").text;
-
-         //获取片段着色器内容
-   		var fragmentShaderSource=document.getElementById("fragment-shader").text;
-
-         //创建顶点着色器
-   		var vertexShader=createShader(gl,gl.VERTEX_SHADER,vertexShaderSource);
-
-         //创建片段着色器
-   		var fragmentShader=createShader(gl,gl.FRAGMENT_SHADER,fragmentShaderSource);
-
-   		function createProgram(gl,vertexShader,fragmentShader){
-
-            //创建着色程序
-   			var program=gl.createProgram();
-
-            //添加定义好的顶点着色器和片段着色器
-   			gl.attachShader(program,vertexShader);
-   			gl.attachShader(program,fragmentShader);
-
-            //将顶点着色器和片段着色器链接到一起
-   			gl.linkProgram(program);
-   			var success=gl.getProgramParameter(program,gl.LINK_STATUS);
-   			if(success){
-   				return program;
-   			}
-   			console.log(gl.getProgramInfoLog(program));
-   			gl.deleteProgram(program);
-   		}
-
-         //创建着色器程序
-   		var program=createProgram(gl,vertexShader,fragmentShader);
-
-
-         //为着色器添加一个属性
-   		var positionAttributeLocation=gl.getAttribLocation(program,"a_position");
-
-         //为着色器添加另一个属性
-         var resolutionUniformLocation=gl.getUniformLocation(program, "u_resolution");
-
-         //创建一个缓冲区
-         var positionBuffer=gl.createBuffer();
-
-         //绑定缓冲区https://www.cnblogs.com/dbylk/p/4492306.html
-         gl.bindBuffer(gl.ARRAY_BUFFER,positionBuffer);
-
-         //定义数据
-         var positions=[
-            0,0,
-            100,100,
-            100,0,
-            0,100,
-            0,0,
-            100,100,
-         ];
-
-         //向缓冲区存放数据
-         gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(positions),gl.STATIC_DRAW);
-
-
-         //以下代码为渲染代码，次次执行
-         //设置canvas可视区尺寸
-         gl.viewport(0,0,gl.canvas.width,gl.canvas.height);
-         gl.clearColor(255,255,255,1);
-         gl.clear(gl.COLOR_BUFFER_BIT);
-
-         //应用着色程序
-         gl.useProgram(program);
-         //启用定义的属性
-         gl.enableVertexAttribArray(positionAttributeLocation);
-         // 将绑定点绑定到缓冲数据（positionBuffer）
-         gl.bindBuffer(gl.ARRAY_BUFFER,positionBuffer);
-
-
-         var size=2;
-         var type=gl.FLOAT;
-         var normalize=false;
-         var stride=0;
-         var offset=0;
-         gl.vertexAttribPointer(positionAttributeLocation,size,type,normalize,stride,offset);
-
-         gl.uniform2f(resolutionUniformLocation,gl.canvas.width,gl.canvas.height);
-         var primitiveType=gl.TRIANGLES;
-         var offset=0;
-         var count=6;
-         gl.drawArrays(primitiveType  ,offset,count);
-         
+   main();
+   function main(){
+      var image=new Image();
+      image.src="img/002.jpg";
+      image.onload=function(){
+         render(image);
+      }
    }
+
+   function render(image){
+      var gl=canvas.getContext("webgl");
+      var program = webglUtils.createProgramFromScripts(
+  gl, ["vertex-shader", "fragment-shader"]);
+
+      var positionLocation=gl.getAttribLocation(program,"a_position");
+
+      var positionBuffer=gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER,positionBuffer);
+
+      setRectangle(gl,20,30,200,200);
+
+      var resolutionLocation=gl.getUniformLocation(program,"u_resolution");
+
+      
+   }
+
+   function drawScene(gl,program){
+      webglUtils.resizeCanvasToDisplaySize(gl.canvas);
+      gl.viewport(0,0,gl.canvas.width,gl.canvas.height);
+
+      gl.clearColor(0,0,0,0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+
+      gl.useProgram(program);
+      gl.enableVertexAttribArray(positionLocation);
+      gl.bindBuffer(gl.ARRAY_BUFFER,positionBuffer);
+
+      var size=2;
+      var type=gl.FLOAT;
+      var normalize=false;
+      var stride=0;
+      var offset=0;
+      gl.vertexAttribPointer(positionLocation,size,type,normalize,stride,offset);
+
+      gl.uniform2f(resolutionLocation,gl.canvas.width,gl.canvas.height);
+
+      var primitiveType=gl.TRIANGLES;
+      var offset=0;
+      var count=6;
+      gl.drawArrays(primitiveType,offset,count);
+   }
+
+   function setRectangle(gl,x,y,width,height){
+      var x1=x;
+      var x2=x+width;
+      var y1=y;
+      var y2=y+height;
+      gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([
+        x1, y1,
+        x2, y1,
+        x1, y2,
+        x1, y2,
+        x2, y1,
+        x2, y2,
+         ]),gl.STATIC_DRAW);
+   }
+   
+   
 </script>
 
 </html>
