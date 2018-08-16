@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="utils/webgl-utils.js"></script>
+    <script type="text/javascript" src="../jquery.min.js"></script>
+    <script type="text/javascript" src="utils/webgl-lessons-ui.js"></script>
+    <style type="text/css">
+    body {
+        background: #eee;
+    }
+
+    body>div {
+        text-align: center;
+        position: relative;
+        margin-top: 70px;
+    }
+
+    canvas {
+        width: 600px;
+        height: 400px;
+        border: 1px solid #ccc;
+        background: #fff;
+        margin: 0 auto;
+    }
+
+    #ui {
+        position: absolute;
+        top: 0;
+        left: 80%;
+        width: 250px;
+    }
+    .gman-widget-outer>div,.gman-widget-outer>input{
+      display: inline-block;
+    }
+    </style>
+</head>
+
+<body>
+    <div>
+        <canvas id="c">
+        </canvas>
+        <div id="uiContainer">
+            <div id="ui">
+                <div id="x"></div>
+                <div id="y"></div>
+                <div id="angle"></div>
+                <div id="scaleX"></div>
+                <div id="scaleY"></div>
+            </div>
+        </div>
+    </div>
+    <script id="vertex-shader" type="x-shader/x-vertex">
+    attribute vec2 a_position;
+    uniform vec2 u_resolution;
+    uniform mat3 u_matrix;
+
+    void main() {
+        vec2 position=(u_matrix*vec3(a_position,1)).xy;
+        vec2 zeroToOne=position/u_resolution;
+        vec2 zeroToTwo=zeroToOne*2.0;
+        vec2 clipSpace=zeroToTwo-1.0;
+
+        gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
+    }
+    </script>
+    <script id="fragment-shader" type="x-shader/x-fragment">
+      precision mediump float;
+
+      uniform vec4 u_color;
+
+      void main() {
+         gl_FragColor = u_color;
+      }
+    </script>
+</body>
+<script>
+var canvas = document.getElementById("c");
+canvas.width = 1200;
+canvas.height = 800;
+var m3 = {
+  translation: function(tx, ty) {
+    return [
+      1, 0, 0,
+      0, 1, 0,
+      tx, ty, 1,
+    ];
+  },
+
+  rotation: function(angleInRadians) {
+    var c = Math.cos(angleInRadians);
+    var s = Math.sin(angleInRadians);
+    return [
+      c,-s, 0,
+      s, c, 0,
+      0, 0, 1,
+    ];
+  },
+
+  scaling: function(sx, sy) {
+    return [
+      sx, 0, 0,
+      0, sy, 0,
+      0, 0, 1,
+    ];
+  },
+
+  multiply: function(a, b) {
+    var a00 = a[0 * 3 + 0];
+    var a01 = a[0 * 3 + 1];
+    var a02 = a[0 * 3 + 2];
+    var a10 = a[1 * 3 + 0];
+    var a11 = a[1 * 3 + 1];
+    var a12 = a[1 * 3 + 2];
+    var a20 = a[2 * 3 + 0];
+    var a21 = a[2 * 3 + 1];
+    var a22 = a[2 * 3 + 2];
+    var b00 = b[0 * 3 + 0];
+    var b01 = b[0 * 3 + 1];
+    var b02 = b[0 * 3 + 2];
+    var b10 = b[1 * 3 + 0];
+    var b11 = b[1 * 3 + 1];
+    var b12 = b[1 * 3 + 2];
+    var b20 = b[2 * 3 + 0];
+    var b21 = b[2 * 3 + 1];
+    var b22 = b[2 * 3 + 2];
+    return [
+      b00 * a00 + b01 * a10 + b02 * a20,
+      b00 * a01 + b01 * a11 + b02 * a21,
+      b00 * a02 + b01 * a12 + b02 * a22,
+      b10 * a00 + b11 * a10 + b12 * a20,
+      b10 * a01 + b11 * a11 + b12 * a21,
+      b10 * a02 + b11 * a12 + b12 * a22,
+      b20 * a00 + b21 * a10 + b22 * a20,
+      b20 * a01 + b21 * a11 + b22 * a21,
+      b20 * a02 + b21 * a12 + b22 * a22,
+    ];
+  },
+};
+var m4 = {
+  translation: function(tx, ty, tz) {
+    return [
+       1,  0,  0,  0,
+       0,  1,  0,  0,
+       0,  0,  1,  0,
+       tx, ty, tz, 1,
+    ];
+  },
+ 
+  xRotation: function(angleInRadians) {
+    var c = Math.cos(angleInRadians);
+    var s = Math.sin(angleInRadians);
+ 
+    return [
+      1, 0, 0, 0,
+      0, c, s, 0,
+      0, -s, c, 0,
+      0, 0, 0, 1,
+    ];
+  },
+ 
+  yRotation: function(angleInRadians) {
+    var c = Math.cos(angleInRadians);
+    var s = Math.sin(angleInRadians);
+ 
+    return [
+      c, 0, -s, 0,
+      0, 1, 0, 0,
+      s, 0, c, 0,
+      0, 0, 0, 1,
+    ];
+  },
+ 
+  zRotation: function(angleInRadians) {
+    var c = Math.cos(angleInRadians);
+    var s = Math.sin(angleInRadians);
+ 
+    return [
+       c, s, 0, 0,
+      -s, c, 0, 0,
+       0, 0, 1, 0,
+       0, 0, 0, 1,
+    ];
+  },
+ 
+  scaling: function(sx, sy, sz) {
+    return [
+      sx, 0,  0,  0,
+      0, sy,  0,  0,
+      0,  0, sz,  0,
+      0,  0,  0,  1,
+    ];
+  },
+};
+main();
+
+function main() {
+    var gl = canvas.getContext("webgl");
+    var program = webglUtils.createProgramFromScripts(
+        gl,["vertex-shader","fragment-shader"]);
+
+    var positionLocation = gl.getAttribLocation(program, "a_position");
+
+    var positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    var resolutionLocation = gl.getUniformLocation(program, "u_resolution");
+    var colorLocation = gl.getUniformLocation(program, "u_color");
+    var matrixLocation = gl.getUniformLocation(program, "u_matrix");
+
+
+    var translation = [0, 0];
+    var scale = [1, 1];
+    var angleInRadians = 0;
+    var width = 100;
+    var height = 30;
+    var color = [Math.random(), Math.random(), Math.random(), 1];
+
+
+    setGeometry(gl, 0, 0)
+    // setRectangle(gl,translation[0],translation[1],width,height);
+
+    drawScene();
+
+    webglLessonsUI.setupSlider("#x", { slide: updatePosition(0), max: gl.canvas.width });
+    webglLessonsUI.setupSlider("#y", { slide: updatePosition(1), max: gl.canvas.height });
+    webglLessonsUI.setupSlider("#angle", {slide: updateAngle, max: 360});
+  webglLessonsUI.setupSlider("#scaleX", {value: scale[0], slide: updateScale(0), min: -5, max: 5, step: 0.01, precision: 2});
+  webglLessonsUI.setupSlider("#scaleY", {value: scale[1], slide: updateScale(1), min: -5, max: 5, step: 0.01, precision: 2});
+    
+    function updatePosition(index) {
+        return function(event, ui) {
+            if (index == undefined) {
+                rotation = ui.value;
+            } else {
+                translation[index] = ui.value;
+            }
+            drawScene();
+        }
+    }
+    function updateAngle(event, ui) {
+    var angleInDegrees = 360 - ui.value;
+    angleInRadians = angleInDegrees * Math.PI / 180;
+    drawScene();
+  }
+
+  function updateScale(index) {
+    return function(event, ui) {
+      scale[index] = ui.value;
+      drawScene();
+    }
+  }
+
+    function drawScene() {
+        webglUtils.resizeCanvasToDisplaySize(gl.canvas);
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.useProgram(program);
+        gl.enableVertexAttribArray(positionLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        var size = 3;
+        var type = gl.FLOAT;
+        var normalize = false;
+        var stride = 0;
+        var offset = 0;
+        gl.vertexAttribPointer(positionLocation, size, type, normalize, stride, offset);
+        gl.uniform2f(resolutionLocation, gl.canvas.width, gl.canvas.height);
+        gl.uniform4f(colorLocation, color[0], color[1], color[2], color[3]);
+
+
+        var translationMatrix = m3.translation(translation[0], translation[1]);
+        var rotationMatrix = m3.rotation(angleInRadians);
+        var scaleMatrix = m3.scaling(scale[0], scale[1]);
+
+        var matrix=m3.multiply(translationMatrix,rotationMatrix);
+        matrix=m3.multiply(matrix,scaleMatrix);
+        gl.uniformMatrix3fv(matrixLocation,false,matrix);
+
+        var primitiveType = gl.TRIANGLES;
+        var offset = 0;
+        var count = 18;
+        gl.drawArrays(primitiveType, offset, count);
+
+    }
+}
+
+function setGeometry(gl, x, y) {
+    var width = 100;
+    var height = 150;
+    var thickness = 30;
+    gl.bufferData(
+        gl.ARRAY_BUFFER,
+        new Float32Array([
+           // 左竖
+            0,   0,  0,
+           30,   0,  0,
+            0, 150,  0,
+            0, 150,  0,
+           30,   0,  0,
+           30, 150,  0,
+ 
+           // 上横
+           30,   0,  0,
+          100,   0,  0,
+           30,  30,  0,
+           30,  30,  0,
+          100,   0,  0,
+          100,  30,  0,
+ 
+           // 下横
+           30,  60,  0,
+           67,  60,  0,
+           30,  90,  0,
+           30,  90,  0,
+           67,  60,  0,
+           67,  90,  0]),
+        gl.STATIC_DRAW);
+}
+
+function setRectangle(gl, x, y, width, height) {
+    var x1 = x;
+    var x2 = x + width;
+    var y1 = y;
+    var y2 = y + height;
+    gl.bufferData(
+        gl.ARRAY_BUFFER,
+        new Float32Array([
+            x1, y1,
+            x2, y1,
+            x1, y2,
+            x1, y2,
+            x2, y1,
+            x2, y2,
+        ]),
+        gl.STATIC_DRAW);
+}
+</script>
+
+</html>
