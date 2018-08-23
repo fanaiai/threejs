@@ -1,0 +1,105 @@
+.cloudnote{
+	max-width: 400px;
+	background: #a101a6;
+	color: #fff;
+	font-size: 14px;
+	padding:20px 15px;
+}
+.cloudnote .docname{
+	border:0;
+	border-bottom: 1px solid #fff;
+	width: 100%;
+	line-height:33px;
+	font-size: 18px;
+	margin-bottom: 10px;
+	background: none;
+	color: #fff;
+	outline: none;
+	padding:0 5px;
+	box-sizing: border-box;
+}
+input::-webkit-input-placeholder,textarea::-webkit-input-placeholder{
+	color: #fff;
+}
+.cloudnote .tree p{
+	line-height: 30px;
+	width: 100%;
+	background: #cf5fd3;
+	padding:0 5px;
+	box-sizing: border-box;
+	background: #cf5fd3;
+}
+.cloudnote .artcont{
+	max-height: 136px;
+	overflow: auto;
+	margin-top:10px;
+	margin-bottom: 10px;
+}
+
+.cloudnote .artcont>div{
+	height: 40px;
+	margin-bottom: 5px;
+	background: #fff;
+	border-radius: 4px;
+	color: #888;
+	padding:5px;
+	box-sizing: border-box;
+}
+.cloudnote .darkbtn,.cloudnote .whitebtn{
+	line-height: 30px;
+	padding:0 17px;
+	border-radius: 17px;
+	background: #cf5fd3;
+	display: inline-block;
+	font-size: 14px;
+	cursor: pointer;
+}
+.cloudnote .whitebtn{
+	background: #fff;
+	color: #a101a6;
+}
+.cloudnote .tagslist{
+	margin-bottom: 10px;
+}
+.cloudnote .tagslist>span{
+	background: rgb(187, 115, 189);
+	color: #fff;
+	padding:0 5px;
+	line-height: 24px;
+	margin-right: 5px;
+	margin-bottom: 5px;
+	border-radius: 2px;
+	    display: inline-block;
+}
+.cloudnote .tagslist input{
+	width: 100px;
+	border: 0;
+	background:  #cf5fd3;
+	line-height: 24px;
+	padding:0 5px;
+	box-sizing: border-box;
+}
+.cloudnote .tagslist>span.on{
+	background: #cf5fd3;
+}
+
+.cloudnote textarea{
+	width: 100%;
+	background: #cf5fd3;
+	padding:5px;
+	box-sizing: border-box;
+	outline: none;
+	border:0;
+	font-size: 14px;
+}
+.cloudnote section{
+	border-bottom: 1px solid #fff;
+	padding:15px 0;
+}
+.cloudnote section.btns{
+	border:0;
+	text-align: center;
+}
+.cloudnote section.btns a:first-child{
+	margin-right: 25px;
+}

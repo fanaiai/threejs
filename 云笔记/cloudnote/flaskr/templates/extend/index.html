@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>云笔记</title>
+	<link rel="stylesheet" type="text/css" href="/static/css/reset.css">
+	<link rel="stylesheet" type="text/css" href="/static/css/extend.css">
+	<script type="text/javascript" src="/static/vendor/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="/static/vendor/vue.js"></script>
+</head>
+<body>
+	<div class="container cloudnote" id="app" v-cloak>
+		<section class="content">
+			<input type="text" placeholder="文档标题" class="docname">
+			<div class="tree">
+				<p>我的文件夹1112dd2</p>
+			</div>
+			<div class="artcont">
+				<div>
+					<div class="info"><p>hahah</p></div>
+					<div class="opelist">
+						<a class="sprite up"></a>
+						<a class="sprite down"></a>
+						<a class="sprite delete"></a>
+					</div>
+				</div>
+				<div>
+					<div class="info"><p>hahah</p></div>
+					<div class="opelist">
+						<a class="sprite up"></a>
+						<a class="sprite down"></a>
+						<a class="sprite delete"></a>
+					</div>
+				</div>
+			</div>
+			<div class="ope clearfix">
+				<div class="addbtns fl">
+					<a class="sprite addtext"></a>
+					<a class="sprite addimg"></a>
+				</div>
+				<a class="darkbtn fr">预览</a>
+			</div>
+		</section>
+		<section class="tags">
+			<div class="tagslist">
+				<span>javascript</span>
+				<span>javascript</span>
+				<span>css</span>
+				<span class="on">javascript</span>
+				<input type="text" placeholder="添加标签">
+			</div>
+			<div class="desc">
+				<textarea placeholder="添加描述"></textarea>
+			</div>
+		</section>
+		<section class="btns">
+			<a class="darkbtn">保存</a>
+			<a class="whitebtn">去网页版</a>
+		</section>
+	</div>
+</body>
+<script type="text/javascript" src="/static/js/extend.js"></script>
+</html>

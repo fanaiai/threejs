@@ -1,0 +1,53 @@
+{
+    "manifest_version": 2,
+    "name": "简洁云笔记",
+    "description": "This extension allows the user to change the background color of the current page.",
+    "version": "1.0",
+    "browser_action":
+    {
+        // "default_icon": "img/ico.png",
+        // "default_popup": "popup.html",
+        "default_title": "简洁云笔记"
+    },
+    // "icons": { "16": "img/ico.png",
+    //        "48": "img/ico.png",
+    //       "128": "img/ico.png" },
+    "background":
+    {
+        // 2种指定方式，如果指定JS，那么会自动生成一个背景页
+        // "scripts": ["js/background.js"]
+    },
+    // "web_accessible_resources": ["js/inject.js"],
+    "content_scripts": [
+    {
+        // "matches": ["*://*/*"],
+        "matches": ["<all_urls>"],
+        "js": [
+            "vendor/jquery-3.2.1.min.js",
+            "vendor/layer/layer.js",
+            "vendor/vue.min.js",
+            "js/css-selector.js"
+            "js/high-light.js"
+            "js/index.js"
+        ],
+        "css": [
+            "vendor/layer/skin/layer.css",
+            "css/reset.css",
+            "css/extend.css"
+        ]
+        // ,
+        // "run_at": "document_start"
+    }],
+    "permissions": [
+        "contextMenus", // 右键菜单
+        "tabs", // 标签
+        "notifications", // 通知
+        "webRequest", // web请求
+        "webRequestBlocking", // 阻塞式web请求
+        "storage", // 插件本地存储
+        "http://*/*", // 可以通过executeScript或者insertCSS访问的网站
+        "https://*/*" // 可以通过executeScript或者insertCSS访问的网站
+    ]
+    // ,
+    // "devtools_page": "devtools.html"
+}
