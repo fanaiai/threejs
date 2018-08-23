@@ -1,3 +1,5 @@
-import functools
-int2=functools.partial(int,base=2)
-print(int2('100'))
+def application(environ,start_response):
+	start_response('200 OK',[('Content-Type','text/html')])
+	print(environ)
+	return [b'<h1>Hello,web!</h1>']
+
