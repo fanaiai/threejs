@@ -26,8 +26,8 @@
             "vendor/jquery-3.2.1.min.js",
             "vendor/layer/layer.js",
             "vendor/vue.min.js",
-            "js/css-selector.js"
-            "js/high-light.js"
+            "js/css-selector.js",
+            "js/high-light.js",
             "js/index.js"
         ],
         "css": [
